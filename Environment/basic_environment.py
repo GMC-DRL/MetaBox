@@ -22,10 +22,12 @@ class PBO_Env(Env):
                  FEs):
         Env.__init__(self, problem_instance)
         self.dim = dim
-        self.lower_bound = lower_bound
-        self.upper_bound = upper_bound
-        self.population_size = population_size
+        self.lb = lower_bound
+        self.ub = upper_bound
+        self.NP = population_size
         self.FEs = FEs
+        self.population = None
+        self.cost = None
 
     def reset(self):
         pass
