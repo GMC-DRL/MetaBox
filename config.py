@@ -14,6 +14,7 @@ def get_config(args=None):
     parser.add_argument('--population_size', type=int, default=100)
     parser.add_argument('--FEs_interest', type=int, default=20000, help='FEs = FEs_interest * dim')
     parser.add_argument('--mutate_strategy', type=int, default=1, choices=[0, 1, 2])
+    parser.add_argument('--boundary_ctrl', default='clipping', choices=['clipping', 'random', 'reflection', 'periodic', 'halving', 'parent'], help='boundary control method')
 
     # Agent config
     parser.add_argument('--reward_definition', type=float, default=0., choices=[0., 0.1, 0.2, 3.1, 3.])
