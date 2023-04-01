@@ -53,6 +53,17 @@ class Problem:
         self.opt = self.shift
         self.optimum = self.func(self.get_optimal().reshape(1, -1))[0]
 
+    def eval(self, x):
+        """
+        A general version of func() with adaptation to evaluate both individual and population.
+        """
+        if x.ndim == 1:  # x is a single individual
+            return self.func(x.reshape(1, -1))[0]
+        elif x.ndim == 2:  # x is a whole population
+            return self.func(x)
+        else:
+            raise ArithmeticError('The input should be an array of 1 or 2 dimensions.')
+
     def func(self, x):
         return 0
 
