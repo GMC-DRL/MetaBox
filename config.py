@@ -20,5 +20,6 @@ def get_config(args=None):
     parser.add_argument('--reward_definition', type=float, default=0., choices=[0., 0.1, 0.2, 3.1, 3.])
 
     config = parser.parse_args(args)
+    config.FEs = config.FEs_interest * config.dim
 
     return config
