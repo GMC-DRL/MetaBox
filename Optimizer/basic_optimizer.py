@@ -51,7 +51,7 @@ class DEAP_Optimizer_DE():
 
         self.fitnesses = self.toolbox.map(self.toolbox.evaluate, self.pop)
         for ind, fit in zip(self.pop, self.fitnesses):
-            ind.fitness.values = (fit,)
+            ind.fitness.values = (fit,)  # transform the *fit* into a tuple like (9.9,) to match the *base.Fitness* since the return of evaluation on individual is a scalar.
 
         record = self.stats.compile(self.pop)
         print(record)
@@ -64,7 +64,7 @@ class DEAP_Optimizer_DE():
                 for i, value in enumerate(agent):
                     if np.random.rand() < self.config.cr or i == index:
                         y[i] = a[i] + self.config.f*(b[i]-c[i])
-                y.fitness.values = (self.toolbox.evaluate(y),)
+                y.fitness.values = (self.toolbox.evaluate(y),)  # transform the fitness into a tuple like (9.9,) to match the *base.Fitness* since the return of evaluation on individual is a scalar.
                 if y.fitness.values[0] < agent.fitness.values[0]:
                     self.pop[k] = y
             record = self.stats.compile(self.pop)
