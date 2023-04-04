@@ -1,4 +1,4 @@
-from Optimizer.basic_optimizer import DEAP_Optimizer_DE
+from Optimizer.basic_optimizer import DEAP_Optimizer_DE,DEAP_Optimizer_baseDE
 from Problem.cec_dataset import Training_Dataset
 from config import get_config
 

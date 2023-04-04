@@ -226,6 +226,7 @@ class DE_env(PBO_Env):
 
         self.fes += self.NP
         # todo: get_feature的过程应该放在env里还是agent里？
+        # 放在agent里，agent的state就是env的feature，
         state = self.get_feature()
         reward = self.get_reward()
         is_done = self.fes >= self.FEs or self.cost.min() <= 1e-8
