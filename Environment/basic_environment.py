@@ -2,41 +2,32 @@ class Env:
     """
     Treated as a pure problem for traditional algorithms without any agent.
     """
-    def __init__(self, problem_instance):
-        self.problem_instance = problem_instance
-
-    def reset(self):
-        pass
-
-    def step(self, population):
-        return self.problem_instance.func(population)
+    def __init__(self, problem):
+        self.problem = problem
 
 
 class PBO_Env(Env):
+    """
+    Env with problem and optimizer.
+    """
     def __init__(self,
-                 problem_instance,
-                 dim,
-                 lower_bound,
-                 upper_bound,
-                 population_size,
-                 FEs):
-        Env.__init__(self, problem_instance)
-        self.dim = dim
-        self.lb = lower_bound
-        self.ub = upper_bound
-        self.NP = population_size
-        self.FEs = FEs
-        self.population = None
-        self.cost = None
+                 problem,
+                 optimizer,
+                 reward_func):
+        Env.__init__(self, problem)
+        self.optimizer = optimizer
+        self.reward_func = reward_func
 
     def reset(self):
-        pass
+        self.optimizer.init_population(self.problem)
 
     def step(self, action):
-        pass
+        parent_cost = self.optimizer.cost
+        self.optimizer.evolve(self.problem, action)
 
-    def get_feature(self):
-        pass
-
-    def get_reward(self):
-        pass
+        state = {'population': self.optimizer.population,
+                 'cost': self.optimizer.cost,
+                 'fes': self.optimizer.fes}
+        reward = self.reward_func(cur=self.optimizer.cost, parent=parent_cost, init=self.optimizer.init_cost)
+        is_done = self.optimizer.fes >= self.optimizer.FEs or self.optimizer.cost.min() <= 1e-8
+        return state, reward, is_done
