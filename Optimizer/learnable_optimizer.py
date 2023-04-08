@@ -11,17 +11,20 @@ class Learnable_Optimizer:
                  lower_bound,
                  upper_bound,
                  population_size,
-                 maxFEs):
+                 maxFEs,
+                 boundary_ctrl_method='clipping'):
         self.dim = dim
         self.lb = lower_bound
         self.ub = upper_bound
         self.NP = population_size
         self.maxFEs = maxFEs
+        self.boundary_ctrl_method = boundary_ctrl_method
 
         self.population = None
         self.cost = None
+        self.gbest_cost = None  # for the need of computing rewards
+        self.init_cost = None   # for the need of computing rewards
         self.fes = None
-        self.init_cost = None  # for the need of computing rewards
 
     def init_population(self, problem):
         """
@@ -29,87 +32,9 @@ class Learnable_Optimizer:
         """
         self.population = np.random.rand(self.NP, self.dim) * (self.ub - self.lb) + self.lb  # [lb, ub]
         self.cost = problem.eval(self.population) - problem.optimum
+        self.gbest_cost = self.cost.min().copy()
+        self.init_cost = self.cost.copy()
         self.fes = self.NP
-        self.init_cost = self.cost
-
-    def evolve(self, problem, action):
-        pass
-
-
-class DE(Learnable_Optimizer):
-    def __init__(self, dim, lower_bound, upper_bound, population_size, maxFEs,
-                 mutate_strategy='rand/1', boundary_ctrl_method='clipping',
-                 ):
-        super().__init__(dim, lower_bound, upper_bound, population_size, maxFEs)
-        self.mutate_strategy = mutate_strategy
-        self.boundary_ctrl_method = boundary_ctrl_method
-
-    def generate_random_int(self, cols, check_index=True):
-        """
-        :param cols: the number of random int generated for each individual.
-
-        :param check_index: whether to check the population indexes appeal in their own ''cols'' elements for each individual.
-               For example, if ''check_index'' is True, 0 won't appeal in any element in r[:, 0, :].
-
-        :return: a random int matrix in shape[''NP'', ''cols''], and elements are in a range of [0, ''population_size''-1].
-                 The ''cols'' elements at dimension[2] are different from each other.
-        """
-
-        r = np.random.randint(low=0, high=self.NP, size=(self.NP, cols))
-        # validity checking and modification for r
-        for col in range(0, cols):
-            while True:
-                is_repeated = [np.equal(r[:, col], r[:, i]) for i in range(col)]  # 检查当前列与其前面所有列有无重复
-                if check_index:
-                    is_repeated.append(np.equal(r[:, col], np.arange(self.NP)))  # 检查当前列是否与该个体编号重复
-                repeated_index = np.nonzero(np.any(np.stack(is_repeated), axis=0))[0]  # 获取重复随机数的个体下标
-                repeated_sum = repeated_index.size  # 重复随机数的个数
-                if repeated_sum != 0:
-                    r[repeated_index[:], col] = np.random.randint(low=0, high=self.NP, size=repeated_sum)  # 重新生成并替换
-                else:
-                    break
-        return r
-
-    def mutate(self, F):
-        """
-        :param F: An array of mutation factor of shape[NP].
-        :return: Population mutated.
-        """
-        F = np.array(F).reshape(-1, 1).repeat(self.dim, axis=-1)  # [NP, dim]
-        x = self.population
-        y = None
-
-        if self.mutate_strategy == 'rand/1':  # rand/1
-            r = self.generate_random_int(3)
-            y = x[r[:, 0]] + F * (x[r[:, 1]] - x[r[:, 2]])
-
-        elif self.mutate_strategy == 'rand2best/1':  # rand-to-best/1
-            r = self.generate_random_int(3)
-            y = x[r[:, 0]] + F * \
-                     (x[self.cost.argmin()].reshape(1, -1).repeat(self.NP, axis=0) - x[r[:, 0]] +
-                      x[r[:, 1]] - x[r[:, 2]])
-
-        elif self.mutate_strategy == 'rand2best/2':  # rand-to-best/2
-            r = self.generate_random_int(5)
-            y = x[r[:, 0]] + F * \
-                     (x[self.cost.argmin()].reshape(1, -1).repeat(self.NP, axis=0) - x[r[:, 0]] +
-                      x[r[:, 1]] - x[r[:, 2]] +
-                      x[r[:, 3]] - x[r[:, 4]])
-
-        elif self.mutate_strategy == 'cur2best/1':  # current-to-best/1
-            r = self.generate_random_int(2)
-            y = x + F * \
-                     (x[self.cost.argmin()].reshape(1, -1).repeat(self.NP, axis=0) - x +
-                      x[r[:, 0]] - x[r[:, 1]])
-
-        elif self.mutate_strategy == 'cur2best/2':  # current-to-best/2
-            r = self.generate_random_int(4)
-            y = x + F * \
-                     (x[self.cost.argmin()].reshape(1, -1).repeat(self.NP, axis=0) - x +
-                      x[r[:, 0]] - x[r[:, 1]] +
-                      x[r[:, 2]] - x[r[:, 3]])
-
-        return y
 
     def boundary_ctrl(self, x):
         y = None
@@ -143,6 +68,82 @@ class DE(Learnable_Optimizer):
 
         return y
 
+    def evolve(self, problem, action):
+        pass
+
+
+class DE(Learnable_Optimizer):
+    def __init__(self, dim, lower_bound, upper_bound, population_size, maxFEs, boundary_ctrl_method='clipping'):
+        super().__init__(dim, lower_bound, upper_bound, population_size, maxFEs, boundary_ctrl_method)
+
+    def generate_random_int(self, cols, check_index=True):
+        """
+        :param cols: the number of random int generated for each individual.
+
+        :param check_index: whether to check the population indexes appeal in their own ''cols'' elements for each individual.
+               For example, if ''check_index'' is True, 0 won't appeal in any element in r[:, 0, :].
+
+        :return: a random int matrix in shape[''NP'', ''cols''], and elements are in a range of [0, ''population_size''-1].
+                 The ''cols'' elements at dimension[2] are different from each other.
+        """
+
+        r = np.random.randint(low=0, high=self.NP, size=(self.NP, cols))
+        # validity checking and modification for r
+        for col in range(0, cols):
+            while True:
+                is_repeated = [np.equal(r[:, col], r[:, i]) for i in range(col)]  # 检查当前列与其前面所有列有无重复
+                if check_index:
+                    is_repeated.append(np.equal(r[:, col], np.arange(self.NP)))  # 检查当前列是否与该个体编号重复
+                repeated_index = np.nonzero(np.any(np.stack(is_repeated), axis=0))[0]  # 获取重复随机数的个体下标
+                repeated_sum = repeated_index.size  # 重复随机数的个数
+                if repeated_sum != 0:
+                    r[repeated_index[:], col] = np.random.randint(low=0, high=self.NP, size=repeated_sum)  # 重新生成并替换
+                else:
+                    break
+        return r
+
+    def mutate(self, mutate_strategy, F):
+        """
+        :param mutate_strategy: Mutation strategy will be used in this generation.
+        :param F: An array of mutation factor of shape[NP].
+        :return: Population mutated.
+        """
+        F = np.array(F).reshape(-1, 1).repeat(self.dim, axis=-1)  # [NP, dim]
+        x = self.population
+        y = None
+
+        if mutate_strategy == 'rand/1':  # rand/1
+            r = self.generate_random_int(3)
+            y = x[r[:, 0]] + F * (x[r[:, 1]] - x[r[:, 2]])
+
+        elif mutate_strategy == 'rand2best/1':  # rand-to-best/1
+            r = self.generate_random_int(3)
+            y = x[r[:, 0]] + F * \
+                     (x[self.cost.argmin()].reshape(1, -1).repeat(self.NP, axis=0) - x[r[:, 0]] +
+                      x[r[:, 1]] - x[r[:, 2]])
+
+        elif mutate_strategy == 'rand2best/2':  # rand-to-best/2
+            r = self.generate_random_int(5)
+            y = x[r[:, 0]] + F * \
+                     (x[self.cost.argmin()].reshape(1, -1).repeat(self.NP, axis=0) - x[r[:, 0]] +
+                      x[r[:, 1]] - x[r[:, 2]] +
+                      x[r[:, 3]] - x[r[:, 4]])
+
+        elif mutate_strategy == 'cur2best/1':  # current-to-best/1
+            r = self.generate_random_int(2)
+            y = x + F * \
+                     (x[self.cost.argmin()].reshape(1, -1).repeat(self.NP, axis=0) - x +
+                      x[r[:, 0]] - x[r[:, 1]])
+
+        elif mutate_strategy == 'cur2best/2':  # current-to-best/2
+            r = self.generate_random_int(4)
+            y = x + F * \
+                     (x[self.cost.argmin()].reshape(1, -1).repeat(self.NP, axis=0) - x +
+                      x[r[:, 0]] - x[r[:, 1]] +
+                      x[r[:, 2]] - x[r[:, 3]])
+
+        return y
+
     def crossover(self, x, Cr):
         """
         :param Cr: An array of crossover rate of shape[NP].
@@ -161,7 +162,7 @@ class DE(Learnable_Optimizer):
         :param problem: Problem instance.
         :param action: An array of shape [2, NP] with action[0] represents F and action[1] represents Cr.
         """
-        mutated = self.mutate(action[0])
+        mutated = self.mutate('rand/1', action[0])
         mutated = self.boundary_ctrl(mutated)
         trials = self.crossover(mutated, action[1])
         # Selection
@@ -170,12 +171,13 @@ class DE(Learnable_Optimizer):
         surv_filters = np.array(trials_cost <= self.cost)
         self.population = np.where(surv_filters.reshape(-1, 1).repeat(self.dim, axis=-1), trials, self.population)
         self.cost = np.where(surv_filters, trials_cost, self.cost)
+        self.gbest_cost = np.minimum(self.gbest_cost, np.min(self.cost))
 
 
 class MadDE(Learnable_Optimizer):
-    def __init__(self, dim, lower_bound, upper_bound, population_size, maxFEs,
+    def __init__(self, dim, lower_bound, upper_bound, population_size, maxFEs, boundary_ctrl_method='parent',
                  p=0.18, PqBX=0.01, enable_NLPSR=False):
-        super().__init__(dim, lower_bound, upper_bound, population_size, maxFEs)
+        super().__init__(dim, lower_bound, upper_bound, population_size, maxFEs, boundary_ctrl_method)
         self.Nmax = self.NP                   # the upperbound of population size
         self.Nmin = 4                         # the lowerbound of population size
         self.enable_NLPSR = enable_NLPSR      # enable Non-Linear Population Size Reduction
@@ -399,8 +401,7 @@ class MadDE(Learnable_Optimizer):
         v[mu == 1] = v2
         v[mu == 2] = v3
         # Boundary control
-        v[v < -100] = (self.population[v < -100] - 100) / 2
-        v[v > 100] = (self.population[v > 100] + 100) / 2
+        v = self.boundary_ctrl(v)
         # Crossover
         rvs = np.random.rand(NP)
         Crs = Cr.repeat(dim).reshape(NP, dim)
@@ -439,9 +440,76 @@ class MadDE(Learnable_Optimizer):
 
         self.population[optim] = u[optim]
         self.cost = np.minimum(self.cost, ncost)
+        self.gbest_cost = np.minimum(self.gbest_cost, np.min(self.cost))
         if self.enable_NLPSR:
             self.NLPSR()
 
 
 class PSO(Learnable_Optimizer):
-    pass
+    def __init__(self, dim, lower_bound, upper_bound, population_size, maxFEs, boundary_ctrl_method='clipping',
+                 w_decay=True, c=4.1, max_velocity=10):
+        super().__init__(dim, lower_bound, upper_bound, population_size, maxFEs, boundary_ctrl_method)
+        self.w_decay = w_decay
+        self.c = c
+        self.max_velocity = max_velocity
+
+        self.velocity = None
+        self.w = None
+        self.gbest = None
+        self.pbest = None
+        self.pbest_cost = None
+
+    def init_population(self, problem):
+        super().init_population(problem)
+        self.velocity = np.random.uniform(low=-self.max_velocity, high=self.max_velocity, size=(self.NP, self.dim))
+        self.gbest = self.population[self.cost.argmin()].copy()
+        self.pbest = self.population.copy()
+        self.pbest_cost = self.cost.copy()
+        if self.w_decay:
+            self.w = 0.9
+        else:
+            self.w = 0.729
+
+    def evolve(self, problem, action):
+        """
+        :param problem: Problem instance.
+        :param action: An array of shape [NP] controlling exploration-exploitation tradeoff.
+        """
+        # linearly decreasing the coefficient of inertia w
+        if self.w_decay:
+            self.w -= 0.5 / (self.maxFEs / self.NP)
+        # generate two set of random val for pso velocity update
+        rand1 = np.random.rand(self.NP, 1)
+        rand2 = np.random.rand(self.NP, 1)
+        # update velocity
+        action = action[:, None]
+        new_velocity = self.w * self.velocity + self.c * action * rand1 * (self.pbest - self.population) + \
+                       self.c * (1 - action) * rand2 * (self.gbest[None, :] - self.population)
+        new_velocity = np.clip(new_velocity, -self.max_velocity, self.max_velocity)
+        # get new population
+        new_population = self.population + new_velocity
+        new_population = self.boundary_ctrl(new_population)
+        # get new cost
+        new_cost = problem.eval(new_population) - problem.optimum
+        self.fes += self.NP
+        # update particles
+        pbest_filters = new_cost < self.pbest_cost
+        cbest_cost = new_cost.min()
+        cbest_index = new_cost.argmin()
+        gbest_filter = cbest_cost < self.gbest_cost
+
+        self.population = new_population
+        self.velocity = new_velocity
+        self.cost = new_cost
+        self.gbest = np.where(np.expand_dims(gbest_filter, axis=-1),
+                              new_population[cbest_index],
+                              self.gbest)
+        self.gbest_cost = np.where(gbest_filter,
+                                   cbest_cost,
+                                   self.gbest_cost)
+        self.pbest = np.where(np.expand_dims(pbest_filters, axis=-1),
+                              new_population,
+                              self.pbest)
+        self.pbest_cost = np.where(pbest_filters,
+                                   new_cost,
+                                   self.pbest_cost)
