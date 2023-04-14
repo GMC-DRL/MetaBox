@@ -15,9 +15,10 @@ from deap import algorithms
 from deap import cma
 from deap import benchmarks
 
+from L2OBench.Optimizer.basic_optimizer import basic_optimizer
 
 # 使用deap初始化一个DE算法用于优化黑盒问题
-class DEAP_Optimizer_baseDE():
+class DEAP_Optimizer_baseDE(basic_optimizer):
     def __init__(self,problem,config):
         self.config = config
         self.problem = problem
@@ -90,7 +91,7 @@ class DEAP_Optimizer_baseDE():
         pass
 
 
-class DEAP_Optimizer_DE():
+class DEAP_Optimizer_DE(basic_optimizer):
     def __init__(self,problem,config):
         self.config = config
         self.problem = problem
@@ -196,7 +197,7 @@ class DEAP_Optimizer_DE():
         pass
 
 
-class DEAP_Optimizer_PSO():
+class DEAP_Optimizer_PSO(basic_optimizer):
     def __init__(self,problem,config):
         self.config = config
         self.problem = problem
@@ -284,7 +285,7 @@ class DEAP_Optimizer_PSO():
         self.evolve()
         self.get_best()
 
-class DEAP_Optimizer_CMAES():
+class DEAP_Optimizer_CMAES(basic_optimizer):
     def __init__(self,problem,config):
         self.config = config
         self.problem = problem
@@ -321,23 +322,6 @@ class DEAP_Optimizer_CMAES():
     def train(self):
         self.evolve()
         self.get_best()
-
-class basic_optimizer():
-    def __init__(self):
-        pass
-
-    def train(self):
-        pass
-
-    def get_best(self):
-        pass
-
-    def evolve(self):
-        pass
-
-    def get_best(self):
-        pass
-
 
 
 
