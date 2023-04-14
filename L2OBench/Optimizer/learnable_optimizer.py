@@ -68,6 +68,6 @@ class Learnable_Optimizer:
 
         return y
 
-    def evolve(self, problem, action):
+    def update(self, problem, action):
         pass
 

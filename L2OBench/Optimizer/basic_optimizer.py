@@ -9,7 +9,7 @@ class basic_optimizer():
     def get_best(self):
         pass
 
-    def evolve(self):
+    def update(self):
         pass
 
     def get_best(self):

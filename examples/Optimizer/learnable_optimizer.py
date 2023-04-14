@@ -89,7 +89,7 @@ class DE(Learnable_Optimizer):
                      self.population)
         return y
 
-    def evolve(self, problem, action):
+    def update(self, problem, action):
         """
         :param problem: Problem instance.
         :param action: An array of shape [2, NP] with action[0] represents F and action[1] represents Cr.
@@ -314,7 +314,7 @@ class MadDE(Learnable_Optimizer):
         u[np.arange(NP), jrand] = v[np.arange(NP), jrand]
         return u
 
-    def evolve(self, problem, action):
+    def update(self, problem, action):
         self.sort(self.NP)
         NP, dim = self.NP, self.dim
         q = 2 * self.p - self.p * self.fes / self.maxFEs  # qbest: top q%
@@ -402,7 +402,7 @@ class PSO(Learnable_Optimizer):
         else:
             self.w = 0.729
 
-    def evolve(self, problem, action):
+    def update(self, problem, action):
         """
         :param problem: Problem instance.
         :param action: An array of shape [NP] controlling exploration-exploitation tradeoff.

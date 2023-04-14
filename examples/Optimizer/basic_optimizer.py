@@ -48,7 +48,7 @@ class DEAP_Optimizer_baseDE(basic_optimizer):
 
 
 
-    def evolve(self):
+    def update(self):
 
         self.fitnesses = self.toolbox.map(self.toolbox.evaluate, self.pop)
         for ind, fit in zip(self.pop, self.fitnesses):
@@ -149,7 +149,7 @@ class DEAP_Optimizer_DE(basic_optimizer):
 
 
 
-    def evolve(self):
+    def update(self):
 
         self.fitnesses = self.toolbox.map(self.toolbox.evaluate, self.pop)
         for ind, fit in zip(self.pop, self.fitnesses):
@@ -252,7 +252,7 @@ class DEAP_Optimizer_PSO(basic_optimizer):
         self.stats.register("std", np.std)
         self.stats.register("min", np.min)
         self.stats.register("max", np.max)
-    def evolve(self):
+    def update(self):
         fitnesses = list(map(self.toolbox.evaluate, self.pop))
         for ind, fit in zip(self.pop, fitnesses):
             ind.fitness.values = (fit,)
@@ -311,7 +311,7 @@ class DEAP_Optimizer_CMAES(basic_optimizer):
 
 
 
-    def evolve(self):
+    def update(self):
         self.algorithm.eaGenerateUpdate(self.toolbox, ngen=self.config.iter, stats=self.stats, halloffame=self.hof)
         return self.hof[0].fitness.values[0]
 
