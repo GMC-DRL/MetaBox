@@ -1,8 +1,8 @@
-from basic_Agent import Memory,lr_sd,learnable_Agent
+from L2OBench.Agent import basic_Agent
 import os
 from torch import nn
 import torch
-from Agent.baseNets import MultiHeadEncoder, MLP, EmbeddingNet
+from examples.Agent.baseNets import MultiHeadEncoder, MLP, EmbeddingNet
 from torch.distributions import Normal
 
 from utils import torch_load_cpu, get_inner_model
@@ -189,12 +189,11 @@ class Critic(nn.Module):
         return baseline_value.detach().squeeze(), baseline_value.squeeze()
 
 
-class ppo():
+class ppo(basic_Agent.learnable_Agent):
     # init the network
     def __init__(self,config):
         self.config = config
         # memory store some needed information
-        self.memory = Memory()
         # agent network
         self.actor = Actor(
             embedding_dim = config.embedding_dim,
@@ -232,7 +231,7 @@ class ppo():
                 hidden_dim2 = config.hidden_dim2_critic,
             )
 
-        self.lr_scheduler = torch.optim.lr_scheduler.ExponentialLR(self.optimizer, config.lr_decay, last_epoch=-1, )
+
 
     # load model from load_path
     def load(self, load_path):

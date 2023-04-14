@@ -1,6 +1,6 @@
-from Optimizer.basic_optimizer import DEAP_Optimizer_DE,DEAP_Optimizer_baseDE
-from Problem.cec_dataset import Training_Dataset
-from config import get_config
+from L2OBench.Optimizer.basic_optimizer import DEAP_Optimizer_DE
+from L2OBench.Problem.cec_dataset import Training_Dataset
+from L2OBench.config import get_config
 
 
 def run():

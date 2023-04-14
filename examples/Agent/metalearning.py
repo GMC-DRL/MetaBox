@@ -7,6 +7,7 @@ from torch.distributions import Normal
 from torch.utils.data import DataLoader
 from torch.utils.data import TensorDataset
 
+from L2OBench.Agent.basic_Agent import learnable_Agent
 class Memory:
     def __init__(self):
         self.actions = []
@@ -41,7 +42,7 @@ class LSTM(nn.Module):
         out = self.fc(out[:, -1, :])
         return out
 
-class meta_Agent():
+class meta_Agent(learnable_Agent):
     def __init__(self,config):
         self.config = config
         self.net = None

@@ -1,7 +1,7 @@
 from datetime import datetime
 from tqdm import tqdm
 from torch.utils.data import Dataset
-from Problem.cec_test_func import *
+from L2OBench.Problem.cec_test_func import *
 import pickle
 import time
 

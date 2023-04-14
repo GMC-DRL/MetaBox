@@ -3,9 +3,7 @@ import torch
 import torch.nn as nn
 import torch.nn.functional as F
 import torch.optim as optim
-from torch.distributions import Normal
-from torch.utils.data import DataLoader
-from torch.utils.data import TensorDataset
+
 
 class Memory:
     def __init__(self):
@@ -27,31 +25,38 @@ def lr_sd(epoch, opts):
 class learnable_Agent():
     def __init__(self,config):
         self.config = config
+        # self.net should be a tuple/list/dict of several nets
         self.net = None
 
+        self.memory = Memory()
 
         pass
 
-    def get_feature(self):
-
+    def get_feature(self,env):
+        # get feature from env.state to feed net
         pass
 
 
-    def inference(self,need_gd):
-        # get aciton/fitness
+    def inference(self,env,need_gd):
+        # get_feature
+        # use feature to get aciton
         pass
 
 
-    def cal_loss(self):
+    def cal_loss(self,env):
+
         pass
 
 
     def learning(self):
+        # select optimizer(Adam,SGD...)
         # cal_loss
         # update nets
+
         pass
 
 
     def memory(self):
         # record some info
+        return self.memory
         pass
