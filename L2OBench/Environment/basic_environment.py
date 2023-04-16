@@ -1,8 +1,14 @@
+from typing import Any
+
+from L2OBench.Problem import Basic_Problem
+from L2OBench.Optimizer import Learnable_Optimizer
+
+
 class Env:
     """
     Treated as a pure problem for traditional algorithms without any agent.
     """
-    def __init__(self, problem):
+    def __init__(self, problem: Basic_Problem):
         self.problem = problem
 
 
@@ -11,8 +17,8 @@ class PBO_Env(Env):
     Env with problem and optimizer.
     """
     def __init__(self,
-                 problem,
-                 optimizer,
+                 problem: Basic_Problem,
+                 optimizer: Learnable_Optimizer,
                  reward_func):
         Env.__init__(self, problem)
         self.optimizer = optimizer
@@ -20,13 +26,16 @@ class PBO_Env(Env):
 
     def reset(self):
         self.optimizer.init_population(self.problem)
+        return {'population': self.optimizer.population,
+                'cost': self.optimizer.cost,
+                'fes': self.optimizer.fes}
 
-    def step(self, action):
+    def step(self, action: Any):
         # record for computing reward
         pre_cost = self.optimizer.cost.copy()
         pre_gbest = self.optimizer.gbest_cost.copy()
         # evolve
-        self.optimizer.evolve(self.problem, action)
+        self.optimizer.update(self.problem, action)
 
         state = {'population': self.optimizer.population,
                  'cost': self.optimizer.cost,
