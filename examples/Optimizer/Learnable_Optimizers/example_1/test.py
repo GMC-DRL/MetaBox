@@ -12,7 +12,7 @@ env = PBO_Env(Training_Dataset(10, 1, 1, problems='Sphere')[0][0],
               triangle)
 
 state = env.reset()
-is_done = False
+# is_done = False
 
 agent = gleet.ppo()
 
@@ -20,7 +20,6 @@ manager = ComparisionManager(agent, env)
 
 cost_mean,cost_std = manager.run()
 
-print(cost_mean,cost_std)
 
 # while not is_done:
 #     state, reward, is_done = env.step(np.random.rand(2, 100))

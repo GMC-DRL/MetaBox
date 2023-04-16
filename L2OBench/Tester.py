@@ -30,7 +30,7 @@ class ComparisionManager():
         is_done = False
         state = self.env.reset()
         while not is_done:
-            action = self.agent.inference(self.env,need_gd=False)
+            action = self.agent.inference(state,need_gd=False)
             state, reward, is_done = self.env.step(action)
             print(state['fes'], state['cost'].min(), state['cost'].mean(), reward)
 

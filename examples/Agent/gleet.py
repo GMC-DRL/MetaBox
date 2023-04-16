@@ -248,7 +248,7 @@ class ppo(basic_Agent.learnable_Agent):
         pass
 
 
-    def inference(self,env,need_gd):
+    def inference(self,state,need_gd):
         # get aciton/fitness
 
         # check if need gradient to change mode
@@ -261,8 +261,8 @@ class ppo(basic_Agent.learnable_Agent):
             self.nets[0].eval()
             if not self.config.test: self.nets[1].eval()
 
-        self.memory.states.append(env.state.clone())
-        action, log_lh, _to_critic, entro_p = self.nets[0](env.state,
+        self.memory.states.append(state.clone())
+        action, log_lh, _to_critic, entro_p = self.nets[0](state,
                                                           require_entropy=True,
                                                           to_critic=True
                                                           )
