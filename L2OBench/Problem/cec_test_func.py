@@ -22,15 +22,15 @@ def rotate_gen(dim):  # Generate a rotate matrix
     random_state = np.random
     H = np.eye(dim)
     D = np.ones((dim,))
-    mat = np.eye(dim)
     for n in range(1, dim):
+        mat = np.eye(dim)
         x = random_state.normal(size=(dim - n + 1,))
         D[n - 1] = np.sign(x[0])
         x[0] -= D[n - 1] * np.sqrt((x * x).sum())
         # Householder transformation
         Hx = (np.eye(dim - n + 1) - 2. * np.outer(x, x) / (x * x).sum())
         mat[n - 1:, n - 1:] = Hx
-    H = np.dot(H, mat)
+        H = np.dot(H, mat)
     # Fix the last sign such that the determinant is 1
     D[-1] = (-1) ** (1 - (dim % 2)) * D.prod()
     # Equivalent to np.dot(np.diag(D), H) but faster, apparently
@@ -91,7 +91,7 @@ class Problem(Basic_Problem):
         problem_type = cls.__name__
         for i in range(size):
             if shifted:
-                shift = np.random.random(dim) * 160 - 100
+                shift = np.random.random(dim) * 160 - 80  # [-80, 80]
             else:
                 shift = np.zeros(dim)
             if rotated:
@@ -149,6 +149,7 @@ class Schwefel12(Problem):
             tmp = np.power(np.sum(z[:i]), 2)
             res += tmp
         return res + self.bias
+
 
 class Ellipsoidal(Problem):
     def __init__(self, dim, shift, rotate, bias):
@@ -554,7 +555,7 @@ class Hybrid:
         for i in range(size):
             # generate data for each problem
             if shifted:
-                shift = np.random.random(dim) * 160 - 100
+                shift = np.random.random(dim) * 160 - 80
             else:
                 shift = np.zeros(dim)
             if rotated:

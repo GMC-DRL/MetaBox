@@ -17,7 +17,7 @@ class Basic_Problem:
         elif x.ndim == 2:  # x is a whole population
             return self.func(x)
         else:
-            raise ArithmeticError('The input should be an array of 1 or 2 dimensions.')
+            return self.func(x.reshape(-1, x.shape[-1]))
 
     def func(self, x):
         raise NotImplementedError
