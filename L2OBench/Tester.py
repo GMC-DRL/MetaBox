@@ -6,7 +6,7 @@ ComparisionManager should have the following functions:
 """
 from L2OBench.Optimizer import learnable_optimizer
 from L2OBench.Environment import basic_environment
-
+import torch
 import numpy as np
 from tqdm import tqdm
 import os
@@ -21,19 +21,23 @@ class ComparisionManager():
     #     self.agent = agent
     #     self.config = get_config()
 
-    def __init__(self,agent,env):
+    def __init__(self,agent,env,config=None):
         self.env = env
         self.agent = agent
-        self.config = get_config()
+        self.config = config
 
     def run(self):
         is_done = False
+        # 此处的state仅是部分env的meta info ，并不是env的state，env的state是在agent的get_feature中得到的
         state = self.env.reset()
+        # state = torch.FloatTensor(state).to(self.config.device)
         while not is_done:
-            action = self.agent.inference(state,need_gd=False)
+            action = self.agent.inference(self.env,need_gd=False)
             state, reward, is_done = self.env.step(action)
             print(state['fes'], state['cost'].min(), state['cost'].mean(), reward)
 
+        # learn
+        self.agent.learning(env = self.env)
 
 
     # 1.初始化agent和env

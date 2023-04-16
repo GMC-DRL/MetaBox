@@ -36,8 +36,7 @@ class learnable_Agent():
         self.nets = None
 
         self.memory = Memory()
-
-        pass
+        self.memory.clear_memory()
 
     def get_feature(self,env):
         # get feature from env.state to feed net
@@ -66,4 +65,3 @@ class learnable_Agent():
     def memory(self):
         # record some info
         return self.memory
-        pass

@@ -6,9 +6,9 @@ import torch
 from examples.Agent.baseNets import MultiHeadEncoder, MLP, EmbeddingNet
 from torch.distributions import Normal
 
-from utils import torch_load_cpu, get_inner_model
-
-
+from examples.Agent.utils import torch_load_cpu, get_inner_model
+import copy
+import numpy as np
 class mySequential(nn.Sequential):
     def forward(self, *inputs):
         for module in self._modules.values():
@@ -26,20 +26,21 @@ class Actor(nn.Module):
                  config
                  ):
         super(Actor, self).__init__()
-        self.embedding_dim = config.embedding_dim,
-        self.hidden_dim = config.hidden_dim,
-        self.n_heads_actor = config.encoder_head_num,
-        self.n_heads_decoder = config.decoder_head_num,
-        self.n_layers = config.n_encode_layers,
-        self.normalization = config.normalization,
-        self.v_range = config.v_range,
-        self.node_dim=config.node_dim,
-        self.hidden_dim1=config.hidden_dim1_actor,
-        self.hidden_dim2=config.hidden_dim2_actor,
-        self.no_attn=config.no_attn,
-        self.no_eef=config.no_eef,
-        self.max_sigma=config.max_sigma,
-        self.min_sigma=config.min_sigma,
+        self.embedding_dim = config.embedding_dim
+        self.hidden_dim = config.hidden_dim
+        self.n_heads_actor = config.encoder_head_num
+        self.n_heads_decoder = config.decoder_head_num
+        self.n_layers = config.n_encode_layers
+        self.normalization = config.normalization
+        self.v_range = config.v_range
+        self.node_dim=config.node_dim
+
+        self.hidden_dim1=config.hidden_dim1_actor
+        self.hidden_dim2=config.hidden_dim2_actor
+        self.no_attn=config.no_attn
+        self.no_eef=config.no_eef
+        self.max_sigma=config.max_sigma
+        self.min_sigma=config.min_sigma
 
         # figure out the Actor network
         if not self.no_attn:
@@ -72,7 +73,8 @@ class Actor(nn.Module):
         else:
             # w/o both
             if self.no_eef:
-                self.mu_net = MLP(self.node_dim, 16, 8, 1)
+                print(type(self.node_dim))
+                self.mu_net = MLP(self.node_dim, 16, 8, 1, 0)
                 self.sigma_net = MLP(self.node_dim, 16, 8, 1, 0)
             # w/o attn
             else:
@@ -232,24 +234,70 @@ def save_model(save_path, agent):
 class ppo(basic_Agent.learnable_Agent):
     # init the network
     def __init__(self,config):
-        self.config = config
+        super(ppo, self).__init__(config)
         # memory store some needed information
         # agent network
         self.nets = [Actor(config),Critic(config)]
         # optimizer
         self.optimizer = torch.optim.Adam(
-            [{'params': self.actor.parameters(), 'lr': config.lr_model}] +
-            [{'params': self.critic.parameters(), 'lr': config.lr_model}])
+            [{'params': self.nets[0].parameters(), 'lr': config.lr_model}] +
+            [{'params': self.nets[1].parameters(), 'lr': config.lr_model}])
         # figure out the lr schedule
         self.lr_scheduler = torch.optim.lr_scheduler.ExponentialLR(self.optimizer, config.lr_decay, last_epoch=-1, )
 
+
+    # for gpso
     def get_feature(self,env):
+        # get feature from env
 
-        pass
+        max_step = env.optimizer.max_fes // env.optimizer.ps
+        # cost cur
+        fea0 = env.optimizer.particles['c_cost'] / env.optimizer.max_cost
+        # cost cur_gbest
+        fea1 = (env.optimizer.particles['c_cost'] - env.optimizer.particles['gbest_val']) / env.optimizer.max_cost  # ps
+        # cost cur_pbest
+        fea2 = (env.optimizer.particles['c_cost'] - env.optimizer.particles['pbest']) / env.optimizer.max_cost
+        # fes cur_fes
+        fea3 = np.full(shape=(env.optimizer.ps), fill_value=(env.optimizer.max_fes - env.optimizer.fes) / env.optimizer.max_fes)
+        # no_improve  per
+        fea4 = env.optimizer.per_no_improve / max_step
+        # no_improve  whole
+        fea5 = np.full(shape=(env.optimizer.ps), fill_value=env.optimizer.no_improve / max_step)
+        # distance between cur and gbest
+        fea6 = np.sqrt(
+            np.sum((env.optimizer.particles['current_position'] - np.expand_dims(env.optimizer.particles['gbest_position'], axis=0)) ** 2,
+                   axis=-1)) / env.optimizer.max_dist
+        # distance between cur and pbest
+        fea7 = np.sqrt(np.sum((env.optimizer.particles['current_position'] - env.optimizer.particles['pbest_position']) ** 2,
+                              axis=-1)) / env.optimizer.max_dist
+
+        # cos angle
+        pbest_cur_vec = env.optimizer.particles['pbest_position'] - env.optimizer.particles['current_position']
+        gbest_cur_vec = np.expand_dims(env.optimizer.particles['gbest_position'], axis=0) - env.optimizer.particles['current_position']
+        fea8 = np.sum(pbest_cur_vec * gbest_cur_vec, axis=-1) / ((np.sqrt(
+            np.sum(pbest_cur_vec ** 2, axis=-1)) * np.sqrt(np.sum(gbest_cur_vec ** 2, axis=-1))) + 1e-5)
+        fea8 = np.where(np.isnan(fea8), np.zeros_like(fea8), fea8)
+
+        next_state = np.concatenate((fea0[:, None], fea1[:, None], fea2[:, None], fea3[:, None], fea4[:, None], fea5[:, None],
+                               fea6[:, None], fea7[:, None], fea8[:, None]), axis=-1)
+
+        # update exploration state
+        env.optimizer.pbest_feature = np.where(env.optimizer.per_no_improve[:, None] == 0, next_state, env.optimizer.pbest_feature)
+        # update exploitation state
+        if env.optimizer.no_improve == 0:
+            env.optimizer.gbest_feature = next_state[env.optimizer.particles['gbest_index']]
+
+        next_gpcat = np.concatenate((env.optimizer.pbest_feature,env.optimizer.gbest_feature[None, :].repeat(env.optimizer.ps,axis = 0) ), axis=-1)
+
+        return np.concatenate((next_state,next_gpcat),axis = -1)
 
 
-    def inference(self,state,need_gd):
+
+    def inference(self,env,need_gd):
         # get aciton/fitness
+
+        state_feature = self.get_feature(env)
+        state = torch.FloatTensor(state_feature).to(self.config.device)
 
         # check if need gradient to change mode
         if need_gd:
@@ -261,7 +309,7 @@ class ppo(basic_Agent.learnable_Agent):
             self.nets[0].eval()
             if not self.config.test: self.nets[1].eval()
 
-        self.memory.states.append(state.clone())
+        self.memory.states.append(copy.deepcopy(state))
         action, log_lh, _to_critic, entro_p = self.nets[0](state,
                                                           require_entropy=True,
                                                           to_critic=True
