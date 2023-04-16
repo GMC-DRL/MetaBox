@@ -1,3 +1,6 @@
+"""
+A example of how to use L2OBench to test the performance of the optimizer(with agent)
+"""
 from examples.Agent import gleet
 from L2OBench.Optimizer import learnable_optimizer
 from L2OBench.Environment import basic_environment

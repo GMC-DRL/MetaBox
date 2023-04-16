@@ -1,3 +1,4 @@
+
 from L2OBench.Agent import basic_Agent
 import os
 from torch import nn
@@ -22,33 +23,23 @@ class mySequential(nn.Sequential):
 class Actor(nn.Module):
 
     def __init__(self,
-                 embedding_dim,
-                 hidden_dim,
-                 n_heads_actor,
-                 n_heads_decoder,
-                 n_layers,
-                 normalization,
-                 v_range,
-                 node_dim,
-                 hidden_dim1,
-                 hidden_dim2,
-                 no_attn=False,
-                 no_eef=False,
-                 max_sigma=0.7,
-                 min_sigma=1e-3,
+                 config
                  ):
         super(Actor, self).__init__()
-
-        self.embedding_dim = embedding_dim
-        self.hidden_dim = hidden_dim
-        self.n_heads_actor = n_heads_actor
-        self.n_heads_decoder = n_heads_decoder
-        self.n_layers = n_layers
-        self.normalization = normalization
-        self.range = v_range
-        self.no_attn = no_attn
-        self.no_eef = no_eef
-        self.node_dim = node_dim
+        self.embedding_dim = config.embedding_dim,
+        self.hidden_dim = config.hidden_dim,
+        self.n_heads_actor = config.encoder_head_num,
+        self.n_heads_decoder = config.decoder_head_num,
+        self.n_layers = config.n_encode_layers,
+        self.normalization = config.normalization,
+        self.v_range = config.v_range,
+        self.node_dim=config.node_dim,
+        self.hidden_dim1=config.hidden_dim1_actor,
+        self.hidden_dim2=config.hidden_dim2_actor,
+        self.no_attn=config.no_attn,
+        self.no_eef=config.no_eef,
+        self.max_sigma=config.max_sigma,
+        self.min_sigma=config.min_sigma,
 
         # figure out the Actor network
         if not self.no_attn:
@@ -76,8 +67,8 @@ class Actor(nn.Module):
                                      self.normalization, )
                     for _ in range(self.n_layers)))  # stack L layers
             # figure out the mu_net and sigma_net
-            self.mu_net = MLP(self.embedding_dim, hidden_dim1, hidden_dim2, 1, 0)
-            self.sigma_net = MLP(self.embedding_dim, hidden_dim1, hidden_dim2, 1, 0)
+            self.mu_net = MLP(self.embedding_dim, self.hidden_dim1, self.hidden_dim2, 1, 0)
+            self.sigma_net = MLP(self.embedding_dim, self.hidden_dim1, self.hidden_dim2, 1, 0)
         else:
             # w/o both
             if self.no_eef:
@@ -88,8 +79,8 @@ class Actor(nn.Module):
                 self.mu_net = MLP(3 * self.node_dim, 16, 8, 1)
                 self.sigma_net = MLP(3 * self.node_dim, 16, 8, 1, 0)
 
-        self.max_sigma = max_sigma
-        self.min_sigma = min_sigma
+        self.max_sigma = self.max_sigma
+        self.min_sigma = self.min_sigma
 
         print(self.get_parameter_number())
 
@@ -168,51 +159,10 @@ class Actor(nn.Module):
 class Critic(nn.Module):
 
     def __init__(self,
-                 input_dim,
-                 hidden_dim1,
-                 hidden_dim2
+                 config
                  ):
         super(Critic, self).__init__()
-        self.input_dim = input_dim
-        # for GLEET, hidden_dim1 = 32, hidden_dim2 = 16
-        self.hidden_dim1 = hidden_dim1
-        self.hidden_dim2 = hidden_dim2
-
-        self.value_head = MLP(input_dim=self.input_dim, mid_dim1=hidden_dim1, mid_dim2=hidden_dim2, output_dim=1)
-
-    def forward(self, h_features):
-        # since it's joint actions, the input should be meaned at population-dimention
-        h_features = torch.mean(h_features, dim=-2)
-        # pass through value_head to get baseline_value
-        baseline_value = self.value_head(h_features)
-
-        return baseline_value.detach().squeeze(), baseline_value.squeeze()
-
-
-class ppo(basic_Agent.learnable_Agent):
-    # init the network
-    def __init__(self,config):
-        self.config = config
-        # memory store some needed information
-        # agent network
-        self.actor = Actor(
-            embedding_dim = config.embedding_dim,
-            hidden_dim = config.hidden_dim,
-            n_heads_actor = config.encoder_head_num,
-            n_heads_decoder = config.decoder_head_num,
-            n_layers = config.n_encode_layers,
-            normalization = config.normalization,
-            v_range = config.v_range,
-            node_dim=config.node_dim,
-            hidden_dim1=config.hidden_dim1_actor,
-            hidden_dim2=config.hidden_dim2_actor,
-            no_attn=config.no_attn,
-            no_eef=config.no_eef,
-            max_sigma=config.max_sigma,
-            min_sigma=config.min_sigma,
-        )
-
-
+        input_critic = config.embedding_dim
         if not config.test:
             # for the sake of ablation study, figure out the input_dim for critic according to setting
             if config.no_attn and config.no_eef:
@@ -224,62 +174,74 @@ class ppo(basic_Agent.learnable_Agent):
             else:
                 # GLEET(default) setting, share the attention machanism between actor and critic
                 input_critic= config.embedding_dim
-            # figure out the critic network
-            self.critic = Critic(
-                input_dim = input_critic,
-                hidden_dim1 = config.hidden_dim1_critic,
-                hidden_dim2 = config.hidden_dim2_critic,
-            )
+
+        # for GLEET, input_dim = 32
+        self.input_dim = input_critic
+        # for GLEET, hidden_dim1 = 32, hidden_dim2 = 16
+        self.hidden_dim1 = config.hidden_dim1_critic
+        self.hidden_dim2 = config.hidden_dim2_critic
+
+        self.value_head = MLP(input_dim=self.input_dim, mid_dim1=self.hidden_dim1, mid_dim2=self.hidden_dim2, output_dim=1)
+
+    def forward(self, h_features):
+        # since it's joint actions, the input should be meaned at population-dimention
+        h_features = torch.mean(h_features, dim=-2)
+        # pass through value_head to get baseline_value
+        baseline_value = self.value_head(h_features)
+
+        return baseline_value.detach().squeeze(), baseline_value.squeeze()
 
 
 
-    # load model from load_path
-    def load(self, load_path):
+# load model from load_path
+def load_model(load_path, agent):
+    assert load_path is not None
+    load_data = torch_load_cpu(load_path)
 
-        assert load_path is not None
-        load_data = torch_load_cpu(load_path)
+    # load data for actor
+    model_actor = get_inner_model(agent.actor)
+    model_actor.load_state_dict({**model_actor.state_dict(), **load_data.get('actor', {})})
 
-        # load data for actor
-        model_actor = get_inner_model(self.actor)
-        model_actor.load_state_dict({**model_actor.state_dict(), **load_data.get('actor', {})})
+    if not agent.config.test:
+        # load data for critic
+        model_critic = get_inner_model(agent.critic)
+        model_critic.load_state_dict({**model_critic.state_dict(), **load_data.get('critic', {})})
 
-        if not self.config.test:
-            # load data for critic
-            model_critic = get_inner_model(self.critic)
-            model_critic.load_state_dict({**model_critic.state_dict(), **load_data.get('critic', {})})
+        # load data for torch and cuda
+        torch.set_rng_state(load_data['rng_state'])
+        if agent.config.use_cuda:
+            torch.cuda.set_rng_state_all(load_data['cuda_rng_state'])
+    # done
+    print(' [*] Load model from {}'.format(load_path))
 
-            # load data for torch and cuda
-            torch.set_rng_state(load_data['rng_state'])
-            if self.config.use_cuda:
-                torch.cuda.set_rng_state_all(load_data['cuda_rng_state'])
-        # done
-        print(' [*] Loading data from {}'.format(load_path))
-
-    # save trained model
-    def save(self, epoch):
-        print('Saving model and state...')
-        torch.save(
-            {
-                'actor': get_inner_model(self.actor).state_dict(),
-                'critic': get_inner_model(self.critic).state_dict(),
-                'rng_state': torch.get_rng_state(),
-                'cuda_rng_state': torch.cuda.get_rng_state_all(),
-            },
-            os.path.join(self.config.save_dir, 'epoch-{}.pt'.format(epoch))
-        )
+# save model to save_path
+def save_model(save_path, agent):
+    assert save_path is not None
+    save_data = {
+        'actor': get_inner_model(agent.actor).state_dict(),
+        'critic': get_inner_model(agent.critic).state_dict(),
+        'rng_state': torch.get_rng_state(),
+    }
+    if agent.config.use_cuda:
+        save_data['cuda_rng_state'] = torch.cuda.get_rng_state_all()
+    torch.save(save_data, save_path)
+    print(' [*] Save model to {}'.format(save_path))
 
 
-    # change working mode to evaling
-    def eval(self):
-        torch.set_grad_enabled(False)  ##
-        self.actor.eval()
-        if not self.opts.test: self.critic.eval()
 
-    # change working mode to training
-    def train(self):
-        torch.set_grad_enabled(True)  ##
-        self.actor.train()
-        if not self.opts.test: self.critic.train()
+class ppo(basic_Agent.learnable_Agent):
+    # init the network
+    def __init__(self,config):
+        self.config = config
+        # memory store some needed information
+        # agent network
+        self.nets = [Actor(config),Critic(config)]
+        # optimizer
+        self.optimizer = torch.optim.Adam(
+            [{'params': self.actor.parameters(), 'lr': config.lr_model}] +
+            [{'params': self.critic.parameters(), 'lr': config.lr_model}])
+        # figure out the lr schedule
+        self.lr_scheduler = torch.optim.lr_scheduler.ExponentialLR(self.optimizer, config.lr_decay, last_epoch=-1, )
 
     def get_feature(self,env):
 
@@ -288,8 +250,19 @@ class ppo(basic_Agent.learnable_Agent):
 
     def inference(self,env,need_gd):
         # get aciton/fitness
+
+        # check if need gradient to change mode
+        if need_gd:
+            torch.set_grad_enabled(True)  ##
+            self.nets[0].train()
+            if not self.config.test: self.nets[1].train()
+        else:
+            torch.set_grad_enabled(False)  ##
+            self.nets[0].eval()
+            if not self.config.test: self.nets[1].eval()
+
         self.memory.states.append(env.state.clone())
-        action, log_lh, _to_critic, entro_p = self.actor(env.state,
+        action, log_lh, _to_critic, entro_p = self.nets[0](env.state,
                                                           require_entropy=True,
                                                           to_critic=True
                                                           )
@@ -303,6 +276,14 @@ class ppo(basic_Agent.learnable_Agent):
 
     def cal_loss(self,K_epochs=4,env=None,t_time=10):
         # cal loss
+        total_cost = 0
+        entropy = []
+        bl_val_detached = []
+        bl_val = []
+
+        baseline_loss = 0
+        reinforce_loss = 0
+        loss = 0
 
         old_actions = torch.stack(self.memory.actions)
         old_states = torch.stack(self.memory.states).detach()  # .view(t_time, bs, ps, dim_f)
@@ -325,7 +306,7 @@ class ppo(basic_Agent.learnable_Agent):
 
                 for tt in range(t_time):
                     # get new action_prob
-                    _, log_p, _to_critic, entro_p = self.actor(old_states[tt],
+                    _, log_p, _to_critic, entro_p = self.nets[0](old_states[tt],
                                                                 fixed_action=old_actions[tt],
                                                                 require_entropy=True,  # take same action
                                                                 to_critic=True
@@ -334,7 +315,7 @@ class ppo(basic_Agent.learnable_Agent):
                     logprobs.append(log_p)
                     entropy.append(entro_p.detach().cpu())
 
-                    baseline_val_detached, baseline_val = self.critic(_to_critic)
+                    baseline_val_detached, baseline_val = self.nets[1](_to_critic)
 
                     bl_val_detached.append(baseline_val_detached)
                     bl_val.append(baseline_val)
@@ -348,7 +329,7 @@ class ppo(basic_Agent.learnable_Agent):
             Reward = []
             reward_reversed = self.memory.rewards[::-1]
             # get next value
-            R = self.critic(self.actor(env.state, only_critic=True))[0]
+            R = self.nets[1](self.nets[0](env.state, only_critic=True))[0]
 
             # R = agent.critic(x_in)[0]
             critic_output = R.clone()
@@ -383,14 +364,18 @@ class ppo(basic_Agent.learnable_Agent):
             approx_kl_divergence[torch.isinf(approx_kl_divergence)] = 0
             # calculate loss
             loss = baseline_loss + reinforce_loss
-        return loss, entropy, critic_output, bl_val_detached, bl_val, Reward, approx_kl_divergence
+
+        return baseline_loss,reinforce_loss,loss,
 
 
     def learning(self,K_epochs=4,env=None,t_time=10):
-        # cal_loss
-        # update nets
-        loss, entropy, critic_output, bl_val_detached, bl_val, Reward, approx_kl_divergence = self.cal_loss(K_epochs,env,t_time)
+        # begin update
+
+        _,_,loss = self.cal_loss(K_epochs,env,t_time)
+        self.optimizer.zero_grad()
         loss.backward()
+        self.optimizer.step()
+
         # end update
 
 

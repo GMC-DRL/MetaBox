@@ -1,8 +1,15 @@
-import numpy as np
-import torch
-import torch.nn as nn
-import torch.nn.functional as F
-import torch.optim as optim
+"""
+This is a basic agent class for L2O benchmark.
+All agents should inherit from this class.
+Your own agent should have the following functions:
+    1. __init__(self, problem, config) to initialize the agent
+    2.get_feature(self,env) to get the feature from env.state to feed net
+    3.inference(self,env,need_train) to get action from net
+    4.cal_loss(self,env) to calculate the loss
+    5.learn(self,env) to update the net
+You can use the class Memory to record some info which should be initialized in __init__ and you can use memory to get the info.
+"""
+
 
 
 class Memory:
@@ -26,7 +33,7 @@ class learnable_Agent():
     def __init__(self,config):
         self.config = config
         # self.net should be a tuple/list/dict of several nets
-        self.net = None
+        self.nets = None
 
         self.memory = Memory()
 
