@@ -1,4 +1,9 @@
-
+"""
+This file is used to train the agent.(mainly for the kind of optimizer that is learnable)
+The class Experimentmanager should have the following functions:
+    1. __init__(self,problem, optimizer, agent, reward_function) to initialize the Experimentmanager
+    2. run(self) to run the Experimentmanager and train the agent
+"""
 from L2OBench.Optimizer import learnable_optimizer
 from L2OBench.Environment import basic_environment
 
