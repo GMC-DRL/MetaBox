@@ -8,6 +8,9 @@ def get_config(args=None):
     parser.add_argument('--train', default=None, action='store_true', help='switch to train mode')
     parser.add_argument('--test', default=None, action='store_true', help='switch to inference mode')
 
+    parser.add_argument('--is_linux', default=False,
+                        help='for the usage of parallel environment, os should be known by program')
+
     # Problem config
     parser.add_argument('--problem', default='Schwefel', choices=['Sphere', 'Schwefel', 'Ackley', 'Bent_cigar'])
     parser.add_argument('--dim', type=int, default=10)

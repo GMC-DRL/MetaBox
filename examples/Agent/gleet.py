@@ -94,8 +94,11 @@ class Actor(nn.Module):
 
     def forward(self, x_in, fixed_action=None, require_entropy=False, to_critic=False, only_critic=False):
         if not self.no_attn:
-            population_feature = x_in[:, :, :self.node_dim]
-            eef = x_in[:, :, self.node_dim:]
+            # print(x_in.shape)
+            # print(type(self.node_dim))
+
+            population_feature = x_in[:, :,:self.node_dim]
+            eef = x_in[:, :,self.node_dim:]
             # pass through embedder
             h_em = self.embedder(population_feature)
             # pass through encoder
@@ -233,7 +236,7 @@ def save_model(save_path, agent):
 
 class ppo(basic_Agent.learnable_Agent):
     # init the network
-    def __init__(self,config):
+    def __init__(self,config,env):
         super(ppo, self).__init__(config)
         # memory store some needed information
         # agent network
@@ -245,12 +248,7 @@ class ppo(basic_Agent.learnable_Agent):
         # figure out the lr schedule
         self.lr_scheduler = torch.optim.lr_scheduler.ExponentialLR(self.optimizer, config.lr_decay, last_epoch=-1, )
 
-
-    # for gpso
-    def get_feature(self,env):
-        # get feature from env
-
-        max_step = env.optimizer.max_fes // env.optimizer.ps
+        max_step = env.optimizer.max_fes // env.optimizer.NP
         # cost cur
         fea0 = env.optimizer.particles['c_cost'] / env.optimizer.max_cost
         # cost cur_gbest
@@ -258,11 +256,54 @@ class ppo(basic_Agent.learnable_Agent):
         # cost cur_pbest
         fea2 = (env.optimizer.particles['c_cost'] - env.optimizer.particles['pbest']) / env.optimizer.max_cost
         # fes cur_fes
-        fea3 = np.full(shape=(env.optimizer.ps), fill_value=(env.optimizer.max_fes - env.optimizer.fes) / env.optimizer.max_fes)
+        fea3 = np.full(shape=(env.optimizer.NP),
+                       fill_value=(env.optimizer.max_fes - env.optimizer.fes) / env.optimizer.max_fes)
         # no_improve  per
         fea4 = env.optimizer.per_no_improve / max_step
         # no_improve  whole
-        fea5 = np.full(shape=(env.optimizer.ps), fill_value=env.optimizer.no_improve / max_step)
+        fea5 = np.full(shape=(env.optimizer.NP), fill_value=env.optimizer.no_improve / max_step)
+        # distance between cur and gbest
+        fea6 = np.sqrt(
+            np.sum((env.optimizer.particles['current_position'] - np.expand_dims(
+                env.optimizer.particles['gbest_position'], axis=0)) ** 2,
+                   axis=-1)) / env.optimizer.max_dist
+        # distance between cur and pbest
+        fea7 = np.sqrt(
+            np.sum((env.optimizer.particles['current_position'] - env.optimizer.particles['pbest_position']) ** 2,
+                   axis=-1)) / env.optimizer.max_dist
+
+        # cos angle
+        pbest_cur_vec = env.optimizer.particles['pbest_position'] - env.optimizer.particles['current_position']
+        gbest_cur_vec = np.expand_dims(env.optimizer.particles['gbest_position'], axis=0) - env.optimizer.particles[
+            'current_position']
+        fea8 = np.sum(pbest_cur_vec * gbest_cur_vec, axis=-1) / ((np.sqrt(
+            np.sum(pbest_cur_vec ** 2, axis=-1)) * np.sqrt(np.sum(gbest_cur_vec ** 2, axis=-1))) + 1e-5)
+        fea8 = np.where(np.isnan(fea8), np.zeros_like(fea8), fea8)
+
+        next_state = np.concatenate(
+            (fea0[:, None], fea1[:, None], fea2[:, None], fea3[:, None], fea4[:, None], fea5[:, None],
+             fea6[:, None], fea7[:, None], fea8[:, None]), axis=-1)
+        self.pbest_feature = np.concatenate((fea0[:, None], fea1[:, None], fea2[:, None], fea3[:, None], fea4[:, None], fea5[:, None],
+                               fea6[:, None], fea7[:, None], fea8[:, None]), axis=-1)
+        self.gbest_feature = next_state[env.optimizer.particles['gbest_index']]
+
+    # for gpso
+    def get_feature(self,env):
+        # get feature from env
+
+        max_step = env.optimizer.max_fes // env.optimizer.NP
+        # cost cur
+        fea0 = env.optimizer.particles['c_cost'] / env.optimizer.max_cost
+        # cost cur_gbest
+        fea1 = (env.optimizer.particles['c_cost'] - env.optimizer.particles['gbest_val']) / env.optimizer.max_cost  # ps
+        # cost cur_pbest
+        fea2 = (env.optimizer.particles['c_cost'] - env.optimizer.particles['pbest']) / env.optimizer.max_cost
+        # fes cur_fes
+        fea3 = np.full(shape=(env.optimizer.NP), fill_value=(env.optimizer.max_fes - env.optimizer.fes) / env.optimizer.max_fes)
+        # no_improve  per
+        fea4 = env.optimizer.per_no_improve / max_step
+        # no_improve  whole
+        fea5 = np.full(shape=(env.optimizer.NP), fill_value=env.optimizer.no_improve / max_step)
         # distance between cur and gbest
         fea6 = np.sqrt(
             np.sum((env.optimizer.particles['current_position'] - np.expand_dims(env.optimizer.particles['gbest_position'], axis=0)) ** 2,
@@ -281,23 +322,32 @@ class ppo(basic_Agent.learnable_Agent):
         next_state = np.concatenate((fea0[:, None], fea1[:, None], fea2[:, None], fea3[:, None], fea4[:, None], fea5[:, None],
                                fea6[:, None], fea7[:, None], fea8[:, None]), axis=-1)
 
+
         # update exploration state
-        env.optimizer.pbest_feature = np.where(env.optimizer.per_no_improve[:, None] == 0, next_state, env.optimizer.pbest_feature)
+        self.pbest_feature = np.where(env.optimizer.per_no_improve[:, None] == 0, next_state, self.pbest_feature)
         # update exploitation state
         if env.optimizer.no_improve == 0:
-            env.optimizer.gbest_feature = next_state[env.optimizer.particles['gbest_index']]
+            self.gbest_feature = next_state[env.optimizer.particles['gbest_index']]
 
-        next_gpcat = np.concatenate((env.optimizer.pbest_feature,env.optimizer.gbest_feature[None, :].repeat(env.optimizer.ps,axis = 0) ), axis=-1)
+        next_gpcat = np.concatenate((self.pbest_feature,self.gbest_feature[None, :].repeat(env.optimizer.NP,axis = 0)), axis=-1)
 
+        # reward = env.reward_func(
+        #                         cur = env.optimizer.particles['c_cost'],pre = env.optimizer.pre_cost,
+        #                         init = env.optimizer.init_cost,cur_gbest = env.optimizer.particles['gbest_val'],
+        #                         pre_gbest = env.optimizer.pre_gbest
+        #                         )
+        # info = {'gbest_val': env.optimizer.particles['gbest_val']}
+
+        # return (np.concatenate((next_state,next_gpcat),axis = -1),reward,env.optimizer.is_done,info)
         return np.concatenate((next_state,next_gpcat),axis = -1)
 
 
-
-    def inference(self,env,need_gd):
+    def inference(self,env,need_gd,fixed_action=None, require_entropy=False, to_critic=False, only_critic=False):
         # get aciton/fitness
 
-        state_feature = self.get_feature(env)
-        state = torch.FloatTensor(state_feature).to(self.config.device)
+        state = self.get_feature(env)
+
+        state = torch.Tensor(state).to(self.config.device)
 
         # check if need gradient to change mode
         if need_gd:
@@ -310,116 +360,41 @@ class ppo(basic_Agent.learnable_Agent):
             if not self.config.test: self.nets[1].eval()
 
         self.memory.states.append(copy.deepcopy(state))
-        action, log_lh, _to_critic, entro_p = self.nets[0](state,
+        # print(type(state))
+
+
+
+        if only_critic:
+            _to_critic = self.nets[0](torch.Tensor(np.expand_dims(state, axis=0)).to(self.config.device), only_critic=True)
+            return _to_critic
+        if not require_entropy:
+            action, log_lh, _to_critic = self.nets[0](torch.Tensor(np.expand_dims(state, axis=0)).to(self.config.device),
+                                                          fixed_action = fixed_action,
+                                                          to_critic=True
+                                                          )
+            return action, log_lh, _to_critic
+
+        action, log_lh, _to_critic, entro_p = self.nets[0](torch.Tensor(np.expand_dims(state, axis=0)).to(self.config.device),
+                                                          fixed_action = fixed_action,
                                                           require_entropy=True,
                                                           to_critic=True
                                                           )
-        self.memory.actions.append(action)
-        self.memory.log_lh.append(log_lh)
+        # self.memory.actions.append(action)
+        # self.memory.logprobs.append(log_lh)
         if need_gd:
-            return action, entro_p
+            return action, log_lh, _to_critic, entro_p
         else:
-            return action
+            return action, log_lh, _to_critic, entro_p
 
 
-    def cal_loss(self,K_epochs=4,env=None,t_time=10):
-        # cal loss
-        total_cost = 0
-        entropy = []
-        bl_val_detached = []
-        bl_val = []
-
-        baseline_loss = 0
-        reinforce_loss = 0
-        loss = 0
-
-        old_actions = torch.stack(self.memory.actions)
-        old_states = torch.stack(self.memory.states).detach()  # .view(t_time, bs, ps, dim_f)
-        # old_actions = all_actions.view(t_time, bs, ps, -1)
-        # print('old_actions.shape:{}'.format(old_actions.shape))
-        old_logprobs = torch.stack(self.memory.logprobs).detach().view(-1)
-
-        # Optimize PPO policy for K mini-epochs:
-        old_value = None
-        for _k in range(K_epochs):
-            if _k == 0:
-                logprobs = self.memory.logprobs
-
-            else:
-                # Evaluating old actions and values :
-                logprobs = []
-                entropy = []
-                bl_val_detached = []
-                bl_val = []
-
-                for tt in range(t_time):
-                    # get new action_prob
-                    _, log_p, _to_critic, entro_p = self.nets[0](old_states[tt],
-                                                                fixed_action=old_actions[tt],
-                                                                require_entropy=True,  # take same action
-                                                                to_critic=True
-                                                                )
-
-                    logprobs.append(log_p)
-                    entropy.append(entro_p.detach().cpu())
-
-                    baseline_val_detached, baseline_val = self.nets[1](_to_critic)
-
-                    bl_val_detached.append(baseline_val_detached)
-                    bl_val.append(baseline_val)
-
-            logprobs = torch.stack(logprobs).view(-1)
-            entropy = torch.stack(entropy).view(-1)
-            bl_val_detached = torch.stack(bl_val_detached).view(-1)
-            bl_val = torch.stack(bl_val).view(-1)
-
-            # get traget value for critic
-            Reward = []
-            reward_reversed = self.memory.rewards[::-1]
-            # get next value
-            R = self.nets[1](self.nets[0](env.state, only_critic=True))[0]
-
-            # R = agent.critic(x_in)[0]
-            critic_output = R.clone()
-            for r in range(len(reward_reversed)):
-                R = R * self.config.gamma + reward_reversed[r]
-                Reward.append(R)
-            # clip the target:
-            Reward = torch.stack(Reward[::-1], 0)
-            Reward = Reward.view(-1)
-
-            # Finding the ratio (pi_theta / pi_theta__old):
-            ratios = torch.exp(logprobs - old_logprobs.detach())
-
-            # Finding Surrogate Loss:
-            advantages = Reward - bl_val_detached
-
-            surr1 = ratios * advantages
-            surr2 = torch.clamp(ratios, 1 - self.config.eps_clip, 1 + self.config.eps_clip) * advantages
-            reinforce_loss = -torch.min(surr1, surr2).mean()
-
-            # define baseline loss
-            if old_value is None:
-                baseline_loss = ((bl_val - Reward) ** 2).mean()
-                old_value = bl_val.detach()
-            else:
-                vpredclipped = old_value + torch.clamp(bl_val - old_value, - self.config.eps_clip, self.config.eps_clip)
-                v_max = torch.max(((bl_val - Reward) ** 2), ((vpredclipped - Reward) ** 2))
-                baseline_loss = v_max.mean()
-
-            # check K-L divergence (for logging only)
-            approx_kl_divergence = (.5 * (old_logprobs.detach() - logprobs) ** 2).mean().detach()
-            approx_kl_divergence[torch.isinf(approx_kl_divergence)] = 0
-            # calculate loss
-            loss = baseline_loss + reinforce_loss
-
-        return baseline_loss,reinforce_loss,loss,
+    def cal_loss(self,env=None):
+        pass
 
 
-    def learning(self,K_epochs=4,env=None,t_time=10):
+    def learning(self,env=None):
         # begin update
 
-        _,_,loss = self.cal_loss(K_epochs,env,t_time)
+        _,_,loss = self.cal_loss(env)
         self.optimizer.zero_grad()
         loss.backward()
         self.optimizer.step()

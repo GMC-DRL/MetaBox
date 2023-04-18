@@ -24,7 +24,7 @@ config.use_cuda = torch.cuda.is_available() and not config.no_cuda
 config.device = torch.device("cuda:1" if config.use_cuda else "cpu")
 agent = gleet.ppo(config)
 
-manager = ComparisionManager(agent, env,config)
+manager = ComparisionManager(agent,env,config)
 
 manager.run()
 # cost_mean,cost_std = manager.run()

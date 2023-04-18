@@ -15,6 +15,8 @@ from L2OBench.reward import binary
 from L2OBench.Problem.cec_dataset import Training_Dataset
 from L2OBench.config import get_config
 
+# from L2OBench.Environment.env import SubprocVectorEnv,DummyVectorEnv
+
 class ComparisionManager():
     # def __init__(self,problem, optimizer, agent, reward_function):
     #     self.env = basic_environment.PBO_Env(problem, optimizer, reward_function)
@@ -32,12 +34,12 @@ class ComparisionManager():
         state = self.env.reset()
         # state = torch.FloatTensor(state).to(self.config.device)
         while not is_done:
-            action = self.agent.inference(self.env,need_gd=False)
-            state, reward, is_done = self.env.step(action)
-            print(state['fes'], state['cost'].min(), state['cost'].mean(), reward)
+            action,_,_,_ = self.agent.inference(self.env, need_gd=False)
+            action = action.cpu().numpy()
+            state, reward, is_done = self.env.step(action[0])
+            print("fes:", state['fes'], "cost_min:", state['cost'].min(), "cost_mean:", state['cost'].mean(),
+                  "reward:", reward)
 
-        # learn
-        self.agent.learning(env = self.env)
 
 
     # 1.初始化agent和env
