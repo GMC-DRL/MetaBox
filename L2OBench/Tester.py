@@ -6,7 +6,7 @@ ComparisionManager should have the following functions:
 """
 from L2OBench.Optimizer import learnable_optimizer
 from L2OBench.Environment import basic_environment
-
+import torch
 import numpy as np
 from tqdm import tqdm
 import os
@@ -15,24 +15,30 @@ from L2OBench.reward import binary
 from L2OBench.Problem.cec_dataset import Training_Dataset
 from L2OBench.config import get_config
 
+# from L2OBench.Environment.env import SubprocVectorEnv,DummyVectorEnv
+
 class ComparisionManager():
     # def __init__(self,problem, optimizer, agent, reward_function):
     #     self.env = basic_environment.PBO_Env(problem, optimizer, reward_function)
     #     self.agent = agent
     #     self.config = get_config()
 
-    def __init__(self,agent,env):
+    def __init__(self,agent,env,config=None):
         self.env = env
         self.agent = agent
-        self.config = get_config()
+        self.config = config
 
     def run(self):
         is_done = False
+        # 此处的state仅是部分env的meta info ，并不是env的state，env的state是在agent的get_feature中得到的
         state = self.env.reset()
+        # state = torch.FloatTensor(state).to(self.config.device)
         while not is_done:
-            action = self.agent.inference(state,need_gd=False)
-            state, reward, is_done = self.env.step(action)
-            print(state['fes'], state['cost'].min(), state['cost'].mean(), reward)
+            action,_,_,_ = self.agent.inference(self.env, need_gd=False)
+            action = action.cpu().numpy()
+            state, reward, is_done = self.env.step(action[0])
+            print("fes:", state['fes'], "cost_min:", state['cost'].min(), "cost_mean:", state['cost'].mean(),
+                  "reward:", reward)
 
 
 

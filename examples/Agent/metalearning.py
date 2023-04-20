@@ -46,7 +46,7 @@ class meta_Agent(learnable_Agent):
     def __init__(self,config):
         self.config = config
         self.net = None
-
+        # todo 弄清楚feature 和 nets
 
         pass
 
@@ -55,7 +55,7 @@ class meta_Agent(learnable_Agent):
         pass
 
 
-    def inference(self,need_gd):
+    def inference(self,env,need_gd):
         # get aciton/fitness
         pass
 
