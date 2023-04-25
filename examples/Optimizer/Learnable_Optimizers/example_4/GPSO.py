@@ -95,9 +95,11 @@ class GPSO_numpy(Learnable_Optimizer):
         # generate two set of random val for pso velocity update
         rand1 = np.random.rand(self.NP, 1)
         rand2 = np.random.rand(self.NP, 1)
+        # print(self.NP)
+        # print("population.shape = ", self.population.shape)
 
         action = action[:, None]
-
+        # print("action.shape = ",action.shape)
 
         # update velocity
         new_velocity = self.w * self.particles['velocity'] + self.c * action * rand1 * (
@@ -109,6 +111,7 @@ class GPSO_numpy(Learnable_Optimizer):
         new_velocity = np.clip(new_velocity, -self.max_velocity, self.max_velocity)
 
         # update position
+        # print("velocity.shape = ",new_velocity.shape)
         new_position = self.particles['current_position'] + new_velocity
         new_population = clipping(new_position, self.lb, self.ub)
         self.population = new_population
