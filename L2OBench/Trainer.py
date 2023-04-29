@@ -225,68 +225,98 @@ def clip_grad_norms(param_groups, max_norm=math.inf):
 #
 #         # learn
 
-class Experimentmanager():
-    def __init__(self, agent, env, config=None):
-        self.env = env
-        self.agent = agent
-        self.config = config
+# class Experimentmanager():
+#     def __init__(self, agent, env, config=None):
+#         self.env = env
+#         self.agent = agent
+#         self.config = config
+#
+#     def run(self):
+#         is_done = False
+#         # 此处的state仅是部分env的meta info ，并不是env的state，env的state是在agent的get_feature中得到的
+#         state = self.env.reset()
+#         # state = torch.FloatTensor(state).to(self.config.device)
+#
+#
+#
+#         n_step = self.config.n_step
+#         t = 0
+#         done = False
+#
+#         while not done:
+#             t_s = t
+#             total_cost = 0
+#
+#
+#             self.agent.memory.clear_memory()
+#             loss = 0
+#             fitness = 0
+#             while t-t_s < n_step:
+#
+#                 delta_x = self.agent.inference(self.env,need_gd=True)
+#                 delta_x = torch.squeeze(delta_x, 0)
+#                 delta_x = torch.squeeze(delta_x, 0)
+#                 delta_x = delta_x.detach().cpu().numpy()
+#                 # print("delta_x:",delta_x.shape)
+#
+#                 state, reward, is_done = self.env.step(delta_x)
+#
+#                 fitness = state['cost']
+#
+#                 # print('fitness:{}'.format(fitness))
+#                 fitness = torch.FloatTensor(fitness).to(self.config.device)
+#                 loss += fitness
+#                 # print('loss:{}'.format(loss))
+#
+#                 t += 1
+#                 if is_done:
+#                     done = True
+#                     break
+#
+#             t_time = t - t_s
+#             total_cost = total_cost / t_time
+#
+#             # begin update
+#             self.agent.optimizer.zero_grad()
+#             loss.backward()
+#
+#             self.agent.optimizer.step()
+#             # self.agent.memory.clear_memory()
+#             print('loss:{}'.format(loss))
+#
+#             # end update
+
+
+class Trainer_traditional():
+    # 这里的env为env
+    def __init__(self,config,env,optimizer):
+
+        pass
 
     def run(self):
-        is_done = False
-        # 此处的state仅是部分env的meta info ，并不是env的state，env的state是在agent的get_feature中得到的
-        state = self.env.reset()
-        # state = torch.FloatTensor(state).to(self.config.device)
+        pass
 
 
+class Trainer_learnable():
+    # 这里的env为pbo_env
+    def __init__(self,config,env,agent):
+        pass
 
-        n_step = self.config.n_step
-        t = 0
-        done = False
-
-        while not done:
-            t_s = t
-            total_cost = 0
-
-
-            self.agent.memory.clear_memory()
-            loss = 0
-            fitness = 0
-            while t-t_s < n_step:
-
-                delta_x = self.agent.inference(self.env,need_gd=True)
-                delta_x = torch.squeeze(delta_x, 0)
-                delta_x = torch.squeeze(delta_x, 0)
-                delta_x = delta_x.detach().cpu().numpy()
-                # print("delta_x:",delta_x.shape)
-
-                state, reward, is_done = self.env.step(delta_x)
-
-                fitness = state['cost']
-
-                # print('fitness:{}'.format(fitness))
-                fitness = torch.FloatTensor(fitness).to(self.config.device)
-                loss += fitness
-                # print('loss:{}'.format(loss))
-
-                t += 1
-                if is_done:
-                    done = True
-                    break
-
-            t_time = t - t_s
-            total_cost = total_cost / t_time
-
-            # begin update
-            self.agent.optimizer.zero_grad()
-            loss.backward()
-
-            self.agent.optimizer.step()
-            # self.agent.memory.clear_memory()
-            print('loss:{}'.format(loss))
-
-            # end update
+    def run(self):
+        pass
 
 
+class ExperimentManager():
+    def __init__(self,config,env,agent = None,optimizer = None):
+        self.need_agent = config.need_agent
+        if self.need_agent == True:
+            self.Trainer = Trainer_learnable(config,env,agent)
+        else:
+            self.Trainer = Trainer_traditional(config,env,optimizer)
+        pass
 
+    def run(self):
+        self.Trainer.run()
+        pass
 
 

@@ -158,4 +158,35 @@ class ComparisionManager():
     #         return np.mean(collect_gbest).item(), np.mean(collect_std).item()
 
 
+class Tester_traditional():
+    # 这里的env为env
+    def __init__(self,config,env,optimizer):
+
+        pass
+
+    def run(self):
+        pass
+
+
+class Tester_learnable():
+    # 这里的env为pbo_env
+    def __init__(self,config,env,agent):
+        pass
+
+    def run(self):
+        pass
+
+
+class ExperimentManager():
+    def __init__(self,config,env,agent = None,optimizer = None):
+        self.need_agent = config.need_agent
+        if self.need_agent == True:
+            self.Tester = Tester_learnable(config,env,agent)
+        else:
+            self.Tester = Tester_traditional(config,env,optimizer)
+        pass
+
+    def run(self):
+        self.Tester.run()
+        pass
 

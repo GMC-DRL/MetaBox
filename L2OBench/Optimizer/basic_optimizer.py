@@ -11,6 +11,10 @@ class basic_optimizer():
     def __init__(self):
         pass
 
+    def init_population(self):
+        pass
+
+
     def train(self):
         pass
 
