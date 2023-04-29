@@ -3,7 +3,7 @@ A example of how to use L2OBench to test the performance of the optimizer(tradit
 """
 
 
-from examples.Optimizer.Traditional_Optimizer.basic_optimizer import DEAP_Optimizer_DE
+from examples.PSO.traditional.basic_optimizer import DEAP_Optimizer_DE
 from L2OBench.Problem.cec_dataset import Training_Dataset
 from L2OBench.config import get_config
 

@@ -1,12 +1,11 @@
 
 from L2OBench.Agent import basic_Agent
-import os
 from torch import nn
 import torch
-from examples.Agent.baseNets import MultiHeadEncoder, MLP, EmbeddingNet
+from examples.PSO.Learnable.GLEET.Agent.baseNets import MultiHeadEncoder, MLP, EmbeddingNet
 from torch.distributions import Normal
 
-from examples.Agent.utils import torch_load_cpu, get_inner_model
+from examples.PSO.Learnable.GLEET.Agent.utils import torch_load_cpu, get_inner_model
 import copy
 import numpy as np
 class mySequential(nn.Sequential):

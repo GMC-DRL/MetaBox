@@ -2,9 +2,8 @@
 A example of how to use L2OBench to train the optimizer(with agent)
 """
 
-from examples.Agent import gleet
+from examples.PSO.Learnable.GLEET.Agent import gleet
 from L2OBench.Optimizer import learnable_optimizer
-from L2OBench.Environment import basic_environment
 
 from L2OBench.reward import binary
 from L2OBench.Problem.cec_dataset import Training_Dataset

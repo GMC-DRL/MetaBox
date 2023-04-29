@@ -1,17 +1,11 @@
 """
 A example of how to use L2OBench to test the performance of the optimizer(with agent)
 """
-from examples.Agent import gleet
+from examples.PSO.Learnable.GLEET.Agent import gleet
 from L2OBench.Optimizer import learnable_optimizer
-from L2OBench.Environment import basic_environment
-
-import numpy as np
-from tqdm import tqdm
-import os
 
 from L2OBench.reward import binary
 from L2OBench.Problem.cec_dataset import Training_Dataset
-from L2OBench.config import get_config
 from L2OBench.Tester import ComparisionManager
 
 
