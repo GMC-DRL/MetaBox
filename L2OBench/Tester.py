@@ -159,7 +159,7 @@ class ComparisionManager():
 
 
 class Tester_traditional():
-    # 这里的env为env
+    # 这里的env为仅problem的env
     def __init__(self,config,env,optimizer):
 
         pass
@@ -188,5 +188,5 @@ class ExperimentManager():
 
     def run(self):
         self.Tester.run()
-        pass
+
 

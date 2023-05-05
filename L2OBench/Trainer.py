@@ -288,23 +288,222 @@ def clip_grad_norms(param_groups, max_norm=math.inf):
 
 
 class Trainer_traditional():
-    # 这里的env为env
+    # 这里的env为仅problem的env
     def __init__(self,config,env,optimizer):
+        self.optimizer = optimizer
+        self.env = env
+        self.config = config
+        self.optimizer.reset(env.problem)
 
-        pass
 
     def run(self):
-        pass
-
+        is_done = False
+        while not is_done:
+            gbest,_,is_done = self.optimizer.update(self.env.problem)
+            print('gbest:{}'.format(gbest))
 
 class Trainer_learnable():
     # 这里的env为pbo_env
     def __init__(self,config,env,agent):
-        pass
+        self.env = env
+        self.agent = agent
+        self.config = config
+        self.env.reset()
 
     def run(self):
-        pass
+        is_done = False
+        # 此处的state仅是部分env的meta info ，并不是env的state，env的state是在agent的get_feature中得到的
+        state = self.env.reset()
 
+        n_step = self.config.n_step
+        t = 0
+        done = False
+        epoch = 0
+        # while not done:
+        while epoch < 100:
+            t_s = t
+            total_cost = 0
+            entropy = []
+            bl_val_detached = []
+            bl_val = []
+            # temp_states = []
+            self.agent.memory.clear_memory()
+
+            # 跑n_step 记录对应的信息到memory中
+            while t-t_s < n_step:
+                state_feature = self.agent.get_feature(self.env)
+                state_feature = torch.FloatTensor(state_feature).to(self.config.device)
+                self.agent.memory.temp_states.append(state_feature)
+                self.agent.memory.states.append(state)
+                # for i in range(n_patch):
+                #     action, log_lh, _to_critic, entro_p = self.agent.inference(self.env,
+                #                                                                require_entropy=True,
+                #                                                                to_critic=True,
+                #                                                                need_gd=True)
+                # actions =
+
+                action, log_lh,_to_critic,  entro_p = self.agent.inference(self.env,
+                                                                           require_entropy=True,
+                                                                           to_critic=True,
+                                                                           need_gd=True)
+                self.agent.memory.actions.append(action.clone())
+
+                self.agent.memory.logprobs.append(log_lh.clone())
+                # print('old_logprobs.shape:{}'.format(torch.stack(self.agent.memory.logprobs).detach().view(-1).shape))
+                action = action.cpu().numpy()
+
+
+                entropy.append(entro_p.detach().cpu())
+
+                baseline_val_detached, baseline_val = self.agent.nets[1](_to_critic)
+                bl_val_detached.append(baseline_val_detached)
+                bl_val.append(baseline_val)
+
+                state, reward, is_done = self.env.step(action[0])
+                print("fes:", state['fes'], "cost_min:", state['cost'].min(), "cost_mean:", state['cost'].mean(),
+                      "reward:",
+                      reward)
+
+                self.agent.memory.rewards.append(reward)
+
+                t += 1
+                # if is_done:
+                #     done = True
+                #     break
+
+            t_time = t - t_s
+            total_cost = total_cost / t_time
+
+            info = (entropy, bl_val_detached, bl_val,t_time)
+
+            # begin update
+
+            info = self.agent.learning(self.env,info)
+            epoch += 1
+        #     old_actions = torch.stack(self.agent.memory.actions)
+        #     # old_states = torch.FloatTensor(self.agent.memory.states).detach()  # .view(t_time, bs, ps, dim_f)
+        #     # 使用得到了feature的state数组
+        #     old_states = torch.stack(self.agent.memory.temp_states).detach()  # .view(t_time, bs, ps, dim_f)
+        #     # old_states = torch.stack(self.agent.memory.states).detach()  # .view(t_time, bs, ps, dim_f)
+        #
+        #
+        #     # old_actions = all_actions.view(t_time, bs, ps, -1)
+        #     # print('old_actions.shape:{}'.format(old_actions.shape))
+        #
+        #     old_logprobs = torch.stack(self.agent.memory.logprobs).detach().view(-1)
+        #     # print('old_logprobs.shape:{}'.format(old_logprobs.shape))
+        #
+        #     # Optimize PPO policy for K mini-epochs:
+        #     old_value = None
+        #
+        #     for _k in range(self.config.K_epochs):
+        #
+        #         if _k == 0:
+        #             logprobs = self.agent.memory.logprobs
+        #
+        #         else:
+        #             # Evaluating old actions and values :
+        #             logprobs = []
+        #             entropy = []
+        #             bl_val_detached = []
+        #             bl_val = []
+        #
+        #             for tt in range(t_time):
+        #                 # get new action_prob
+        #                 _, log_p, _to_critic, entro_p = self.agent.nets[0](torch.Tensor(np.expand_dims(old_states[tt], axis=0)).to(self.config.device),
+        #                                                             fixed_action=old_actions[tt],
+        #                                                             require_entropy=True,  # take same action
+        #                                                             to_critic=True,
+        #                                                             )
+        #
+        #                 # _, log_p, _to_critic, entro_p = self.agent.nets[0](old_states[tt],
+        #                 #                                             fixed_action=old_actions[tt],
+        #                 #                                             require_entropy=True,  # take same action
+        #                 #                                             to_critic=True
+        #                 #                                             )
+        #
+        #                 logprobs.append(log_p)
+        #                 entropy.append(entro_p.detach().cpu())
+        #
+        #                 baseline_val_detached, baseline_val = self.agent.nets[1](_to_critic)
+        #
+        #                 bl_val_detached.append(baseline_val_detached)
+        #                 bl_val.append(baseline_val)
+        #
+        #         logprobs = torch.stack(logprobs).view(-1)
+        #         # print('logprobs.shape:{}'.format(logprobs.shape))
+        #         entropy = torch.stack(entropy).view(-1)
+        #         bl_val_detached = torch.stack(bl_val_detached).view(-1)
+        #         bl_val = torch.stack(bl_val).view(-1)
+        #
+        #         # get traget value for critic
+        #         Reward = []
+        #         reward_reversed = self.agent.memory.rewards[::-1]
+        #         # get next value
+        #         cretic = self.agent.inference(self.env, only_critic=True, need_gd=True)
+        #         R = self.agent.nets[1](cretic)[0]
+        #
+        #         # R = agent.critic(x_in)[0]
+        #         critic_output = R.clone()
+        #         for r in range(len(reward_reversed)):
+        #             R = R * self.config.gamma + reward_reversed[r]
+        #             Reward.append(R)
+        #         # clip the target:
+        #         Reward = torch.stack(Reward[::-1], 0)
+        #         Reward = Reward.view(-1)
+        #         # print('Reward.shape:{}'.format(Reward.shape))
+        #
+        #         # Finding the ratio (pi_theta / pi_theta__old):
+        #         # print('logprobs.shape:{}'.format(logprobs.shape))
+        #         # print('old_logprobs.shape:{}'.format(old_logprobs.shape))
+        #         ratios = torch.exp(logprobs - old_logprobs.detach())
+        #         # print('ratios.shape:{}'.format(ratios.shape))
+        #
+        #         # Finding Surrogate Loss:
+        #         # print('bl_val_detached.shape:{}'.format(bl_val_detached.shape))
+        #         # print('Reward.shape:{}'.format(Reward.shape))
+        #         advantages = Reward - bl_val_detached
+        #         # print('advantages.shape:{}'.format(advantages.shape))
+        #
+        #         surr1 = ratios * advantages
+        #         surr2 = torch.clamp(ratios, 1 - self.config.eps_clip, 1 + self.config.eps_clip) * advantages
+        #         reinforce_loss = -torch.min(surr1, surr2).mean()
+        #         # print(reinforce_loss.shape)
+        #
+        #         # define baseline loss
+        #         if old_value is None:
+        #             baseline_loss = ((bl_val - Reward) ** 2).mean()
+        #             old_value = bl_val.detach()
+        #         else:
+        #             vpredclipped = old_value + torch.clamp(bl_val - old_value, - self.config.eps_clip, self.config.eps_clip)
+        #             v_max = torch.max(((bl_val - Reward) ** 2), ((vpredclipped - Reward) ** 2))
+        #             baseline_loss = v_max.mean()
+        #
+        #         # check K-L divergence (for logging only)
+        #         approx_kl_divergence = (.5 * (old_logprobs.detach() - logprobs) ** 2).mean().detach()
+        #         approx_kl_divergence[torch.isinf(approx_kl_divergence)] = 0
+        #         # calculate loss
+        #         loss = baseline_loss + reinforce_loss
+        #         # print(type(loss))
+        #         # print(loss.shape)
+        #
+        #         self.agent.optimizer.zero_grad()
+        #         loss.backward()
+        #
+        #         # Clip gradient norm and get (clipped) gradient norms for logging
+        #
+        #         grad_norms = clip_grad_norms(self.agent.optimizer.param_groups, self.config.max_grad_norm)
+        #
+        #         # perform gradient descent
+        #         self.agent.optimizer.step()
+        #         # self.agent.memory.clear_memory()
+        #         print('loss:{}'.format(loss))
+        #
+        #         # end update
+        #
+        #     # self.agent.learning(env=self.env)
+        #
+        # # learn
 
 class ExperimentManager():
     def __init__(self,config,env,agent = None,optimizer = None):
@@ -313,10 +512,9 @@ class ExperimentManager():
             self.Trainer = Trainer_learnable(config,env,agent)
         else:
             self.Trainer = Trainer_traditional(config,env,optimizer)
-        pass
+
 
     def run(self):
         self.Trainer.run()
-        pass
 
 
