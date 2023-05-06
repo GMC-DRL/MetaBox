@@ -58,7 +58,7 @@ def get_config(args=None):
     parser.add_argument('--K_epochs', type=int, default=3, help='mini PPO epoch')
     parser.add_argument('--eps_clip', type=float, default=0.1, help='PPO clip ratio')
     parser.add_argument('--T_train', type=int, default=1800, help='number of itrations for training')
-    parser.add_argument('--n_step', type=int, default=10, help='n_step for return estimation')
+    parser.add_argument('--n_step', type=int, default=5, help='n_step for return estimation')
     parser.add_argument('--batch_size', type=int, default=16, help='number of instances per batch during training')
     parser.add_argument('--epoch_start', type=int, default=0,
                         help='start at epoch # (relevant for learning rate decay)')

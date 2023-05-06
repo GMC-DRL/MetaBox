@@ -1,5 +1,5 @@
 '''implementation of GPSO as an environment for DRL usage'''
-# todo 实现一个能返回ppo所需要的meta info的环境 可以从PSO改来
+
 import numpy as np
 from L2OBench.Optimizer import Learnable_Optimizer, clipping
 
@@ -19,6 +19,7 @@ class GPSO_numpy(Learnable_Optimizer):
         self.max_velocity = self.config.max_velocity
         self.max_x = self.config.max_x
         self.NP = self.config.NP
+        # for FSR
         self.n_pop = config.n_patch
 
         self.no_improve = np.zeros(self.n_pop)
@@ -34,6 +35,7 @@ class GPSO_numpy(Learnable_Optimizer):
     # initialize GPSO environment
     def init_population(self,problem):
         # randomly generate the position and velocity
+
         self.population = np.random.rand(self.n_pop, self.NP, self.dim) * (self.ub - self.lb) + self.lb  # [lb, ub]
         self.velocity = np.random.uniform(low=-self.max_velocity, high=self.max_velocity, size=(self.n_pop, self.NP, self.dim))
         self.fes = 0
@@ -47,6 +49,8 @@ class GPSO_numpy(Learnable_Optimizer):
         self.pre_gbest = self.cost.min(1)  # n_pop
         # self.gbest_cost = self.cost.min(1).copy()  # n_pop
         self.gbest_val = self.cost.min(1)  # n_pop
+        self.gbest_cost = self.cost.min(1).copy()
+
         self.gbest_index = self.cost.argmin(1)  # n_pop
         self.gbest_position = self.population[np.arange(self.n_pop), self.gbest_index].copy()  # n_pop, dim
 
@@ -84,6 +88,7 @@ class GPSO_numpy(Learnable_Optimizer):
 
 
     def update(self,problem,action=None):
+        # todo 此时拿到的action为每个小种群的action的list 需要做对应的适配
         self.is_done = False
 
         # record the gbest_val in the begining
@@ -148,6 +153,9 @@ class GPSO_numpy(Learnable_Optimizer):
                                                     self.particles['gbest_position']),
                          'gbest_index': np.where(gbest_filters, new_cbest_index, self.particles['gbest_index'])
                          }
+
+        self.gbest_cost = new_particles['gbest_val'].copy()
+
 
         # update the stagnation steps for the whole population
         self.no_improve += np.where(new_particles['gbest_val'] < self.particles['gbest_val'], 0, 1)

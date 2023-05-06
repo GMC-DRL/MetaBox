@@ -26,7 +26,6 @@ import cv2
 
 from L2OBench.Problem import Basic_Problem
 
-
 class FSR(Basic_Problem):
     def __init__(self, image_id, input_patches_LR, input_img_LR, input_img_HR, basic_patches_LR, basic_patches_HR,
                  scale=4, patch_size_LR=4, overlap_LR=3):
@@ -184,3 +183,4 @@ class FSR_Dataset(Dataset):
                                 patch_size,
                                 overlap))
         return data
+
