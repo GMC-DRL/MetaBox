@@ -19,10 +19,10 @@ class GPSO_numpy(Learnable_Optimizer):
         self.max_velocity = self.config.max_velocity
         self.max_x = self.config.max_x
         self.NP = self.config.NP
+        self.n_pop = config.n_patch
 
-
-        self.no_improve = 0
-        self.per_no_improve = np.zeros((self.NP,))
+        self.no_improve = np.zeros(self.n_pop)
+        self.per_no_improve = np.zeros((self.n_pop, self.NP))
         self.fes = 0
         self.max_fes = self.config.max_fes
         self.max_dist = np.sqrt((2 * self.config.max_x) ** 2 * self.config.dim)
@@ -33,21 +33,22 @@ class GPSO_numpy(Learnable_Optimizer):
 
     # initialize GPSO environment
     def init_population(self,problem):
-        super().init_population(problem)
         # randomly generate the position and velocity
-        self.velocity = np.random.uniform(low=-self.max_velocity, high=self.max_velocity, size=(self.NP, self.dim))
+        self.population = np.random.rand(self.n_pop, self.NP, self.dim) * (self.ub - self.lb) + self.lb  # [lb, ub]
+        self.velocity = np.random.uniform(low=-self.max_velocity, high=self.max_velocity, size=(self.n_pop, self.NP, self.dim))
+        self.fes = 0
 
         # get the initial cost
-        self.init_cost = self.get_costs(problem,self.population)  # ps
+        self.init_cost = self.get_costs(problem, self.population)  # n_pop, ps
         self.pre_cost = self.init_cost.copy()
         self.cost = self.init_cost.copy()
 
         # find out the gbest_val
-        self.pre_gbest = self.cost.min()  # 1
-
-        self.gbest_val = self.cost.min()  # 1
-        self.gbest_index = self.cost.argmin()  # 1
-        self.gbest_position = self.population[self.gbest_index].copy()  # dim
+        self.pre_gbest = self.cost.min(1)  # n_pop
+        # self.gbest_cost = self.cost.min(1).copy()  # n_pop
+        self.gbest_val = self.cost.min(1)  # n_pop
+        self.gbest_index = self.cost.argmin(1)  # n_pop
+        self.gbest_position = self.population[np.arange(self.n_pop), self.gbest_index].copy()  # n_pop, dim
 
         self.pbest = self.population.copy()
         self.pbest_cost = self.cost.copy()
@@ -56,14 +57,14 @@ class GPSO_numpy(Learnable_Optimizer):
         self.max_cost = np.min(self.cost)
 
         # store all the information of the paraticles
-        self.particles = {'current_position': self.population.copy(),  # ps, dim
-                          'c_cost': self.cost.copy(),  # ps
-                          'pbest_position': self.population.copy(),  # ps, dim
-                          'pbest': self.cost.copy(),  # ps
-                          'gbest_position': self.gbest_position.copy(),  # dim
-                          'gbest_val': self.gbest_val,  # 1
-                          'velocity': self.velocity.copy(),  # ps,dim
-                          'gbest_index': self.gbest_index  # 1
+        self.particles = {'current_position': self.population.copy(),    # n_pop, ps, dim
+                          'c_cost': self.cost.copy(),   # n_pop, ps
+                          'pbest_position': self.population.copy(),      # n_pop, ps, dim
+                          'pbest': self.cost.copy(),    # n_pop, ps
+                          'gbest_position': self.gbest_position.copy(),  # n_pop, dim
+                          'gbest_val': self.gbest_val,  # n_pop
+                          'velocity': self.velocity.copy(),  # n_pop, ps, dim
+                          'gbest_index': self.gbest_index  # n_pop
                           }
         if self.w_decay:
             self.w = 0.9
@@ -93,19 +94,19 @@ class GPSO_numpy(Learnable_Optimizer):
             self.w -= 0.5 / (self.max_fes / self.NP)
 
         # generate two set of random val for pso velocity update
-        rand1 = np.random.rand(self.NP, 1)
-        rand2 = np.random.rand(self.NP, 1)
+        rand1 = np.random.rand(self.n_pop, self.NP, 1)
+        rand2 = np.random.rand(self.n_pop, self.NP, 1)
         # print(self.NP)
         # print("population.shape = ", self.population.shape)
 
-        action = action[:, None]
+        action = action[:, :, None]
         # print("action.shape = ",action.shape)
 
         # update velocity
         new_velocity = self.w * self.particles['velocity'] + self.c * action * rand1 * (
                     self.particles['pbest_position'] - self.particles['current_position']) + \
                        self.c * (1 - action) * rand2 * (
-                                   self.particles['gbest_position'][None, :] - self.particles['current_position'])
+                                   self.particles['gbest_position'][:, None, :] - self.particles['current_position'])
 
         # clip the velocity if exceeding the boarder
         new_velocity = np.clip(new_velocity, -self.max_velocity, self.max_velocity)
@@ -122,12 +123,12 @@ class GPSO_numpy(Learnable_Optimizer):
         self.pre_cost = self.cost
         self.cost = new_cost
         # update particles
-        pbest_filters = new_cost < self.particles['pbest']
+        pbest_filters = new_cost < self.particles['pbest']  # n_pop, ps
 
-        new_cbest_val = np.min(new_cost)
-        new_cbest_index = np.argmin(new_cost)
+        new_cbest_val = np.min(new_cost, 1)  # n_pop
+        new_cbest_index = np.argmin(new_cost, 1)  # n_pop
 
-        gbest_filters = new_cbest_val < self.particles['gbest_val']
+        gbest_filters = new_cbest_val < self.particles['gbest_val']  # n_pop
 
 
         new_particles = {'current_position': new_position,
@@ -143,18 +144,15 @@ class GPSO_numpy(Learnable_Optimizer):
                                                new_cbest_val,
                                                self.particles['gbest_val']),
                          'gbest_position': np.where(np.expand_dims(gbest_filters, axis=-1),
-                                                    new_position[new_cbest_index],
+                                                    new_position[np.arange(self.n_pop), new_cbest_index],
                                                     self.particles['gbest_position']),
                          'gbest_index': np.where(gbest_filters, new_cbest_index, self.particles['gbest_index'])
                          }
 
         # update the stagnation steps for the whole population
-        if new_particles['gbest_val'] < self.particles['gbest_val']:
-            self.no_improve = 0
-        else:
-            self.no_improve += 1
+        self.no_improve += np.where(new_particles['gbest_val'] < self.particles['gbest_val'], 0, 1)
 
-        # update the stagnation steps for singal particle in the population
+        # update the stagnation steps for single particle in the population
         filter_per_patience = new_particles['c_cost'] < self.particles['c_cost']
         self.per_no_improve += 1
         tmp = np.where(filter_per_patience, self.per_no_improve, np.zeros_like(self.per_no_improve))
@@ -170,7 +168,7 @@ class GPSO_numpy(Learnable_Optimizer):
         # see if the end condition is satisfied
         if self.fes >= self.max_fes:
             is_done = True
-        if self.particles['gbest_val'] <= 1e-8:
+        if self.particles['gbest_val'].max() <= 1e-8:
             is_done = True
 
 
