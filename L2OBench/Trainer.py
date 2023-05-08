@@ -320,6 +320,7 @@ class Trainer_learnable():
         done = False
         epoch = 0
         # while not done:
+        # todo 存在agent memory里的action等信息需要改格式，再用于学习
         while epoch < 100:
             t_s = t
             total_cost = 0
@@ -331,24 +332,20 @@ class Trainer_learnable():
 
             # 跑n_step 记录对应的信息到memory中
             while t-t_s < n_step:
-                state_feature = self.agent.get_feature(self.env)
-                state_feature = torch.FloatTensor(state_feature).to(self.config.device)
-                self.agent.memory.temp_states.append(state_feature)
-                self.agent.memory.states.append(state)
-                # for i in range(n_patch):
-                #     action, log_lh, _to_critic, entro_p = self.agent.inference(self.env,
-                #                                                                require_entropy=True,
-                #                                                                to_critic=True,
-                #                                                                need_gd=True)
-                # actions =
+                # state_feature = self.agent.get_feature(self.env)
+                # state_feature = torch.FloatTensor(state_feature).to(self.config.device)
+                # self.agent.memory.temp_states.append(state_feature)
+                # self.agent.memory.states.append(state)
 
                 action, log_lh,_to_critic,  entro_p = self.agent.inference(self.env,
                                                                            require_entropy=True,
                                                                            to_critic=True,
                                                                            need_gd=True)
-                self.agent.memory.actions.append(action.clone())
 
-                self.agent.memory.logprobs.append(log_lh.clone())
+                # self.agent.memory.actions.append(action.clone())
+
+                # self.agent.memory.logprobs.append(log_lh.clone())
+
                 # print('old_logprobs.shape:{}'.format(torch.stack(self.agent.memory.logprobs).detach().view(-1).shape))
                 action = action.cpu().numpy()
 
@@ -359,7 +356,7 @@ class Trainer_learnable():
                 bl_val_detached.append(baseline_val_detached)
                 bl_val.append(baseline_val)
 
-                state, reward, is_done = self.env.step(action[0])
+                state, reward, is_done = self.env.step(action)
                 print("fes:", state['fes'], "cost_min:", state['cost'].min(), "cost_mean:", state['cost'].mean(),
                       "reward:",
                       reward)
