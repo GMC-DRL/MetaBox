@@ -184,3 +184,108 @@ class FSR_Dataset(Dataset):
                                 patch_size,
                                 overlap))
         return data
+
+
+class FSR_Random_Dataset(Dataset):
+    height_HR = 120
+    width_HR = 100
+
+    def __init__(self,
+                 data,
+                 batch_size=1):
+        super().__init__()
+        self.data = data
+        self.batch_size = batch_size
+        self.N = len(self.data)
+        self.ptr = [i for i in range(0, self.N, batch_size)]
+        self.index = np.arange(self.N)
+
+    @staticmethod
+    def get_random_datasets(patch_size=4,
+                            overlap=3,
+                            train_batch_size=1,
+                            test_batch_size=1,
+                            train_set_ratio=0.75,
+                            dataset_seed=1035):
+        scale = 4
+        data_folder = path.join(path.dirname(__file__), 'FSR_data')
+        height_LR, width_LR = FSR_Random_Dataset.height_HR // scale, FSR_Random_Dataset.width_HR // scale
+        n_patch_ver = int(np.ceil((height_LR - overlap) / (patch_size - overlap)))  # number of patches vertically
+        n_patch_hor = int(np.ceil((width_LR - overlap) / (patch_size - overlap)))  # number of patches horizontally
+        kernel = np.ones((scale, scale)) / (scale ** 2)  # averaging filter for smoothing
+        # load basic images and crop them into patches
+        basic_patches_LR = [[] for _ in range(n_patch_ver * n_patch_hor)]
+        basic_patches_HR = [[] for _ in range(n_patch_ver * n_patch_hor)]
+        for i in range(0, 160):
+            for j in ('a', 'b'):
+                HR = cv2.cvtColor(cv2.imread(path.join(data_folder, f'{i + 1}{j}.jpg')), cv2.COLOR_BGR2GRAY)
+                LR = cv2.filter2D(cv2.resize(HR, (width_LR, height_LR)), -1, kernel)
+                for m in range(n_patch_ver):
+                    start_row = min(m * (patch_size - overlap), height_LR - patch_size)
+                    for n in range(n_patch_hor):
+                        start_col = min(n * (patch_size - overlap), width_LR - patch_size)
+                        basic_patch_LR = LR[start_row: start_row + patch_size,
+                                            start_col: start_col + patch_size]
+                        basic_patch_HR = HR[start_row * scale: (start_row + patch_size) * scale,
+                                            start_col * scale: (start_col + patch_size) * scale]
+                        basic_patches_LR[m * n_patch_hor + n].append(basic_patch_LR.reshape(-1))
+                        basic_patches_HR[m * n_patch_hor + n].append(basic_patch_HR.reshape(-1))
+        for patch in range(n_patch_ver * n_patch_hor):
+            basic_patches_LR[patch] = np.stack(basic_patches_LR[patch])
+            basic_patches_HR[patch] = np.stack(basic_patches_HR[patch])
+        basic_patches_LR = np.stack(basic_patches_LR)
+        basic_patches_HR = np.stack(basic_patches_HR)
+        # load input images and crop them into patches
+        if dataset_seed > 0:
+            np.random.seed(dataset_seed)
+        else:
+            np.random.seed(None)
+        data = []
+        for i in np.random.permutation(range(160, 200)):
+            for j in ('a', 'b'):
+                HR = cv2.cvtColor(cv2.imread(path.join(data_folder, f'{i + 1}{j}.jpg')), cv2.COLOR_BGR2GRAY)
+                LR = cv2.filter2D(cv2.resize(HR, (width_LR, height_LR)), -1, kernel)
+                input_patches = []
+                for m in range(n_patch_ver):
+                    start_row = min(m * (patch_size - overlap), height_LR - patch_size)
+                    for n in range(n_patch_hor):
+                        start_col = min(n * (patch_size - overlap), width_LR - patch_size)
+                        input_patch = LR[start_row: start_row + patch_size,
+                                         start_col: start_col + patch_size]
+                        input_patches.append(input_patch.reshape(-1))
+                input_patches = np.stack(input_patches)
+                data.append(FSR(f'{i + 1}{j}',
+                                input_patches,
+                                LR,
+                                HR,
+                                basic_patches_LR,
+                                basic_patches_HR,
+                                scale,
+                                patch_size,
+                                overlap))
+        # get train set and test set
+        n_train_func = int(len(data) / 2 * train_set_ratio) * 2
+        return FSR_Random_Dataset(data[:n_train_func], train_batch_size), FSR_Random_Dataset(data[n_train_func:], test_batch_size)
+
+    def __getitem__(self, item):
+        ptr = self.ptr[item]
+        index = self.index[ptr: min(ptr + self.batch_size, self.N)]
+        res = []
+        for i in range(len(index)):
+            res.append(self.data[index[i]])
+        return res
+
+    def __len__(self):
+        return self.N
+
+    def shuffle(self):
+        self.index = np.random.permutation(self.N)
+
+
+trainset, testset = FSR_Random_Dataset.get_random_datasets(dataset_seed=110)
+print(len(trainset))
+for i in range(len(trainset)):
+    print(i, ' ', trainset[i][0].image_id)
+print(len(testset))
+for i in range(len(testset)):
+    print(i, ' ', testset[i][0].image_id)
