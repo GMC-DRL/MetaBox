@@ -46,35 +46,68 @@ class Protein_Docking(Basic_Problem):
 
 
 class Protein_Docking_Dataset(Dataset):
-    train_set = {'rigid': ['1AVX', '1BJ1', '1BVN', '1CGI', '1DFJ', '1EAW', '1EWY', '1EZU', '1IQD', '1JPS',
-                           '1KXQ', '1MAH', '1N8O', '1PPE', '1R0R', '2B42', '2I25', '2JEL', '7CEI'],
-                 'medium': ['1GRN', '1IJK', '1M10', '1XQS'],
-                 'difficult': ['1ATN', '1IBR']
-                 }
-
-    test_set = {'rigid': ['1AY7'],
-                'medium': ['2HRK'],
-                'difficult': ['2C0L']
-                }
-
+    proteins_set = {'rigid': ['1AVX', '1BJ1', '1BVN', '1CGI', '1DFJ', '1EAW', '1EWY', '1EZU', '1IQD', '1JPS',
+                              '1KXQ', '1MAH', '1N8O', '1PPE', '1R0R', '2B42', '2I25', '2JEL', '7CEI', '1AY7'],
+                    'medium': ['1GRN', '1IJK', '1M10', '1XQS', '2HRK'],
+                    'difficult': ['1ATN', '1IBR', '2C0L']
+                    }
     n_start_points = 10  # top models from ZDOCK
 
     def __init__(self,
-                 num_samples,
-                 batch_size=1,
-                 difficulty=None,
-                 sample_seed=0,
-                 test=False):
+                 data,
+                 batch_size=1):
+        super().__init__()
+        self.data = data
         self.batch_size = batch_size
-        # initialize pointer for iteratively getting data batch
-        self.ptr = [i for i in range(0, num_samples, batch_size)]
-        # initialize the order data being selected, preparation for shuffling
-        self.index = np.arange(num_samples)
-        self.data = []
-        if sample_seed > 0:
-            np.random.seed(sample_seed)
-        self.data = Protein_Docking_Dataset.load_data(num_samples, difficulty, test)
         self.N = len(self.data)
+        self.ptr = [i for i in range(0, self.N, batch_size)]
+        self.index = np.arange(self.N)
+
+    @staticmethod
+    def get_datasets(train_batch_size=1,
+                     test_batch_size=1,
+                     difficulty='easy',
+                     dataset_seed=1035):
+        # apart train set and test set
+        if difficulty == 'easy':
+            train_set_ratio = 0.75
+        elif difficulty == 'difficult':
+            train_set_ratio = 0.25
+        else:
+            raise ValueError
+        if dataset_seed > 0:
+            np.random.seed(dataset_seed)
+        train_proteins_set = []
+        test_proteins_set = []
+        for key in Protein_Docking_Dataset.proteins_set.keys():
+            permutated = np.random.permutation(Protein_Docking_Dataset.proteins_set[key])
+            n_train_proteins = max(1, min(int(len(permutated) * train_set_ratio), len(permutated) - 1))
+            train_proteins_set.extend(permutated[:n_train_proteins])
+            test_proteins_set.extend(permutated[n_train_proteins:])
+        # construct problem instances
+        data = []
+        data_folder = path.join(path.dirname(__file__), 'protein_docking_data')
+        for i in train_proteins_set + test_proteins_set:
+            for j in range(Protein_Docking_Dataset.n_start_points):
+                data_dir = path.join(data_folder, i + '_' + str(j + 1))
+                coor_init = np.loadtxt(data_dir + '/coor_init')
+                q = np.loadtxt(data_dir + '/q')
+                e = np.loadtxt(data_dir + '/e')
+                r = np.loadtxt(data_dir + '/r')
+                basis = np.loadtxt(data_dir + '/basis')
+                eigval = np.loadtxt(data_dir + '/eigval')
+
+                q = np.tile(q, (1, 1))
+                e = np.tile(e, (1, 1))
+                r = np.tile(r, (len(r), 1))
+
+                q = np.matmul(q.T, q)
+                e = np.sqrt(np.matmul(e.T, e))
+                r = (r + r.T) / 2
+
+                data.append(Protein_Docking(coor_init, q, e, r, basis, eigval))
+        n_train_instances = len(train_proteins_set) * Protein_Docking_Dataset.n_start_points
+        return Protein_Docking_Dataset(data[:n_train_instances], train_batch_size), Protein_Docking_Dataset(data[n_train_instances:], test_batch_size)
 
     def __getitem__(self, item):
         ptr = self.ptr[item]
@@ -89,42 +122,3 @@ class Protein_Docking_Dataset(Dataset):
 
     def shuffle(self):
         self.index = np.random.permutation(self.N)
-
-    @classmethod
-    def load_data(cls, num_samples, difficulty=None, test=False):
-        set = cls.test_set if test else cls.train_set
-        candidates = []
-        if difficulty is None:
-            for value in set.values():
-                candidates.extend(value)
-        else:
-            try:
-                candidates.extend(set[difficulty])
-            except KeyError:
-                raise ValueError(f"Difficulty should be None, 'rigid', 'medium' or 'difficult', but {difficulty} received.")
-
-        complexes = np.random.choice(candidates, size=num_samples)
-        start_points = np.random.choice(cls.n_start_points, size=num_samples) + 1
-
-        data = []
-        data_folder = path.join(path.dirname(__file__), 'protein_docking_data')
-
-        for i in range(num_samples):
-            data_dir = path.join(data_folder, complexes[i]+'_'+str(start_points[i]))
-            coor_init = np.loadtxt(data_dir+'/coor_init')
-            q = np.loadtxt(data_dir+'/q')
-            e = np.loadtxt(data_dir+'/e')
-            r = np.loadtxt(data_dir+'/r')
-            basis = np.loadtxt(data_dir+'/basis')
-            eigval = np.loadtxt(data_dir+'/eigval')
-
-            q = np.tile(q, (1, 1))
-            e = np.tile(e, (1, 1))
-            r = np.tile(r, (len(r), 1))
-
-            q = np.matmul(q.T, q)
-            e = np.sqrt(np.matmul(e.T, e))
-            r = (r + r.T) / 2
-
-            data.append(Protein_Docking(coor_init, q, e, r, basis, eigval))
-        return data

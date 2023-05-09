@@ -103,7 +103,7 @@ class _Sphere(Problem):
 
     def func(self, x):
         self.FES += x.shape[0]
-        z = (x - self.shift) * self.shrink
+        z = sr_func(x, self.shift, self.rotate, self.shrink)
         return np.sum(z ** 2, axis=-1) + self.bias + self.boundaryHandling(x * self.shrink)
 
 
@@ -146,13 +146,13 @@ class F2(Problem):
     """
     def __init__(self, dim, shift, rotate, bias):
         self.shrink = 5 / 100
-        Problem.__init__(self, dim, shift, np.eye(dim), bias)
+        Problem.__init__(self, dim, shift, rotate, bias)
 
     def func(self, x):
         self.FES += x.shape[0]
         nx = self.dim
         z = sr_func(x, self.shift, self.rotate, self.shrink)
-        z = osc_transform(z)  # 跟Ellipsoidal的唯一区别
+        z = osc_transform(z)
         i = np.arange(nx)
         return np.sum(np.power(10, 6 * i / (nx - 1)) * (z ** 2), -1) + self.bias
 
@@ -168,7 +168,7 @@ class F3(Problem):
 
     def func(self, x):
         self.FES += x.shape[0]
-        z = self.scales * asy_transform(osc_transform((x - self.shift) * self.shrink), beta=0.2)
+        z = self.scales * asy_transform(osc_transform(sr_func(x, self.shift, self.rotate, self.shrink)), beta=0.2)
         return 10. * (self.dim - np.sum(np.cos(2. * np.pi * z), axis=-1)) + np.sum(z ** 2, axis=-1) + self.bias
 
 
@@ -179,7 +179,8 @@ class F4(Problem):
     def __init__(self, dim, shift, rotate, bias):
         self.shrink = 5 / 100
         shift[::2] = np.abs(shift[::2])
-        Problem.__init__(self, dim, shift, np.eye(dim), bias)
+        self.scales = ((10. ** 0.5) ** np.linspace(0, 1, dim))
+        Problem.__init__(self, dim, shift, rotate, bias)
 
     def func(self, x):
         self.FES += x.shape[0]
@@ -187,7 +188,7 @@ class F4(Problem):
         z = osc_transform(z)
         even = z[:, ::2]
         even[even > 0.] *= 10.
-        z *= (np.sqrt(10.) ** np.linspace(0, 1, self.dim))
+        z *= self.scales
         return 10 * (self.dim - np.sum(np.cos(2 * np.pi * z), axis=-1)) + np.sum(z ** 2, axis=-1) + 100 * pen_func(x * self.shrink) + self.bias
 
 
@@ -200,7 +201,7 @@ class F5(Problem):
         shift = np.sign(shift)
         shift[shift == 0.] = np.random.choice([-1., 1.], size=(shift == 0.).sum())
         # shift = shift * self.ub
-        shift = shift * 100
+        shift = shift * 5 / self.shrink
         Problem.__init__(self, dim, shift, rotate, bias)
 
     def func(self, x):
@@ -217,11 +218,9 @@ class F6(Problem):
     """
     Attractive_Sector
     """
-    condition = 10.
-
     def __init__(self, dim, shift, rotate, bias):
         self.shrink = 5 / 100
-        scales = (self.condition ** 0.5) ** np.linspace(0, 1, dim)
+        scales = (10. ** 0.5) ** np.linspace(0, 1, dim)
         rotate = np.matmul(np.matmul(rotate_gen(dim), np.diag(scales)), rotate)
         Problem.__init__(self, dim, shift, rotate, bias)
 
@@ -239,13 +238,14 @@ class _Step_Ellipsoidal(Problem):
     """
     def __init__(self, dim, shift, rotate, bias):
         self.shrink = 5. / 100
-        self.scales = (10. ** 0.5) ** np.linspace(0, 1, dim)
+        scales = (10. ** 0.5) ** np.linspace(0, 1, dim)
+        rotate = np.matmul(np.diag(scales), rotate)
         self.Q_rotate = rotate_gen(dim)
         Problem.__init__(self, dim, shift, rotate, bias)
 
     def func(self, x):
         self.FES += x.shape[0]
-        z_hat = self.scales * sr_func(x, self.shift, self.rotate, self.shrink)
+        z_hat = sr_func(x, self.shift, self.rotate, self.shrink)
         z = np.matmul(np.where(np.abs(z_hat) > 0.5, np.floor(0.5 + z_hat), np.floor(0.5 + 10. * z_hat) / 10.), self.Q_rotate.T)
         return 0.1 * np.maximum(np.abs(z_hat[:, 0]) / 1e4, np.sum(100 ** np.linspace(0, 1, self.dim) * (z ** 2), axis=-1)) + \
                self.boundaryHandling(x * self.shrink) + self.bias
@@ -281,7 +281,7 @@ class _Rosenbrock(Problem):
 
     def func(self, x):
         self.FES += x.shape[0]
-        z = max(1., self.dim ** 0.5 / 8.) * (x - self.shift) * self.shrink + 1
+        z = max(1., self.dim ** 0.5 / 8.) * sr_func(x, self.shift, self.rotate, self.shrink) + 1
         return np.sum(100 * (z[:, :-1] ** 2 - z[:, 1:]) ** 2 + (z[:, :-1] - 1) ** 2, axis=-1) + self.bias + self.boundaryHandling(x * self.shrink)
 
 
@@ -326,12 +326,12 @@ class F9(Problem):
         self.shrink = 5 / 100
         scale = max(1., dim ** 0.5 / 8.)
         self.linearTF = scale * rotate
-        shift = np.matmul(0.5 * np.ones(dim), self.linearTF) / (scale ** 2)
+        shift = np.matmul(0.5 * np.ones(dim), self.linearTF) / (scale ** 2) / self.shrink
         Problem.__init__(self, dim, shift, rotate, bias)
 
     def func(self, x):
         self.FES += x.shape[0]
-        z = np.matmul(x, self.linearTF.T) + 0.5
+        z = np.matmul(x * self.shrink, self.linearTF.T) + 0.5
         return np.sum(100 * (z[:, :-1] ** 2 - z[:, 1:]) ** 2 + (z[:, :-1] - 1) ** 2, axis=-1) + self.bias
 
 
@@ -406,7 +406,7 @@ class F12(Problem):
         self.FES += x.shape[0]
         z = sr_func(x, self.shift, self.rotate, self.shrink)
         z = asy_transform(z, beta=self.beta)
-        z = np.matmul(z, self.rotate)
+        z = np.matmul(z, self.rotate)  # todo check
         return z[:, 0] ** 2 + np.sum(np.power(10, 6) * (z[:, 1:] ** 2), -1) + self.bias
 
 
@@ -733,7 +733,7 @@ class F24(Problem):
                10. * (self.dim - np.sum(np.cos(2. * np.pi * z), axis=-1)) + 1e4 * pen_func(x) + self.bias
 
 
-class bbob_Dataset(Dataset):
+class BBOB_Dataset(Dataset):
     def __init__(self,
                  data,
                  batch_size=1):
@@ -747,12 +747,12 @@ class bbob_Dataset(Dataset):
     @staticmethod
     def get_datasets(suit,
                      dim,
-                     train_batch_size=1,
-                     test_batch_size=1,
                      shifted=True,
                      rotated=True,
                      biased=True,
-                     train_set_ratio=0.75,
+                     train_batch_size=1,
+                     test_batch_size=1,
+                     difficulty='easy',
                      dataset_seed=1035,
                      instance_seed=3849):
         # get functions ID of indicated suit
@@ -780,14 +780,20 @@ class bbob_Dataset(Dataset):
             else:
                 bias = 0
             data.append(eval(f'F{id}')(dim, shift, H, bias))
-        # get train set and test set
+        # apart train set and test set
+        if difficulty == 'easy':
+            train_set_ratio = 0.75
+        elif difficulty == 'difficult':
+            train_set_ratio = 0.25
+        else:
+            raise ValueError
         if dataset_seed > 0:
             np.random.seed(dataset_seed)
         else:
             np.random.seed(None)
         np.random.shuffle(data)
         n_train_func = int(len(data) * train_set_ratio)
-        return bbob_Dataset(data[:n_train_func], train_batch_size), bbob_Dataset(data[n_train_func:], test_batch_size)
+        return BBOB_Dataset(data[:n_train_func], train_batch_size), BBOB_Dataset(data[n_train_func:], test_batch_size)
 
     def __getitem__(self, item):
         ptr = self.ptr[item]
@@ -802,12 +808,3 @@ class bbob_Dataset(Dataset):
 
     def shuffle(self):
         self.index = np.random.permutation(self.N)
-
-
-train_set, test_set = bbob_Dataset.get_datasets('bbob', 10, instance_seed=0, shifted=True, rotated=True, biased=True)
-for i in range(len(train_set)):
-    print(train_set[i][0].__class__, '  ', train_set[i][0].optimum)
-print('')
-for i in range(len(test_set)):
-    print(test_set[i][0].__class__, '  ', test_set[i][0].optimum)
-
