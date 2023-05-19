@@ -8,37 +8,23 @@ Your own agent should have the following functions:
 You can use the class Memory to record some info which should be initialized in __init__ and you can use memory to get the info.
 """
 
-from L2OBench.Environment import PBO_Env
-
-
-class Memory:
-    def __init__(self):
-        self.actions = []
-        self.states = []
-        self.logprobs = []
-        self.rewards = []
-
-    def clear_memory(self):
-        del self.actions[:]
-        del self.states[:]
-        del self.logprobs[:]
-        del self.rewards[:]
+from environment import PBO_Env
+from logger import Logger
+from typing import Tuple
 
 
 class Basic_Agent:
     def __init__(self, config):
-        self.config = config
+        self.__config = config
 
     def train_episode(self,
                       env: PBO_Env,
-                      epoch_id: int,
-                      problem_id: int,
-                      logger: Logger):
+                      epoch_id: int = None,
+                      logger: Logger = None) -> Tuple[bool, dict]:
         raise NotImplementedError
 
     def rollout_episode(self,
                         env: PBO_Env,
-                        epoch_id: int,
-                        problem_id: int,
-                        logger: Logger):
+                        epoch_id: int = None,
+                        logger: Logger = None) -> dict:
         raise NotImplementedError

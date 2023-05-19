@@ -1,6 +1,5 @@
 from typing import Any
-
-from L2OBench.Problem import Basic_Problem
+from problem.basic_problem import Basic_Problem
 
 
 class Learnable_Optimizer:
@@ -8,7 +7,7 @@ class Learnable_Optimizer:
     Abstract super class for learnable optimizers.
     """
     def __init__(self, config):
-        self.config = config
+        self.__config = config
 
     def init_population(self,
                         problem: Basic_Problem):
@@ -17,5 +16,5 @@ class Learnable_Optimizer:
     def update(self,
                action: Any,
                problem: Basic_Problem,
-               reward_func):
+               ):
         raise NotImplementedError

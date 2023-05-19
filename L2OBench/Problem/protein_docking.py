@@ -1,23 +1,27 @@
 from os import path
 import numpy as np
 from torch.utils.data import Dataset
-
-from L2OBench.Problem import Basic_Problem
+from problem.basic_problem import Basic_Problem
 
 
 class Protein_Docking(Basic_Problem):
     n_atoms = 100  # number of interface atoms considered for computational concern
     dim = 12
+    lb = -1.5
+    ub = 1.5
 
-    def __init__(self, coor_init, q, e, r, basis, eigval):
+    def __init__(self, coor_init, q, e, r, basis, eigval, problem_id):
         self.coor_init = coor_init  # [n_atoms, 3]
         self.q = q                  # [n_atoms, n_atoms]
         self.e = e                  # [n_atoms, n_atoms]
         self.r = r                  # [n_atoms, n_atoms]
         self.basis = basis          # [dim, 3*n_atoms]
         self.eigval = eigval        # [dim]
+        self.problem_id = problem_id
+        self.optimum = None      # unknown, set to None
 
-        self.optimum = 0.           # unknown, set to zero
+    def __str__(self):
+        return self.problem_id
 
     def func(self, x):
         eigval = 1.0 / np.sqrt(self.eigval)
@@ -27,12 +31,9 @@ class Protein_Docking(Basic_Problem):
         p2 = np.expand_dims(np.sum(new_coor * new_coor, axis=-1), axis=-1)  # sum of squares along last dim.  [NP, n_atoms, 1]
         p3 = np.matmul(new_coor, np.transpose(new_coor, (0, 2, 1)))  # inner products among row vectors. [NP, n_atoms, n_atoms]
         pair_dis = p2 - 2 * p3 + np.transpose(p2, (0, 2, 1))
-        pair_dis[np.arange(pair_dis.shape[0]).repeat(self.n_atoms, 0),
-                 np.arange(self.n_atoms)[None, :].repeat(pair_dis.shape[0], 0).reshape(-1),
-                 np.arange(self.n_atoms)[None, :].repeat(pair_dis.shape[0], 0).reshape(-1)] = 0.  # set diagonal to zeros
         pair_dis = np.sqrt(pair_dis + 0.01)  # [NP, n_atoms, n_atoms]
 
-        gt0_lt7 = (pair_dis > 0.1) & (pair_dis < 7.0)
+        gt0_lt7 = (pair_dis > 0.11) & (pair_dis < 7.0)
         gt7_lt9 = (pair_dis > 7.0) & (pair_dis < 9.0)
 
         pair_dis += np.eye(self.n_atoms)  # [NP, n_atoms, n_atoms]
@@ -40,7 +41,7 @@ class Protein_Docking(Basic_Problem):
 
         energy = np.mean(
             np.sum(10 * gt0_lt7 * coeff + 10 * gt7_lt9 * coeff * ((9 - pair_dis) ** 2 * (-12 + 2 * pair_dis) / 8),
-                   axis=1), axis=-1) - 7000  # [NP]
+                   axis=1), axis=-1)  # [NP]
 
         return energy
 
@@ -89,7 +90,8 @@ class Protein_Docking_Dataset(Dataset):
         data_folder = path.join(path.dirname(__file__), 'protein_docking_data')
         for i in train_proteins_set + test_proteins_set:
             for j in range(Protein_Docking_Dataset.n_start_points):
-                data_dir = path.join(data_folder, i + '_' + str(j + 1))
+                problem_id = i + '_' + str(j + 1)
+                data_dir = path.join(data_folder, problem_id)
                 coor_init = np.loadtxt(data_dir + '/coor_init')
                 q = np.loadtxt(data_dir + '/q')
                 e = np.loadtxt(data_dir + '/e')
@@ -105,11 +107,13 @@ class Protein_Docking_Dataset(Dataset):
                 e = np.sqrt(np.matmul(e.T, e))
                 r = (r + r.T) / 2
 
-                data.append(Protein_Docking(coor_init, q, e, r, basis, eigval))
+                data.append(Protein_Docking(coor_init, q, e, r, basis, eigval, problem_id))
         n_train_instances = len(train_proteins_set) * Protein_Docking_Dataset.n_start_points
         return Protein_Docking_Dataset(data[:n_train_instances], train_batch_size), Protein_Docking_Dataset(data[n_train_instances:], test_batch_size)
 
     def __getitem__(self, item):
+        if self.batch_size < 2:
+            return self.data[self.index[item]]
         ptr = self.ptr[item]
         index = self.index[ptr: min(ptr + self.batch_size, self.N)]
         res = []

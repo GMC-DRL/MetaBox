@@ -1,73 +1,51 @@
 import argparse
+import time
 
 
 def get_config(args=None):
     parser = argparse.ArgumentParser()
-
-    # choose mode
-    parser.add_argument('--train', default=None, action='store_true', help='switch to train mode')
-    parser.add_argument('--test', default=None, action='store_true', help='switch to inference mode')
-
-    parser.add_argument('--is_linux', default=False,
-                        help='for the usage of parallel environment, os should be known by program')
-
-    # Problem config
-    parser.add_argument('--problem', default='Schwefel', choices=['Sphere', 'Schwefel', 'Ackley', 'Bent_cigar'])
+    # Common config
+    parser.add_argument('--problem', default='bbob', choices=['bbob', 'bbob-noisy', 'protein'])
     parser.add_argument('--dim', type=int, default=10)
-    parser.add_argument('--lower_bound', type=int, default=-100)
-    parser.add_argument('--upper_bound', type=int, default=100)
-
-    # PBO config
-    parser.add_argument('--population_size', type=int, default=100)
-    parser.add_argument('--FEs_interest', type=int, default=20000, help='FEs = FEs_interest * dim')
-    parser.add_argument('--mutate_strategy', type=int, default=1, choices=[0, 1, 2])
-    parser.add_argument('--boundary_ctrl', default='clipping', choices=['clipping', 'random', 'reflection', 'periodic', 'halving', 'parent'], help='boundary control method')
-
-    # Agent config
-    parser.add_argument('--reward_definition', type=float, default=0., choices=[0., 0.1, 0.2, 3.1, 3.])
-    # Net(Attention Aggregation) parameters
-    parser.add_argument('--v_range', type=float, default=6., help='to control the entropy')
-    parser.add_argument('--encoder_head_num', type=int, default=4, help='head number of encoder')
-    parser.add_argument('--decoder_head_num', type=int, default=4, help='head number of decoder')
-    parser.add_argument('--critic_head_num', type=int, default=4, help='head number of critic encoder')
-    parser.add_argument('--embedding_dim', type=int, default=16, help='dimension of input embeddings')  #
-    parser.add_argument('--hidden_dim', type=int, default=16, help='dimension of hidden layers in Enc/Dec')  # 减小
-    parser.add_argument('--n_encode_layers', type=int, default=1,
-                        help='number of stacked layers in the encoder')  # 减小一点
-    parser.add_argument('--normalization', default='layer', help="normalization type, 'layer' (default) or 'batch'")
-    parser.add_argument('--node_dim', default=9, type=int, help='feature dimension for backbone algorithm')
-    parser.add_argument('--hidden_dim1_critic', default=32, help='the first hidden layer dimension for critic')
-    parser.add_argument('--hidden_dim2_critic', default=16, help='the second hidden layer dimension for critic')
-    parser.add_argument('--hidden_dim1_actor', default=32, help='the first hidden layer dimension for actor')
-    parser.add_argument('--hidden_dim2_actor', default=8, help='the first hidden layer dimension for actor')
-    parser.add_argument('--output_dim_actor', default=1, help='output action dimension for actor')
-    parser.add_argument('--lr_decay', type=float, default=0.9862327, help='learning rate decay per epoch',
-                        choices=[0.998614661, 0.9862327])
-    parser.add_argument('--max_sigma', default=0.7, type=float, help='upper bound for actor output sigma')
-    parser.add_argument('--min_sigma', default=0.01, type=float, help='lowwer bound for actor output sigma')
-    # for ablation study 消融实验
-    parser.add_argument('--no_attn', action='store_true', default=False,
-                        help='whether the network has attention mechanism or not')
-    parser.add_argument('--no_eef', action='store_true', default=False,
-                        help='whether the state has exploitation&exploration features ')
+    parser.add_argument('--difficulty', default='easy', choices=['easy', 'difficult'])
+    parser.add_argument('--validate_interval', type=int, default=3)
+    parser.add_argument('--validate_runs', type=int, default=3)
+    parser.add_argument('--device', default='cpu')
 
     # Training parameters
-    parser.add_argument('--max_learning_step', default=4000000, help='the maximum learning step for training')
-    parser.add_argument('--RL_agent', default='ppo', choices=['ppo'], help='RL Training algorithm')
-    parser.add_argument('--gamma', type=float, default=0.999, help='reward discount factor for future rewards')
-    parser.add_argument('--K_epochs', type=int, default=3, help='mini PPO epoch')
-    parser.add_argument('--eps_clip', type=float, default=0.1, help='PPO clip ratio')
-    parser.add_argument('--T_train', type=int, default=1800, help='number of itrations for training')
-    parser.add_argument('--n_step', type=int, default=5, help='n_step for return estimation')
-    parser.add_argument('--batch_size', type=int, default=16, help='number of instances per batch during training')
-    parser.add_argument('--epoch_start', type=int, default=0,
-                        help='start at epoch # (relevant for learning rate decay)')
-    parser.add_argument('--epoch_end', type=int, default=100, help='maximum training epoch')
-    parser.add_argument('--epoch_size', type=int, default=1024, help='number of instances per epoch during training')
-    parser.add_argument('--lr_model', type=float, default=4e-5, help="learning rate for the actor network")
-    parser.add_argument('--max_grad_norm', type=float, default=0.1, help='maximum L2 norm for gradient clipping')
+    parser.add_argument('--max_learning_step', type=int, default=1500000, help='the maximum learning step for training')
+    parser.add_argument('--train_batch_size', type=int, default=1)
+    parser.add_argument('--train_agent', default=None, help='agent for training')
+    parser.add_argument('--train_optimizer', default=None, help='optimizer for training')
+    parser.add_argument('--agent_save_dir', type=str, default='agent_model/train/',
+                        help='save your own trained agent model')
+    parser.add_argument('--log_dir', type=str, default='output/',
+                        help='logging testing output')
+    parser.add_argument('--draw_interval', type=int, default=3)
+    parser.add_argument('--agent_for_plot_training', type=str, nargs='+', default=['RL_HPSDE_Agent'],
+                        help='learnable optimizer to compare')
+
+    # Testing parameters
+    parser.add_argument('--agent', default=None, help='None: traditional optimizer, else Learnable optimizer')
+    parser.add_argument('--agent_load_dir', type=str, default='agent_model/test/',
+                        help='load your own agent model')
+    parser.add_argument('--optimizer', default=None, help='your own learnable or traditional optimizer')
+    parser.add_argument('--agent_for_cp', type=str, nargs='+', default=['RL_HPSDE_Agent'],
+                        help='learnable optimizer to compare')
+    parser.add_argument('--l_optimizer_for_cp', type=str, nargs='+', default=['RL_HPSDE_Optimizer'],
+                        help='learnable optimizer to compare')  # same length with "agent_for_cp"
+    parser.add_argument('--t_optimizer_for_cp', type=str, nargs='+', default=['DEAP_CMAES', 'MadDE'],
+                        help='traditional optimizer to compare')
+    parser.add_argument('--test_batch_size', type=int, default=1)
 
     config = parser.parse_args(args)
-    config.FEs = config.FEs_interest * config.dim
+    config.maxFEs = 2000 * config.dim
+
+    if config.problem == 'protein':
+        config.dim = 12
+        config.maxFEs = 5000
+
+    config.run_time = f'{time.strftime("%Y%m%dT%H%M%S")}_{config.problem}_{config.dim}D'
+    config.test_log_dir = 'output/test/'+config.run_time + '/'
 
     return config

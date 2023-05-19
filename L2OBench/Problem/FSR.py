@@ -23,8 +23,7 @@ from torch.utils.data import Dataset
 import os
 from os import path
 import cv2
-
-from L2OBench.Problem import Basic_Problem
+from problem.basic_problem import Basic_Problem
 
 
 class FSR(Basic_Problem):
@@ -117,7 +116,7 @@ class FSR_Dataset(Dataset):
                      difficulty='easy',
                      dataset_seed=1035):
         scale = 4
-        data_folder = path.join(path.dirname(__file__), 'FSR_data')
+        data_folder = path.join(path.dirname(__file__), 'fsr_data')
         height_LR, width_LR = FSR_Dataset.height_HR // scale, FSR_Dataset.width_HR // scale
         n_patch_ver = int(np.ceil((height_LR - overlap) / (patch_size - overlap)))  # number of patches vertically
         n_patch_hor = int(np.ceil((width_LR - overlap) / (patch_size - overlap)))  # number of patches horizontally
@@ -183,6 +182,8 @@ class FSR_Dataset(Dataset):
         return FSR_Dataset(data[:n_train_func], train_batch_size), FSR_Dataset(data[n_train_func:], test_batch_size)
 
     def __getitem__(self, item):
+        if self.batch_size < 2:
+            return self.data[self.index[item]]
         ptr = self.ptr[item]
         index = self.index[ptr: min(ptr + self.batch_size, self.N)]
         res = []

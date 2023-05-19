@@ -18,7 +18,7 @@ def random(x: Union[np.ndarray, Iterable],
     if not isinstance(ub, np.ndarray):
         ub = np.array(ub)
     cro_bnd = (x < lb) | (x > ub)
-    return ~cro_bnd * x + cro_bnd * np.random.rand(*x.shape) * (ub - lb) + lb
+    return ~cro_bnd * x + cro_bnd * (np.random.rand(*x.shape) * (ub - lb) + lb)
 
 
 def reflection(x: Union[np.ndarray, Iterable],
