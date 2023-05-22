@@ -27,19 +27,6 @@ from optimizer import (
     QLPSO_Optimizer,
     RLEPSO_Optimizer,
     RL_PSO_Optimizer,
-
-    DEAP_DE,
-    JDE21,
-    MadDE,
-    NL_SHADE_LBC,
-
-    DEAP_PSO,
-    GL_PSO,
-    sDMS_PSO,
-    SAHLPSO,
-
-    DEAP_CMAES,
-    Random_search
 )
 matplotlib.use('Agg')
 
@@ -120,7 +107,7 @@ class Trainer(object):
         plt.close()
 
     def train(self):
-        print(f'start running: {self.config.run_time}')
+        print(f'start training: {self.config.run_time}')
         agent_save_dir = self.config.agent_save_dir + self.agent.__class__.__name__ + '/' + self.config.run_time + '/'
         exceed_max_ls = False
         epoch = 0

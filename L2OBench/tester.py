@@ -141,6 +141,7 @@ class Tester(object):
                 self.test_results['fes'][problem.__str__()][type(optimizer).__name__] = []  # 51个数字
 
     def test(self):
+        print(f'start testing: {self.config.run_time}')
         # calculate T0
         T0 = cal_t0(self.config.dim, self.config.maxFEs)
         self.test_results['T0'] = T0

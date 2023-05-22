@@ -1,4 +1,5 @@
 from os import path
+import torch
 import numpy as np
 from torch.utils.data import Dataset
 from problem.basic_problem import Basic_Problem
@@ -46,6 +47,66 @@ class Protein_Docking(Basic_Problem):
         return energy
 
 
+class Protein_Docking_torch(Basic_Problem):
+    n_atoms = 100  # number of interface atoms considered for computational concern
+    dim = 12
+    lb = -1.5
+    ub = 1.5
+
+    def __init__(self, coor_init, q, e, r, basis, eigval, problem_id):
+        self.coor_init = torch.as_tensor(coor_init, dtype=torch.float64)  # [n_atoms, 3]
+        self.q = torch.as_tensor(q, dtype=torch.float64)  # [n_atoms, n_atoms]
+        self.e = torch.as_tensor(e, dtype=torch.float64)  # [n_atoms, n_atoms]
+        self.r = torch.as_tensor(r, dtype=torch.float64)  # [n_atoms, n_atoms]
+        self.basis = torch.as_tensor(basis, dtype=torch.float64)    # [dim, 3*n_atoms]
+        self.eigval = torch.as_tensor(eigval, dtype=torch.float64)  # [dim]
+        self.problem_id = problem_id
+        self.optimum = None  # unknown, set to None
+
+    def __str__(self):
+        return self.problem_id
+
+    def eval(self, x):
+        """
+        A general version of func() with adaptation to evaluate both individual and population.
+        """
+        if not isinstance(x, torch.Tensor):
+            x = torch.tensor(x)
+        if x.dtype != torch.float64:
+            x = x.type(torch.float64)
+        if x.ndim == 1:  # x is a single individual
+            return self.func(x.reshape(1, -1))[0]
+        elif x.ndim == 2:  # x is a whole population
+            return self.func(x)
+        else:
+            return self.func(x.reshape(-1, x.shape[-1]))
+
+    def func(self, x):
+        eigval = 1.0 / torch.sqrt(self.eigval)
+        product = torch.matmul(x * eigval, self.basis)  # [NP, 3*n_atoms]
+        new_coor = product.reshape((-1, self.n_atoms, 3)) + self.coor_init  # [NP, n_atoms, 3]
+
+        p2 = torch.sum(new_coor * new_coor, dim=-1, dtype=torch.float64)[:, :,
+             None]  # sum of squares along last dim.  [NP, n_atoms, 1]
+        p3 = torch.matmul(new_coor,
+                          new_coor.permute(0, 2, 1))  # inner products among row vectors. [NP, n_atoms, n_atoms]
+        pair_dis = p2 - 2 * p3 + p2.permute(0, 2, 1)
+        pair_dis = torch.sqrt(pair_dis + 0.01)  # [NP, n_atoms, n_atoms]
+
+        gt0_lt7 = (pair_dis > 0.11) & (pair_dis < 7.0)
+        gt7_lt9 = (pair_dis > 7.0) & (pair_dis < 9.0)
+
+        pair_dis = pair_dis + torch.eye(self.n_atoms, dtype=torch.float64)  # [NP, n_atoms, n_atoms]
+        coeff = self.q / (4. * pair_dis) + torch.sqrt(self.e) * (
+                    (self.r / pair_dis) ** 12 - (self.r / pair_dis) ** 6)  # [NP, n_atoms, n_atoms]
+
+        energy = torch.mean(
+            torch.sum(10 * gt0_lt7 * coeff + 10 * gt7_lt9 * coeff * ((9 - pair_dis) ** 2 * (-12 + 2 * pair_dis) / 8),
+                      dim=1, dtype=torch.float64), dim=-1)  # [NP]
+
+        return energy
+
+
 class Protein_Docking_Dataset(Dataset):
     proteins_set = {'rigid': ['1AVX', '1BJ1', '1BVN', '1CGI', '1DFJ', '1EAW', '1EWY', '1EZU', '1IQD', '1JPS',
                               '1KXQ', '1MAH', '1N8O', '1PPE', '1R0R', '2B42', '2I25', '2JEL', '7CEI', '1AY7'],
@@ -65,7 +126,8 @@ class Protein_Docking_Dataset(Dataset):
         self.index = np.arange(self.N)
 
     @staticmethod
-    def get_datasets(train_batch_size=1,
+    def get_datasets(version,
+                     train_batch_size=1,
                      test_batch_size=1,
                      difficulty='easy',
                      dataset_seed=1035):
@@ -106,8 +168,12 @@ class Protein_Docking_Dataset(Dataset):
                 q = np.matmul(q.T, q)
                 e = np.sqrt(np.matmul(e.T, e))
                 r = (r + r.T) / 2
-
-                data.append(Protein_Docking(coor_init, q, e, r, basis, eigval, problem_id))
+                if version == 'protein':
+                    data.append(Protein_Docking(coor_init, q, e, r, basis, eigval, problem_id))
+                elif version == 'protein-torch':
+                    data.append(Protein_Docking_torch(coor_init, q, e, r, basis, eigval, problem_id))
+                else:
+                    raise ValueError(f'{version} version is invalid or is not supported yet.')
         n_train_instances = len(train_proteins_set) * Protein_Docking_Dataset.n_start_points
         return Protein_Docking_Dataset(data[:n_train_instances], train_batch_size), Protein_Docking_Dataset(data[n_train_instances:], test_batch_size)
 

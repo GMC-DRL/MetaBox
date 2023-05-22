@@ -81,14 +81,24 @@ def gen_overall_tab(results,output_dir):
     df_results = pd.DataFrame(np.ones(shape=(len(optimizers),len(problems)*len(statics))),
                               index=optimizers,
                               columns=multi_columns)
-    #calculate baseline
-    baseline_obj = {}
+    #calculate baseline1 cmaes
+    cmaes_obj = {}
     for problem in problems:
         blobj_problem = results['cost'][problem]['DEAP_CMAES'] # 51 * record_length
         objs = []
         for run in range(51):
             objs.append(blobj_problem[run][-1])
-        baseline_obj[problem] = sum(objs)/51
+        cmaes_obj[problem] = sum(objs)/51
+    
+    # calculate baseline2 random_search
+    rs_obj={}
+    for problem in problems:
+        blobj_problem = results['cost'][problem]['Random_search'] # 51 * record_length
+        objs = []
+        for run in range(51):
+            objs.append(blobj_problem[run][-1])
+        rs_obj[problem] = sum(objs)/51
+
     # calculate each Obj
     for problem in problems:
         for optimizer in optimizers:
@@ -99,7 +109,11 @@ def gen_overall_tab(results,output_dir):
             avg_obj = sum(objs_)/51
             df_results.loc[optimizer,(problem,'Obj')] = np.format_float_scientific(avg_obj, precision=3, exp_digits=1)
             # calculate each Gap
-            df_results.loc[optimizer, (problem, 'Gap')] = "%.2f%%" % ((avg_obj - baseline_obj[problem]) / baseline_obj[problem] * 100)
+            # df_results.loc[optimizer, (problem, 'Gap')] = "%.2f%%" % ((avg_obj - cmaes_obj[problem]) / cmaes_obj[problem] * 100)
+            df_results.loc[optimizer, (problem, 'Gap')] = "%.3f" % (1-(rs_obj[problem]-avg_obj) / (rs_obj[problem]-cmaes_obj[problem]+1e-10) )
+            # df_results.loc[optimizer, (problem, 'Gap')] = "%.3f" % (1-cmaes_obj[problem] / (avg_obj+1e-10) )
+            # if avg_obj > rs_obj[problem]:
+            #     print(f'optimizr:{optimizer},problem:{problem}')
             fes_problem_optimizer = np.array(results['fes'][problem][optimizer])
             df_results.loc[optimizer, (problem, 'FEs')] = np.format_float_scientific(fes_problem_optimizer.mean(), precision=3, exp_digits=1)
 
@@ -158,26 +172,54 @@ def draw_average_test_cost(data, output_dir):
     plt.savefig(output_dir + f'all_problem_cost_curve.png')
 
 
-def draw_average_performance_hist(data, output_dir, baseline='DEAP_CMAES'):
+def cal_scores1(D, maxf):
+    SNE = []
+    for agent in D.keys():
+        values = D[agent]
+        sne = 0.5 * np.sum(np.min(values, -1) / maxf)
+        SNE.append(sne)
+    SNE = np.array(SNE)
+    score1 = (1 - (SNE - np.min(SNE)) / SNE) * 50
+    return score1
+
+# # {cost: {problem1: {optimizer1: [[51]*51], agent1: [[]*51]}}, fes: {problem1: optimizer1: [51], agent1: [51]}, Time: ......}
+def draw_rank_hist(data, output_dir):
     plt.figure()
-    plt.title('average performance histgram')
+    plt.title('rank histgram')
     D = {}
+    M = []
     X = []
     Y = []
+    R = []
+    data, fes = data['cost'], data['fes']
     for problem in list(data.keys()):
+        maxf = 0
+        avg_cost = []
+        avg_fes = []
         for agent in list(data[problem].keys()):
             if agent not in D.keys():
                 D[agent] = []
-            D[agent].append(np.array(data[problem][agent])[:, -1])
+            values = np.array(data[problem][agent])[:, -1]
+            D[agent].append(values)
+            maxf = max(maxf, np.max(values))
+            avg_cost.append(np.mean(values))
+            avg_fes.append(np.mean(fes[problem][agent]))
 
-    for agent in D.keys():
-        if agent == baseline:
-            continue
-        D[agent] = np.mean(np.array(D[agent]) / np.array(D[baseline]))
+        M.append(maxf)
+        order = np.lexsort((avg_fes, avg_cost))
+        rank = np.zeros(len(avg_cost))
+        rank[order] = np.arange(len(avg_cost)) + 1
+        R.append(rank)
+    sr = 0.5 * np.sum(R, 0)
+    score2 = (1 - (sr - np.min(sr)) / sr) * 50
+    score1 = cal_scores1(D, M)
+    score = score1 + score2
+
+    for i, agent in enumerate(D.keys()):
         X.append(agent)
-        Y.append(D[agent])
+        Y.append(score[i])
     plt.bar(X, Y)
-    plt.savefig(output_dir + f'average_performance_hist.png')
+    plt.savefig(output_dir + f'rank_hist.png')
 
 
 def post_processing_test_statics(log_dir):
@@ -193,11 +235,11 @@ def post_processing_test_statics(log_dir):
         os.makedirs(log_dir + 'pics/')
     draw_test_cost(results['cost'],log_dir + 'pics/')
     draw_average_test_cost(results['cost'],log_dir + 'pics/')
-    draw_average_performance_hist(results['cost'],log_dir + 'pics/')
+    draw_rank_hist(results,log_dir + 'pics/')
     draw_concrete_performance_hist(results['cost'],log_dir + 'pics/')
 
-
-def draw_concrete_performance_hist(data, output_dir, Name=None, baseline='DEAP_CMAES'):
+# todo
+def draw_concrete_performance_hist(data, output_dir, Name=None):
     D = {}
     X = []
     for problem in list(data.keys()):
@@ -211,16 +253,14 @@ def draw_concrete_performance_hist(data, output_dir, Name=None, baseline='DEAP_C
         for agent in list(data[name].keys()):
             if agent not in D.keys():
                 D[agent] = []
-            D[agent].append(np.array(data[name][agent])[:, -1])
+            values = np.array(data[name][agent])
+            D[agent].append(values[:, -1] / values[:, 0])
 
     for agent in D.keys():
-        if agent == baseline:
-            continue
         plt.figure()
         plt.title(f'{agent} performance histgram')
-        X = []
-        D[agent] = np.mean(np.array(D[agent]) / np.array(D[baseline]), -1)
-        X.append(agent)
+        X = list(data.keys())
+        D[agent] = np.mean(np.array(D[agent]), -1)
         plt.bar(X, D[agent])
         plt.savefig(output_dir + f'{agent}_concrete_performance_hist.png')
 
@@ -242,15 +282,15 @@ class Logger:
         self.config = config
 
     def draw_train_cost(self, train_set):
-        log_dir = self.config.log_dir + f'/train/all_agent/{self.config.run_time}/'
+        log_dir = self.config.log_dir + f'/train/all_agent/'
         if not os.path.exists(log_dir + 'pic/'):
             os.makedirs(log_dir + 'pic/')
         for problem in train_set:
             name = problem.__str__()
             plt.figure()
             plt.title('all agent ' + problem.__str__() + ' cost')
-            for agent in self.config.agent_for_cp:
-                load_dir = self.config.log_dir + f'/train/{agent}/{self.config.run_time}/log/'
+            for agent in self.config.agent_for_plot_training:
+                load_dir = self.config.log_dir + f'/train/all_agent/log/{agent}_{self.config.problem}/'
                 values = np.load(load_dir + name + '_cost.npy')
                 x, y, n = values
                 y /= n
@@ -259,13 +299,13 @@ class Logger:
             plt.close()
 
     def draw_train_average_cost(self, train_set):
-        log_dir = self.config.log_dir + f'/train/all_agent/{self.config.run_time}/'
+        log_dir = self.config.log_dir + f'/train/all_agent/'
         if not os.path.exists(log_dir + 'pic/'):
             os.makedirs(log_dir + 'pic/')
         plt.figure()
         plt.title('all agent all problem cost train')
-        for agent in self.config.agent_for_cp:
-            load_dir = self.config.log_dir + f'/train/{agent}/{self.config.run_time}/log/'
+        for agent in self.config.agent_for_plot_training:
+            load_dir = self.config.log_dir + f'/train/all_agent/log/{agent}_{self.config.problem}/'
             X = []
             Y = []
             for problem in train_set:
@@ -282,13 +322,13 @@ class Logger:
         plt.close()
 
     def draw_train_return(self):
-        log_dir = self.config.log_dir + f'/train/all_agent/{self.config.run_time}/'
+        log_dir = self.config.log_dir + f'/train/all_agent/'
         if not os.path.exists(log_dir + 'pic/'):
             os.makedirs(log_dir + 'pic/')
         plt.figure()
         plt.title('all agent return')
-        for agent in self.config.agent_for_cp:
-            load_dir = self.config.log_dir + f'/train/{agent}/{self.config.run_time}/log/'
+        for agent in self.config.agent_for_plot_training:
+            load_dir = self.config.log_dir + f'/train/all_Agent/log/{agent}_{self.config.run_time}/'
             values = np.load(load_dir + 'return.npy')
             plt.plot(values[0], values[1])
         plt.savefig(log_dir + f'pic/all_agent_return.png')
@@ -420,3 +460,5 @@ class Logger:
             X.append(agent)
             plt.bar(X, D[agent])
             plt.savefig(log_dir + f'{agent}_concrete_performance_hist.png')
+
+

@@ -127,7 +127,7 @@ class UniformNoisyProblem(NoisyProblem):
         bias = self.optimum
         ftrue_unbiased = ftrue - bias
         fnoisy_unbiased = ftrue_unbiased * (np.random.rand(*ftrue_unbiased.shape) ** self.uniform_beta) * \
-                          np.maximum(1., (1e9 / (ftrue_unbiased + 1e-99)) ** (self.uniform_alpha * np.random.rand(*ftrue_unbiased.shape)))
+                          np.maximum(1., (1e9 / (ftrue_unbiased + 1e-99)) ** (self.uniform_alpha * (0.49 + 1. / self.dim) * np.random.rand(*ftrue_unbiased.shape)))
         return np.where(ftrue_unbiased >= 1e-8, fnoisy_unbiased + bias + 1.01 * 1e-8, ftrue)
 
 
