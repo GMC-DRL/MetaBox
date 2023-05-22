@@ -35,7 +35,8 @@ from optimizer import (
     SAHLPSO,
 
     DEAP_CMAES,
-    Random_search
+    Random_search,
+    BayesianOptimizer
 )
 
 def cal_t0(dim,fes):
