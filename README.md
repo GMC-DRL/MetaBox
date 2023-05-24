@@ -64,9 +64,9 @@ In `RELOPS`, to facilitate training with our dataset and observing logs during t
 
 If you specify the training mode, `RELOPS` will initialize a Trainer object for you and use your configuration to build the objects of the comparison Agent and the comparison Optimizer, as well as generate the training and test sets. After that, the Trainer will control the entire training process, optimize the problems in the train set one by one using the declared agent and optimizer, and record the corresponding information.
 
-[链接示例agent]
+[example agent](https://github.com/GMC-DRL/L2OBench/blob/dev/L2OBench/agent/de_ddqn_agent.py)
 
-[链接示例optimizer]
+[example optimizer](https://github.com/GMC-DRL/L2OBench/blob/dev/L2OBench/optimizer/de_ddqn_optimizer.py)
 
 You will then be able to train it using the following command line:
 ```
