@@ -1,4 +1,4 @@
-# RELOPSL: Reinforcement Learning Benchmark Platform for Black Box Optimizer Search
+# RELOPS: Reinforcement Learning Benchmark Platform for Black Box Optimizer Search
 
 This is a reinforcement learning benchmark platform that supports benchmarking and exploration of black box optimizers. You can train your own optimizer or compare it with several popular RL-based optimizers and traditional optimizers.
 
