@@ -90,7 +90,7 @@ You will then be able to train it using the following command line:
 ```bash
 python main.py --train --train_agent xxx --train_optimizer xxx --agent_save_dir xxx --log_dir xxx
 ```
-For the above commands, --train is to specify the training mode, --train_agent xxx --train_optimizer xxx is to use xxx as the agent and xxx as the optimzier for training. --agent_save_dir xxx specifies the save directory of the agent obtained from training, --log_dir xxx specifies the save directory of the log file during training.
+For the above commands, `--train` is to specify the training mode, `--train_agent xxx` `--train_optimizer xxx` is to use xxx as the agent and xxx as the optimzier for training. `--agent_save_dir xxx` specifies the save directory of the agent obtained from training, `--log_dir xxx` specifies the save directory of the log file during training.
 
 After that, you can query all the data generated during the training process, including return and cost, in `log_dir/train/agent.name/log`, and you can use the above data to draw your own graphs or tables. In addition, we also provide a unified interface to draw the same graph for different agents for comparison.
 
@@ -145,7 +145,7 @@ Note that `Random search` performs uniformly random sampling to optimize the fit
 
 In RELOPS, you can select the test mode by using the `--test` option. When conducting evaluations, we first instantiate a Tester object and load all agents and optimizers. Then, we build the test sets and, for each problem in the test set, we call each instantiated optimizer to test the problem and obtain a solution, recording 51 runs of optimization performance.
 
-You can use `utils.construct_problem_set` to generate training and test sets. Currently, we have implemented 8 RL-based learnable optimizers and 11 traditional optimizers, which are listed in `Baselines`. You can also find their implementations in RELOPS.agent and RELOPS.optimizer. In the Tester, we have imported all of these optimizers for you to compare.
+You can use `utils.construct_problem_set` to generate training and test sets. Currently, we have implemented 7 RL-based learnable optimizers, 1 meta-learning optimizer and 11 traditional optimizers, which are listed in [Baselines](#Baselines). You can also find their implementations in RELOPS.agent and RELOPS.optimizer. In the Tester, we have imported all of these optimizers for you to compare.
 
 You can use the `--agent_for_cp xxx` option to select the agent for comparison and `--l_optimizer_for_cp xxx` option to select the learnable optimizer for comparison. Please note that the agent needs to support the corresponding learnable optimizer. Additionally, you can use `--t_optimizer_for_cp xxx` to select the traditional optimizer for comparison.
 
