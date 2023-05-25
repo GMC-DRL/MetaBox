@@ -9,7 +9,6 @@ class RL_PSO_Optimizer(Learnable_Optimizer):
         
         config.w_decay = True
         config.c = 2.05
-        config.max_velocity = 10
         config.NP = 100
         self.__config = config
 
@@ -20,12 +19,9 @@ class RL_PSO_Optimizer(Learnable_Optimizer):
         else:
             self.__w = 0.729
         self.__c = config.c
-        self.__max_velocity = config.max_velocity
         
         self.__NP = config.NP
 
-        self.__no_improve = 0
-        self.__per_no_improve = np.zeros(self.__NP)
         self.__max_fes = config.maxFEs
         self.fes = None
         self.cost = None
@@ -36,6 +32,7 @@ class RL_PSO_Optimizer(Learnable_Optimizer):
     def init_population(self, problem):
         rand_pos = np.random.uniform(low=problem.lb, high=problem.ub, size=(self.__NP, self.__dim))
         self.fes = 0
+        self.__max_velocity=0.1*(problem.ub-problem.lb)
         rand_vel = np.random.uniform(low=-self.__max_velocity, high=self.__max_velocity, size=(self.__NP, self.__dim))
         # rand_vel = torch.zeros(size=(self.__batch_size, self.__NP, self.__dim),dtype=torch.float32).to(self.__cuda)
 
@@ -60,8 +57,7 @@ class RL_PSO_Optimizer(Learnable_Optimizer):
                           }
         if self.__w_decay:
             self.__w = 0.9
-        self.__no_improve -= self.__no_improve
-        self.__per_no_improve -= self.__per_no_improve
+            
         self.__cur_index = 0
         self.log_index = 1
         self.cost = [self.__particles['gbest_val']]

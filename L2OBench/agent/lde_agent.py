@@ -2,6 +2,7 @@ import numpy as np
 import torch
 import torch.nn as nn
 from agent.basic_agent import Basic_Agent
+from .utils import *
 
 
 class PolicyNet(nn.Module):
@@ -51,6 +52,13 @@ class LDE_Agent(Basic_Agent):
         self.__net = PolicyNet(self.__config)
         self.__optimizer = torch.optim.Adam(self.__net.parameters(), lr=self.__config.lr_model)
         self.__learn_steps = 0
+
+        self.__cur_checkpoint=0
+
+        # save init agent
+        if self.__cur_checkpoint==0:
+            save_class(self.__config.agent_save_dir,'checkpoint'+str(self.__cur_checkpoint),self)
+            self.__cur_checkpoint+=1
 
     def __discounted_norm_rewards(self, r):
         for ep in range(self.__config.TRAJECTORY_NUM * self.__BATCH_SIZE):
@@ -119,6 +127,11 @@ class LDE_Agent(Basic_Agent):
         loss.backward()
         self.__optimizer.step()
         self.__learn_steps += 1
+
+        if self.__learn_steps >= (self.__config.save_interval * self.__cur_checkpoint):
+            save_class(self.__config.agent_save_dir,'checkpoint'+str(self.__cur_checkpoint),self)
+            self.__cur_checkpoint+=1
+
         return self.__learn_steps >= self.__config.max_learning_step, {'normalizer': env.optimizer.cost[0],
                                                                        'gbest': env.optimizer.cost[-1],
                                                                        'return': R,
@@ -129,14 +142,15 @@ class LDE_Agent(Basic_Agent):
         input_net = env.reset()
         h0 = torch.zeros(self.__config.LAYERS_NUM, self.__BATCH_SIZE, self.__config.CELL_SIZE).to(self.__config.device)
         c0 = torch.zeros(self.__config.LAYERS_NUM, self.__BATCH_SIZE, self.__config.CELL_SIZE).to(self.__config.device)
+        R=0
         while not is_done:
             # [bs, NP+BINS*2]
             action, h_, c_ = self.__net.sampler(torch.FloatTensor(input_net[None, :]).to(self.__config.device), h0, c0)  # parameter controller
             action = action.reshape(1, self.__BATCH_SIZE, -1)
             action = np.squeeze(action.cpu().numpy(), axis=0)
             next_input, reward, is_done = env.step(action)
-            
+            R+=np.mean(reward)
             h0 = h_
             c0 = c_
             input_net = next_input.copy()
-        return {'cost': env.optimizer.cost, 'fes': env.optimizer.fes}
+        return {'cost': env.optimizer.cost, 'fes': env.optimizer.fes,'return':R}

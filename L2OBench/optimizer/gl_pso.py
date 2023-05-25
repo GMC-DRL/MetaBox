@@ -80,7 +80,7 @@ class GL_PSO(basic_optimizer):
         self.__exemplar_cost=1e+10
         
         rand_pos=np.random.uniform(low=problem.lb,high=problem.ub,size=(self.__NP,self.__dim))
-        self.__max_velocity=0.1*(problem.ub-problem.lb)
+        self.__max_velocity=self.__rho*(problem.ub-problem.lb)
         rand_vel = np.random.uniform(low=-self.__max_velocity,high=self.__max_velocity,size=(self.__NP,self.__dim))
         c_cost = self.__get_costs(problem,rand_pos) # ps
         

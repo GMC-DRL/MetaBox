@@ -27,6 +27,19 @@ from optimizer import (
     QLPSO_Optimizer,
     RLEPSO_Optimizer,
     RL_PSO_Optimizer,
+
+    DEAP_DE,
+    JDE21,
+    MadDE,
+    NL_SHADE_LBC,
+
+    DEAP_PSO,
+    GL_PSO,
+    sDMS_PSO,
+    SAHLPSO,
+
+    DEAP_CMAES,
+    Random_search
 )
 matplotlib.use('Agg')
 
@@ -108,7 +121,7 @@ class Trainer(object):
 
     def train(self):
         print(f'start training: {self.config.run_time}')
-        agent_save_dir = self.config.agent_save_dir + self.agent.__class__.__name__ + '/' + self.config.run_time + '/'
+        # agent_save_dir = self.config.agent_save_dir + self.agent.__class__.__name__ + '/' + self.config.run_time + '/'
         exceed_max_ls = False
         epoch = 0
         cost_record = {}
@@ -137,16 +150,17 @@ class Trainer(object):
                     if exceed_max_ls:
                         break
             epoch_steps.append(learn_step)
-            if not os.path.exists(agent_save_dir):
-                os.makedirs(agent_save_dir)
-            with open(agent_save_dir+'agent_epoch'+str(epoch)+'.pkl', 'wb') as f:
-                pickle.dump(self.agent, f, -1)
+            # if not os.path.exists(agent_save_dir):
+            #     os.makedirs(agent_save_dir)
+            # with open(agent_save_dir+'agent_epoch'+str(epoch)+'.pkl', 'wb') as f:
+            #     pickle.dump(self.agent, f, -1)
             self.save_log(epoch_steps, learn_steps, cost_record, return_record, normalizer_record)
             epoch += 1
             if epoch % self.config.draw_interval == 0:
                 self.draw_cost()
                 self.draw_average_cost()
                 self.draw_return()
+        
         self.draw_cost()
         self.draw_average_cost()
         self.draw_return()

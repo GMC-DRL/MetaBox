@@ -3,6 +3,7 @@ from torch import nn
 from torch.distributions import Normal
 from agent.basic_agent import Basic_Agent
 from agent.networks import MLP
+from .utils import *
 
 
 class PolicyNetwork(nn.Module):
@@ -70,8 +71,16 @@ class RL_PSO_Agent(Basic_Agent):
         # figure out the lr schedule
         self.__lr_scheduler = torch.optim.lr_scheduler.ExponentialLR(self.__optimizer, config.lr_decay, last_epoch=-1, )
         self.__learning_time = 0
+        
+        self.__cur_checkpoint=0
+
+        # save init agent
+        if self.__cur_checkpoint==0:
+            save_class(self.__config.agent_save_dir,'checkpoint'+str(self.__cur_checkpoint),self)
+            self.__cur_checkpoint+=1
 
     def train_episode(self, env, epoch_id=None, logger=None):
+
         # input action_dim should be : bs, ps
         # action in (0,1) the ratio to learn from pbest & gbest
         state = env.reset()
@@ -96,6 +105,11 @@ class RL_PSO_Agent(Basic_Agent):
             loss.mean().backward()
             self.__optimizer.step()
             self.__learning_time += 1
+            if self.__learning_time >= (self.__config.save_interval * self.__cur_checkpoint):
+                save_class(self.__config.agent_save_dir,'checkpoint'+str(self.__cur_checkpoint),self)
+                self.__cur_checkpoint+=1
+
+
             if self.__learning_time >= self.__config.max_learning_step:
                 exceed_max_ls = True
                 break
@@ -110,8 +124,10 @@ class RL_PSO_Agent(Basic_Agent):
     def rollout_episode(self, env, epoch_id=None, logger=None):
         is_done = False
         state = env.reset()
+        R=0
         while not is_done:
             state = torch.FloatTensor(state)
             action, _ = self.__nets(state)
             state, reward, is_done = env.step(action.cpu().numpy())
-        return {'cost': env.optimizer.cost, 'fes': env.optimizer.fes}
+            R+=reward
+        return {'cost': env.optimizer.cost, 'fes': env.optimizer.fes,'return':R}

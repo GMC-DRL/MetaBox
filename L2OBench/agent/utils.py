@@ -2,6 +2,8 @@ import collections
 import torch
 import random
 import numpy as np
+import pickle 
+import os
 
 
 class Memory:
@@ -37,3 +39,10 @@ class ReplayBuffer:
 
     def __len__(self):
         return len(self.buffer)
+
+
+def save_class(dir,file_name,saving_class):
+    if not os.path.exists(dir):
+        os.makedirs(dir)
+    with open(dir+file_name+'.pkl', 'wb') as f:
+        pickle.dump(saving_class, f, -1)    

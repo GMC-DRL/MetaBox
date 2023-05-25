@@ -238,6 +238,24 @@ def post_processing_test_statics(log_dir):
     draw_rank_hist(results,log_dir + 'pics/')
     draw_concrete_performance_hist(results['cost'],log_dir + 'pics/')
 
+def post_processing_rollout_statics(log_dir):
+    with open(log_dir+'rollout.pkl', 'rb') as f:
+        results = pickle.load(f)
+    # print(results)
+    # if not os.path.exists(log_dir + 'tables/'):
+    #     os.makedirs(log_dir + 'tables/')
+    # gen_overall_tab(results, log_dir+'tables/')
+    # gen_algorithm_complexity_table(results, log_dir+'tables/')
+    # gen_agent_performance_table(results, log_dir+'tables/')
+
+    # if not os.path.exists(log_dir + 'pics/'):
+    #     os.makedirs(log_dir + 'pics/')
+    # draw_test_cost(results['cost'],log_dir + 'pics/')
+    # draw_average_test_cost(results['cost'],log_dir + 'pics/')
+    # draw_rank_hist(results,log_dir + 'pics/')
+    # draw_concrete_performance_hist(results['cost'],log_dir + 'pics/')
+
+
 # todo
 def draw_concrete_performance_hist(data, output_dir, Name=None):
     D = {}
@@ -462,3 +480,5 @@ class Logger:
             plt.savefig(log_dir + f'{agent}_concrete_performance_hist.png')
 
 
+
+    

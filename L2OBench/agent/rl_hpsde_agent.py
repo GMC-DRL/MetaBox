@@ -1,6 +1,6 @@
 import numpy as np
 from agent.basic_agent import Basic_Agent
-
+from .utils import *
 
 class RL_HPSDE_Agent(Basic_Agent):
     def __init__(self, config):
@@ -21,6 +21,13 @@ class RL_HPSDE_Agent(Basic_Agent):
         self.__max_learning_step = config.max_learning_step
         self.__global_ls = 0
 
+        self.__cur_checkpoint=0
+
+        # save init agent
+        if self.__cur_checkpoint==0:
+            save_class(self.__config.agent_save_dir,'checkpoint'+str(self.__cur_checkpoint),self)
+            self.__cur_checkpoint+=1
+
     def __get_action(self, state):
         exp = np.exp(self.__q_table[state])
         prob = exp / exp.sum()
@@ -38,6 +45,11 @@ class RL_HPSDE_Agent(Basic_Agent):
             TD_error = reward + self.__gamma * self.__q_table[next_state].max() - self.__q_table[state][action]
             self.__q_table[state][action] += self.__alpha * TD_error
             self.__global_ls += 1
+
+            if self.__global_ls >= (self.__config.save_interval * self.__cur_checkpoint):
+                save_class(self.__config.agent_save_dir,'checkpoint'+str(self.__cur_checkpoint),self)
+                self.__cur_checkpoint+=1
+
             if self.__global_ls >= self.__max_learning_step:
                 break
             if self.__alpha_decay:
@@ -51,8 +63,10 @@ class RL_HPSDE_Agent(Basic_Agent):
     def rollout_episode(self, env, epoch_id=None, logger=None):
         state = env.reset()
         done = False
+        R=0
         while not done:
             action = self.__get_action(state)
             next_state, reward, done = env.step(action)
+            R+=reward
             state = next_state
-        return {'cost': env.optimizer.cost, 'fes': env.optimizer.fes}
+        return {'cost': env.optimizer.cost, 'fes': env.optimizer.fes,'return':R}

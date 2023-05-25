@@ -3,7 +3,7 @@ import torch
 import copy
 from agent.basic_agent import Basic_Agent
 from agent.networks import MLP
-from agent.utils import ReplayBuffer
+from agent.utils import *
 
 
 class DE_DDQN_Agent(Basic_Agent):
@@ -40,6 +40,13 @@ class DE_DDQN_Agent(Basic_Agent):
         self.__max_learning_step = config.max_learning_step
         self.__global_ls = 0
 
+        self.__cur_checkpoint=0
+
+        # save init agent
+        if self.__cur_checkpoint==0:
+            save_class(self.__config.agent_save_dir,'checkpoint'+str(self.__cur_checkpoint),self)
+            self.__cur_checkpoint+=1
+
     def __get_action(self, state, options=None):
         state = torch.Tensor(state).to(self.__device)
         action = None
@@ -72,6 +79,11 @@ class DE_DDQN_Agent(Basic_Agent):
                 loss.backward()
                 self.__optimizer.step()
                 self.__global_ls += 1
+                
+                if self.__global_ls >= (self.__config.save_interval * self.__cur_checkpoint):
+                    save_class(self.__config.agent_save_dir,'checkpoint'+str(self.__cur_checkpoint),self)
+                    self.__cur_checkpoint+=1
+
                 if self.__global_ls >= self.__max_learning_step:
                     break
             # sync target network
@@ -87,8 +99,10 @@ class DE_DDQN_Agent(Basic_Agent):
     def rollout_episode(self, env, epoch_id=None, logger=None):
         state = env.reset()
         done = False
+        R=0
         while not done:
             action, Q = self.__get_action(state, {'epsilon_greedy': False})
             next_state, reward, done = env.step(action)
             state = next_state
-        return {'cost': env.optimizer.cost, 'fes': env.optimizer.fes}
+            R+=reward
+        return {'cost': env.optimizer.cost, 'fes': env.optimizer.fes,'return':R}

@@ -1,3 +1,4 @@
+import copy
 from utils import construct_problem_set
 import numpy as np
 import pickle
@@ -75,7 +76,7 @@ class Tester(object):
             # self.agent = pickle.load(agent_load_dir + agent_name + '.pkl')
         if config.optimizer is not None:
             self.optimizer_name = config.optimizer
-            self.optimizer = eval(config.optimizer)(config)
+            self.optimizer = eval(config.optimizer)(copy.deepcopy(config))
         self.log_dir = config.test_log_dir
         if not os.path.exists(self.log_dir):
             os.makedirs(self.log_dir)
@@ -99,10 +100,10 @@ class Tester(object):
             # self.agent_for_cp.append(pickle.load(agent_load_dir + agent + '.pkl'))
         self.l_optimizer_for_cp = []
         for optimizer in config.l_optimizer_for_cp:
-            self.l_optimizer_for_cp.append(eval(optimizer)(config))
+            self.l_optimizer_for_cp.append(eval(optimizer)(copy.deepcopy(config)))
         self.t_optimizer_for_cp = []
         for optimizer in config.t_optimizer_for_cp:
-            self.t_optimizer_for_cp.append(eval(optimizer)(config))
+            self.t_optimizer_for_cp.append(eval(optimizer)(copy.deepcopy(config)))
         # ! 改成了self.agent
         if self.agent is not None:
             self.agent_for_cp.append(self.agent)
@@ -205,3 +206,73 @@ class Tester(object):
                         self.test_results['T2'][type(optimizer).__name__] = T2/51
         with open(self.log_dir + 'test.pkl', 'wb') as f:
             pickle.dump(self.test_results, f, -1)
+
+
+def rollout(config):
+    print(f'start rollout: {config.run_time}')
+
+    train_set,_=construct_problem_set(config)
+    agent_load_dir=config.agent_load_dir
+    n_checkpoint=config.n_checkpoint
+
+    train_rollout_results = {'cost': {},
+                             'fes': {},
+                             'return':{}}
+
+    agent_for_rollout=config.agent_for_rollout
+
+    load_agents={}
+    for agent_name in agent_for_rollout:
+        load_agents[agent_name]=[]
+        for checkpoint in range(0,n_checkpoint+1):
+            file_path = agent_load_dir+ agent_name + '/' + 'checkpoint'+str(checkpoint) + '.pkl'
+            with open(file_path, 'rb') as f:
+                load_agents[agent_name].append(pickle.load(f))
+
+    optimizer_for_rollout=[]
+    for optimizer_name in config.optimizer_for_rollout:
+        optimizer_for_rollout.append(eval(optimizer_name)(copy.deepcopy(config)))
+    for problem in train_set:
+        train_rollout_results['cost'][problem.__str__()] = {}
+        train_rollout_results['fes'][problem.__str__()] = {}
+        train_rollout_results['return'][problem.__str__()] = {}
+        train_rollout_results
+        for agent_name in agent_for_rollout:
+            train_rollout_results['cost'][problem.__str__()][agent_name] = []  # n_checkpoint 个np.array
+            train_rollout_results['fes'][problem.__str__()][agent_name] = []  # n_checkpoint 个数字
+            train_rollout_results['return'][problem.__str__()][agent_name]=[]
+
+    pbar_len = (len(agent_for_rollout)) * train_set.N * (n_checkpoint+1)
+    with tqdm(range(pbar_len), desc='Rollouting') as pbar:
+        for agent_name,optimizer in zip(agent_for_rollout,optimizer_for_rollout):
+            return_list=[]  # n_checkpoint + 1
+            agent=None
+            for checkpoint in range(0,n_checkpoint+1):
+                agent=load_agents[agent_name][checkpoint]
+                # return_sum=0
+                for problem in train_set:
+                    env = PBO_Env(problem,optimizer)
+                    info = agent.rollout_episode(env)
+                    cost=info['cost']
+                    while len(cost)<51:
+                        cost.append(cost[-1])
+                    fes=info['fes']
+                    R=info['return']
+
+                    train_rollout_results['cost'][problem.__str__()][agent_name].append(cost)
+                    train_rollout_results['fes'][problem.__str__()][agent_name].append(fes)
+                    train_rollout_results['return'][problem.__str__()][agent_name].append(R)
+
+                    pbar_info = {'problem': problem.__str__(),
+                                'agent': type(agent).__name__,
+                                'checkpoint': checkpoint,
+                                'cost': cost[-1],
+                                'fes': fes, }
+                    pbar.set_postfix(pbar_info)
+                    pbar.update(1)
+            
+    log_dir=config.rollout_log_dir
+    if not os.path.exists(log_dir):
+        os.makedirs(log_dir)
+    with open(log_dir + 'rollout.pkl', 'wb') as f:
+        pickle.dump(train_rollout_results, f, -1)

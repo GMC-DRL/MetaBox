@@ -7,7 +7,7 @@ class RLEPSO_Optimizer(Learnable_Optimizer):
         super().__init__(config)
 
         config.w_decay = True
-        config.max_velocity = 10
+        
         config.NP = 100
         self.__config = config
 
@@ -18,7 +18,6 @@ class RLEPSO_Optimizer(Learnable_Optimizer):
         else:
             self.__w = 0.729
             
-        self.__max_velocity = config.max_velocity
         
         self.__NP = config.NP
 
@@ -39,7 +38,7 @@ class RLEPSO_Optimizer(Learnable_Optimizer):
 
     def init_population(self, problem):
         rand_pos=np.random.uniform(low=problem.lb, high=problem.ub, size=(self.__NP, self.__dim))
-
+        self.__max_velocity=0.1*(problem.ub-problem.lb)
         rand_vel = np.random.uniform(low=-self.__max_velocity, high=self.__max_velocity, size=(self.__NP,self.__dim))
         # rand_vel = torch.zeros(size=(self.__batch_size, self.__NP, self.__dim),dtype=torch.float32).to(self.__cuda)
         self.fes = 0

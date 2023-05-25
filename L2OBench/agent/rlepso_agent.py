@@ -3,7 +3,7 @@ from torch import nn
 from torch.distributions import Normal
 from agent.basic_agent import Basic_Agent
 from agent.networks import MLP
-from agent.utils import Memory
+from agent.utils import *
 
 
 class Actor(nn.Module):
@@ -99,6 +99,13 @@ class RLEPSO_Agent(Basic_Agent):
 
         # init learning time
         self.__learning_time=0
+
+        self.__cur_checkpoint=0
+
+        # save init agent
+        if self.__cur_checkpoint==0:
+            save_class(self.__config.agent_save_dir,'checkpoint'+str(self.__cur_checkpoint),self)
+            self.__cur_checkpoint+=1
 
     def train_episode(self, env, epoch_id=None, logger=None):
         config = self.__config
@@ -278,6 +285,11 @@ class RLEPSO_Agent(Basic_Agent):
                 self.__optimizer_actor.step()
                 self.__optimizer_critic.step()
                 self.__learning_time += 1
+
+                if self.__learning_time >= (self.__config.save_interval * self.__cur_checkpoint):
+                    save_class(self.__config.agent_save_dir,'checkpoint'+str(self.__cur_checkpoint),self)
+                    self.__cur_checkpoint+=1
+
                 if self.__learning_time >= config.max_learning_step:
                     return self.__learning_time >= config.max_learning_step, {'normalizer': env.optimizer.cost[0],
                                                                               'gbest': env.optimizer.cost[-1],
@@ -293,10 +305,12 @@ class RLEPSO_Agent(Basic_Agent):
     def rollout_episode(self, env, epoch_id=None, logger=None):
         is_done=False
         state=env.reset()
+        R=0
         while not is_done:
             state = torch.FloatTensor(state).to(self.__config.device)
             action=self.__actor(state)[0].cpu().numpy()
             state,reward,is_done=env.step(action)
+            R+=reward
             # ���ﲻ���Ա������ݣ�
-        return {'cost': env.optimizer.cost, 'fes': env.optimizer.fes}
+        return {'cost': env.optimizer.cost, 'fes': env.optimizer.fes,'return':R}
         

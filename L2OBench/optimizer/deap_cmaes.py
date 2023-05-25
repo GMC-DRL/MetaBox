@@ -29,7 +29,7 @@ class DEAP_CMAES(basic_optimizer):
             return fitness,   # return a tuple
 
         self.__toolbox.register("evaluate", problem_eval)
-        strategy = cma.Strategy(centroid=[5] * self.__config.dim, sigma=0.5, lambda_=self.__config.NP)
+        strategy = cma.Strategy(centroid=[problem.ub] * self.__config.dim, sigma=0.5, lambda_=self.__config.NP)
         self.__toolbox.register("generate", strategy.generate, creator.Individual)
         self.__toolbox.register("update", strategy.update)
 
