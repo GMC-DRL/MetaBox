@@ -22,3 +22,5 @@ from .sahlpso import *
 
 from .deap_cmaes import *
 from .random_search import *
+
+from .bayesian import *

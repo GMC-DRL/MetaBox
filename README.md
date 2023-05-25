@@ -26,8 +26,7 @@ We have divided `RELOPS` into five modules: **Black Box Optimizer, Test Suite, T
 * `torch`==1.9.0  
 * `matplotlib`==3.4.3  
 * `pandas`==1.3.3  
-* `scipy`==1.7.1  
-
+* `scipy`==1.7.1
 * `bayesian_optimization`==1.4.3  
 * `deap`==1.3.3  
 * `opencv_python`==4.5.4.58  
@@ -161,4 +160,6 @@ For the above command, `RELOPS` will first load the trained model from `agent_mo
 `RELOPS` plots the change in cost as fes grows.
 
 todo:add T0 T1 T2
+
+
 
