@@ -6,3 +6,4 @@ from .config import *
 from .logger import *
 from .trainer import *
 from .tester import *
+from .utils import *
