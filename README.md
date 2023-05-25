@@ -51,7 +51,7 @@ Currently, three benchmark suites are included:
 * `bbob-noisy` containing 30 noisy functions<sup>1</sup> 
 * `protein docking` containing 280 problem instances, which simulate the application of protein docking as a 12-dimensional optimization problem<sup>2</sup>     
 
-By setting the argument `--problem` ,you can specify the suite.More details and examples can be found [here](docs/dataset.md)
+By setting the argument `--problem` ,you can specify the suite.More details and examples can be found [here](docs/datasets.md)
 
 For the usage of  `--train`  `--train_agent`  `--train_optimizer` , see [Training](#Training) for more details.
 
@@ -63,7 +63,7 @@ The data set is split into training set and test set in different proportions wi
 * `easy` training set accounts for 75% 
 * `difficult` training set accounts for 25%  
 
-By setting the argument `--difficulty` ,you can specify the difficulty level. More details and examples can be found [here](docs/dataset.md)
+By setting the argument `--difficulty` ,you can specify the difficulty level. More details and examples can be found [here](docs/datasets.md)
 
 
 ## Training
