@@ -6,8 +6,7 @@ from environment.basic_environment import PBO_Env
 import time
 from tqdm import tqdm
 import os
-# # 为了动态import 用户自定义的agent和optimizer
-# import importlib
+
 
 from agent import (
     DE_DDQN_Agent,
@@ -113,15 +112,6 @@ class Tester(object):
             self.l_optimizer_for_cp.append(self.optimizer)
         elif config.optimizer is not None:
             self.t_optimizer_for_cp.append(self.optimizer)
-
-        # # import user defined agent and optimizer
-        # if config.need_import:
-        #     package_path = config.package_path
-        #     package_name = config.package_name
-        #     my_package = importlib.import_module(package_path,package_name)
-        #     self.agent_for_cp.append(my_package.agent)
-        #     self.l_optimizer_for_cp.append(my_package.optimizer)
-        #     self.t_optimizer_for_cp.append(my_package.optimizer)
 
 
         # logging
