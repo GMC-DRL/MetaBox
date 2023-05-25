@@ -51,7 +51,7 @@ Currently, three benchmark suites are included:
 * `bbob-noisy` containing 30 noisy functions<sup>1</sup> 
 * `protein docking` containing 280 problem instances, which simulate the application of protein docking as a 12-dimensional optimization problem<sup>2</sup>     
 
-By setting the argument `--problem` ,you can specify the suite.More details and examples can be found [here](dataset.md)
+By setting the argument `--problem` ,you can specify the suite.More details and examples can be found [here](docs/dataset.md)
 
 For the usage of  `--train`  `--train_agent`  `--train_optimizer` , see [Training](#Training) for more details.
 
@@ -63,16 +63,16 @@ The data set is split into training set and test set in different proportions wi
 * `easy` training set accounts for 75% 
 * `difficult` training set accounts for 25%  
 
-By setting the argument `--difficulty` ,you can specify the difficulty level. More details and examples can be found [here](dataset.md)
+By setting the argument `--difficulty` ,you can specify the difficulty level. More details and examples can be found [here](docs/dataset.md)
 
 
 ## Training
 ### How to Train
-In `RELOPS`, to facilitate training with our dataset and observing logs during training, we suggest that you put your own MetaBBO Agent declaration file in the folder [agent](RELOPS/agent) and **import** it in [trainer.py](RELOPS/trainer.py). Additionally, if you are using your own optimizer instead of the one provided by `RELOPS`, you need to put your own backbone optimizer declaration file in the folder [optimizer](RELOPS/optimizer) and **import** it in [trainer.py](RELOPS/trainer.py).
+In `RELOPS`, to facilitate training with our dataset and observing logs during training, we suggest that you put your own MetaBBO Agent declaration file in the folder [agent](RELOPS/agent) and **import** it in [trainer.py](RELOPS/trainer.py). Additionally, if you are using your own optimizer instead of the one provided by `RELOPS`, you need to put your own backbone optimizer declaration file in the folder [optimizer](RELOPS/optimizer) and **import** it in [trainer.py](docs/trainer.py).
 
 Also, when using RELOPS, you must implement your MetaBBO Agent and Optimizer in a certain form.
 
-Get more details [here](training.md).
+Get more details [here](docs/training.md).
 
 After that ,you will be able to train your agent using the following command line:
 
@@ -80,7 +80,7 @@ After that ,you will be able to train your agent using the following command lin
 python main.py --train --train_agent MyAgent --train_optimizer MyOptimizer --agent_save_dir MyAgentSaveDir --log_dir MyLogDir
 ```
 
-More details and explanation can be found [here](training.md)
+More details and explanation can be found [here](docs/training.md)
 
 ### Train Results
 
@@ -89,7 +89,7 @@ After training, 2 types of data files will be generated in `MyLogDir/train/MyAge
 * `.npy` files in `MyLogDir/train/MyAgent/runName/log/`, which you can use to draw your own graphs or tables.
 * `.png` files in `MyLogDir/train/MyAgent/runName/pic/`. In this folder, 3 types of graphs are provided by our unified interfaces which draw the same graph for different agents for comparison.
 
-More details can be found [here](training.md)
+More details can be found [here](docs/training.md)
 
 ## Baselines
 
@@ -139,7 +139,7 @@ In `RELOPS`, you can select the test mode by using the `--test` option.
 
 Currently, we have implemented 7 MetaBBO-RL learnable optimizers, 1 MetaBBO-SL optimizer and 11 BBO optimizers, which are listed in [Baselines](#Baselines). You can also find their implementations in [RELOPS/agent](RELOPS/agent) and [RELOPS/optimizer](RELOPS/optimizer). We have imported all of these agents and optimizers in [tester.py](RELOPS/tester.py) for you to compare, and you are supposed to import your own agent and optimizer in it.
 
-You can specify all the baselines optimizers that you want to compare with your own optimizers.  In addition,you can use`--agent_load_dir` option specifies the directory that contains the `.pkl` model files of your own agent and all comparing agents,  and `--log_dir` option specifies the directory where log files will be saved. See more detaisl in [here](testing.md)
+You can specify all the baselines optimizers that you want to compare with your own optimizers.  In addition,you can use`--agent_load_dir` option specifies the directory that contains the `.pkl` model files of your own agent and all comparing agents,  and `--log_dir` option specifies the directory where log files will be saved. See more detaisl in [here](docs/testing.md)
 
 You can test your own agent *MyAgent* and optimizer *MyOptimizer* with DE_DDQN, LDE, DEAP_DE, JDE21, DEAP_CMAES, Random_search using the following command:
 
@@ -147,7 +147,7 @@ You can test your own agent *MyAgent* and optimizer *MyOptimizer* with DE_DDQN, 
 python main.py --agent_load_dir MyAgentLoadDir --agent MyAgent --optimizer MyOptimizer --agent_for_cp DE_DDQN_Agent LDE_Agent --l_optimizer_for_cp DE_DDQN_Optimizer LDDE_Optimizer --t_optimizer_for_cp DEAP_DE JDE21 DEAP_CMAES Random_search --log_dir MyLogDir
 ```
 
-More details and explanation can be found [here](testing.md)
+More details and explanation can be found [here](docs/testing.md)
 
 ### Test Results
 
@@ -157,4 +157,4 @@ After testing, 3 types of data files will be generated in `MyLogDir/test/runName
 * `.xlsx` files in `MyLogDir/test/runName/tables/`, contains 3 types of excel tables.
 * `.png` files in `MyLogDir/test/runName/pics/`, contains 4 types of graphs.
 
-You can see the details of the test results [here](testing.md)
+You can see the details of the test results [here](docs/testing.md)
