@@ -8,12 +8,12 @@ This is a reinforcement learning benchmark platform that supports benchmarking a
 * [Requirements](#Requirements)
 * [Datasets](#Datasets)
 * [Training](#Training)
-  * [How to Train](#How to train)
-  * [Train Results](#Train Results)
+  * [How to Train](#How-to-Train)
+  * [Train Results](#Train-Results)
 * [Baselines](#Baselines)
 * [Testing](#Testing)
-  * [How to Test](#How to Test)
-  * [Test Results](#Test Results)
+  * [How to Test](#How-to-Test)
+  * [Test Results](#Test-Results)
 
 ## Overview
 
