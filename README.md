@@ -195,9 +195,9 @@ After testing, 3 types of data files will be generated in `MyLogDir/test/runName
     np.exp(x)
     ```
 
-  * `T1` is the evaluation time of the problem in test set and is consistent for all algorithms.
+  * `T1` is the evaluation time of the first problem in test set and is consistent for all algorithms.
 
-  * `T2` is the test time of specific algorithm.
+  * `T2` is the test time of a specific algorithm running on the first problem in test set.
 
   * `cost` is the best costs sampled every 400 function evaluations along the test process of each algorithm running on each problem for 51 times.
 
@@ -205,7 +205,7 @@ After testing, 3 types of data files will be generated in `MyLogDir/test/runName
 
 * `.xlsx` files in `MyLogDir/test/runName/tables/`, contains 3 types of excel tables:
   * `algorithm_complexity.xlsx` contains time complexity calculated by `T0`, `T1` and `T2` for each comparing algorithms.
-  * `algorithm_name_concrete_performance_table.xlsx` such as *RLEPSO_Agent_concrete_performance_table.xlsx* and *GL_PSO_concrete_performance_table.xlsx*, contains specific algorithm's performance , i.e., the worst, best, median, mean, std of the costs the optimizer obtained on each problem in test set.
+  * `algorithm_name_concrete_performance_table.xlsx` such as *RLEPSO_Agent_concrete_performance_table.xlsx* and *GL_PSO_concrete_performance_table.xlsx*, contains the specific algorithm's performance , i.e., the worst, best, median, mean, std of the costs the optimizer obtained on each problem in test set.
   * `overall_table.xlsx` contains optimization performance of all comparing algorithms on each problem of test set.
 * `.png` files in `MyLogDir/test/runName/pics/`, contains 4 types of graphs:
   * `algorithm_name_concrete_performance_hist.png`, such as *RLEPSO_Agent_concrete_performance_hist.png* and *GL_PSO_concrete_performance_hist.png*, draws the performance histogram of the specific algorithm on each problem.
