@@ -10,6 +10,10 @@ This is a reinforcement learning benchmark platform that supports benchmarking a
 * [Training](#Training)
   * [How to Train](#How-to-Train)
   * [Train Results](#Train-Results)
+* [Rollout](#Rollout)
+  * [How to Rollout](#How-to-Rollout)
+  * [Rollout Results](#Rollout-Results)
+
 * [Baselines](#Baselines)
 * [Testing](#Testing)
   * [How to Test](#How-to-Test)
@@ -54,21 +58,13 @@ Currently, three benchmark suites are included:
 * `bbob-noisy` containing 30 noisy functions<sup>1</sup> 
 * `protein docking` containing 280 problem instances, which simulate the application of protein docking as a 12-dimensional optimization problem<sup>2</sup>     
 
-By setting the argument `--problem` in command line to specify the suite like:
-
-```bash
-python main.py --train --problem bbob --train_agent MyAgent --train_optimizer MyOptimizer
-```
-
-```bash
-python main.py --train --problem bbob-noisy --train_agent MyAgent --train_optimizer MyOptimizer
-```
+By setting the argument `--problem` to `bbob`, `bbob-noisy` or `protein ` in command line to use the corresponding suite, for example:
 
 ```bash
 python main.py --train --problem protein --train_agent MyAgent --train_optimizer MyOptimizer
 ```
 
-For the usage of  `--train`  `--train_agent`  `--train_optimizer` , see [Training](#Training) for more details.
+For the usage of  `--train`  `--train_agent`  `--train_optimizer`, see [Training](#Training) for more details.
 
 > 1. `bbob` and `bbob-noisy` suites come from [COCO](https://github.com/numbbo/coco) with original paper [COCO: a platform for comparing continuous optimizers in a black-box setting](https://www.tandfonline.com/eprint/DQPF7YXFJVMTQBH8NKR8/pdf?target=10.1080/10556788.2020.1808977).
 > 2. `protein docking` comes from [LOIS](https://github.com/Shen-Lab/LOIS) with original paper [Learning to Optimize in Swarms](http://papers.nips.cc/paper/9641-learning-to-optimize-in-swarms).
@@ -78,13 +74,7 @@ The data set is split into training set and test set in different proportions wi
 * `easy` training set accounts for 75% 
 * `difficult` training set accounts for 25%  
 
-By setting the argument `--difficulty` in command line to specify the difficulty level like: 
-
-(Note that `easy` difficulty is used by default.)
-
-```bash
-python main.py --train --problem bbob --difficulty easy --train_agent MyAgent --train_optimizer MyOptimizer
-```
+By setting the argument `--difficulty` to `easy` or `difficult` in command line to specify the difficulty level like the following command. Note that `easy` difficulty is used by default.
 
 ```bash
 python main.py --train --problem bbob --difficulty difficult --train_agent MyAgent --train_optimizer MyOptimizer
@@ -95,7 +85,7 @@ python main.py --train --problem bbob --difficulty difficult --train_agent MyAge
 ### How to Train
 In `RELOPS`, to facilitate training with our dataset and observing logs during training, we suggest that you put your own MetaBBO Agent declaration file in the folder [agent](RELOPS/agent) and **import** it in [trainer.py](RELOPS/trainer.py). Additionally, if you are using your own optimizer instead of the one provided by `RELOPS`, you need to put your own backbone optimizer declaration file in the folder [optimizer](RELOPS/optimizer) and **import** it in [trainer.py](RELOPS/trainer.py).
 
-Your own agent are supposed to derive from class `Basic_Agent` in [basic_agent.py](RELOPS/agent/basic_agent.py) and implement methods `train_episode` and `rollout_episode`. Your own optimizer should derive from class `Learnable_Optimizer` in [learnable_optimizer.py](RELOPS/optimizer/learnable_optimizer.py) and implement methods `init_population` and `update`. See [example agent](RELOPS/agent/de_ddqn_agent.py) and [example optimizer](RELOPS/optimizer/de_ddqn_optimizer.py) for more details.
+**Your own agent are supposed to derive from class `Basic_Agent` in [basic_agent.py](RELOPS/agent/basic_agent.py) and implement methods `train_episode` and `rollout_episode`. Your own optimizer should derive from class `Learnable_Optimizer` in [learnable_optimizer.py](RELOPS/optimizer/learnable_optimizer.py) and implement methods `init_population` and `update`.** See [example agent](RELOPS/agent/de_ddqn_agent.py) and [example optimizer](RELOPS/optimizer/de_ddqn_optimizer.py) for more details.
 
 You will then be able to train your agent using the following command line:
 
@@ -109,7 +99,9 @@ Once you run the above command, `RELOPS` will initialize a `Trainer` object and 
 
 ### Train Results
 
-After training, 2 types of data files will be generated in `MyLogDir/train/MyAgent/runName` or `output/train/MyAgent/runName` by default: 
+After training, **21 agent models named `checkpointN.pkl` (*N* is a number from 0 to 20) will be saved in `MyAgentSaveDir/train/MyAgent/runName/` or `agent_model/train/MyAgent/runName/` by default. **`checkpoint0.pkl` is the agent without any learning and remaining 20 models are agents saved uniformly along the whole training process, i.e., `checkpoint20.pkl` is the one that learned the most, for `--max_learning_step` times. You can choose the best one in [Rollout](#Rollout).
+
+In addition, 2 types of data files will be generated in `MyLogDir/train/MyAgent/runName/` or `output/train/MyAgent/runName/` by default: 
 
 * `.npy` files in `MyLogDir/train/MyAgent/runName/log/`, which you can use to draw your own graphs or tables.
 * `.png` files in `MyLogDir/train/MyAgent/runName/pic/`. In this folder, 3 types of graphs are provided by our unified interfaces which draw the same graph for different agents for comparison:
@@ -118,6 +110,37 @@ After training, 2 types of data files will be generated in `MyLogDir/train/MyAge
 	* `draw_return`: The return value from the agent training process will be plotted and saved to `MyLogDir/train/MyAgent/runName/pic/return.png`.
 
 Note that the `runName` is automatically generated by `RELOPS` based on the run time and benchmark suites for distinguishment. 
+
+## Rollout
+
+### How to Rollout
+
+Use the following command to rollout your own agent models obtained from training: 
+
+```bash
+python main.py --rollout --agent_load_dir MyAgentLoadDir --agent_for_rollout MyAgent --optimizer_for_rollout MyOptimizer --log_dir MyLogDir 
+```
+
+But before running it, **please make sure that the 21 agent models named `checkpointN.pkl` saved from training process are in a folder named your agent class name *MyAgent*, and this folder is in directory *MyAgentLoadDir***, which seems like:
+
+```
+MyAgentLoadDir
+│        
+└─ MyAgent
+    │
+    ├─ checkpoint0.pkl
+    ├─ checkpoint1.pkl
+    ├─ ...
+    └─ checkpoint20.pkl
+```
+
+### Rollout Results
+
+After rollout, in `MyLogDir/rollout/runName` or `output/rollout/runName` by default, `RELOPS` will generate a file named `rollout.pkl` which is a dictionary containing:
+
+* `cost` is the best costs sampled every 400 function evaluations along the rollout process of each checkpoint model running on each problem in train set.
+* `fes` is the function evaluation times used by each checkpoint model running on each problem in train set.
+* `return` is the total reward in the rollout process of each checkpoint model running on each problem in train set.
 
 ## Baselines
 
@@ -165,14 +188,14 @@ Note that `Random Search` performs uniformly random sampling to optimize the fit
 
 In `RELOPS`, you can select the test mode by using the `--test` option. When conducting evaluations, we first instantiate a `Tester` object and load all agents and optimizers. Then, we build the test sets and, for each problem in the test set, we call each instantiated optimizer to test the problem and obtain a solution, recording 51 runs of optimization performance.
 
-Currently, we have implemented 7 MetaBBO-RL learnable optimizers, 1 MetaBBO-SL optimizer and 11 BBO optimizers, which are listed in [Baselines](#Baselines). You can also find their implementations in [RELOPS/agent](RELOPS/agent) and [RELOPS/optimizer](RELOPS/optimizer). We have imported all of these agents and optimizers in [tester.py](RELOPS/tester.py) for you to compare, and you are supposed to import your own agent and optimizer in it.
+Currently, we have implemented 7 MetaBBO-RL learnable optimizers, 1 MetaBBO-SL optimizer and 11 BBO optimizers, which are listed in [Baselines](#Baselines). You can also find their implementations in [RELOPS/agent](RELOPS/agent) and [RELOPS/optimizer](RELOPS/optimizer). **We have imported all of these agents and optimizers in [tester.py](RELOPS/tester.py) for you to compare, and you are supposed to import your own agent and optimizer in it**.
 
-You can use the `--agent_for_cp xxx` option to select the agent(s) for comparison and `--l_optimizer_for_cp xxx` option to select the learnable optimizer(s) for comparison. Please note that the agent needs to support the corresponding learnable optimizer. Additionally, you can use `--t_optimizer_for_cp xxx` to select the traditional optimizer(s) for comparison.  `--agent_load_dir` option specifies the directory that contains the `.pkl` model files of your own agent and all comparing agents, and **the model files should be named after the class name of corresponding agent**, for example, `DE_DDQN_Agent.pkl`. `--log_dir` option specifies the directory where log files will be saved. 
+You can use the `--agent_for_cp xxx` option to select the agent(s) for comparison and `--l_optimizer_for_cp xxx` option to select the learnable optimizer(s) for comparison. Please note that the agent needs to support the corresponding learnable optimizer. Additionally, you can use `--t_optimizer_for_cp xxx` to select the traditional optimizer(s) for comparison.  **`--agent_load_dir` option specifies the directory that contains the `.pkl` model files of your own agent and all comparing agents, and make sure that the model files are named after the class name of corresponding agent**, for example, `DE_DDQN_Agent.pkl`. `--log_dir` option specifies the directory where log files will be saved. 
 
 You can test your own agent *MyAgent* and optimizer *MyOptimizer* with DE_DDQN, LDE, DEAP_DE, JDE21, DEAP_CMAES, Random_search using the following command:
 
 ```shell
-python main.py --agent_load_dir MyAgentLoadDir --agent MyAgent --optimizer MyOptimizer --agent_for_cp DE_DDQN_Agent LDE_Agent --l_optimizer_for_cp DE_DDQN_Optimizer LDDE_Optimizer --t_optimizer_for_cp DEAP_DE JDE21 DEAP_CMAES Random_search --log_dir MyLogDir
+python main.py --test --agent_load_dir MyAgentLoadDir --agent MyAgent --optimizer MyOptimizer --agent_for_cp DE_DDQN_Agent LDE_Agent --l_optimizer_for_cp DE_DDQN_Optimizer LDE_Optimizer --t_optimizer_for_cp DEAP_DE JDE21 DEAP_CMAES Random_search --log_dir MyLogDir
 ```
 
 For the above command, `RELOPS` will first load the trained model from *MyAgentLoadDir*, then initialize the agents and optimizers of yours, DE_DDQN and LDE and the selected traditional optimizers, and use the generated test set to optimize all the selected problems for testing. 
