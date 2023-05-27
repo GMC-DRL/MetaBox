@@ -239,7 +239,6 @@ def rollout(config):
         train_rollout_results['cost'][problem.__str__()] = {}
         train_rollout_results['fes'][problem.__str__()] = {}
         train_rollout_results['return'][problem.__str__()] = {}
-        train_rollout_results
         for agent_name in agent_for_rollout:
             train_rollout_results['cost'][problem.__str__()][agent_name] = []  # n_checkpoint 个np.array
             train_rollout_results['fes'][problem.__str__()][agent_name] = []  # n_checkpoint 个数字

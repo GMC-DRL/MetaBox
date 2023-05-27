@@ -59,6 +59,8 @@ class Trainer(object):
         np.save(log_dir+'return', return_save)
         for problem in self.train_set:
             name = problem.__str__()
+            if len(cost[name]) == 0:
+                continue
             while len(cost[name]) < len(epochs):
                 cost[name].append(cost[name][-1])
                 normalizer[name].append(normalizer[name][-1])

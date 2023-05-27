@@ -54,9 +54,9 @@ def get_config(args=None):
         config.maxFEs = 1000
 
     config.run_time = f'{time.strftime("%Y%m%dT%H%M%S")}_{config.problem}_{config.difficulty}_{config.dim}D'
-    config.test_log_dir = 'output/test/'+config.run_time + '/'
+    config.test_log_dir = config.log_dir + '/test/' + config.run_time + '/'
 
-    config.rollout_log_dir = 'output/rollout/'+config.run_time + '/'
+    config.rollout_log_dir = config.log_dir + '/rollout/' + config.run_time + '/'
 
     if config.train:
         config.agent_save_dir = config.agent_save_dir + config.train_agent + '/' + config.run_time + '/'

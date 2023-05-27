@@ -21,10 +21,10 @@ if __name__ == '__main__':
         torch.set_grad_enabled(False)
         tester = Tester(config)
         tester.test()
-        post_processing_test_statics(config.test_log_dir)
+        post_processing_test_statics(config.test_log_dir, Logger(config))
 
     # Rollout
     if config.rollout:
         torch.set_grad_enabled(False)
         rollout(config)
-        post_processing_rollout_statics(config.rollout_log_dir)
+        post_processing_rollout_statics(config.rollout_log_dir, Logger(config))
