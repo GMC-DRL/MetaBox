@@ -3,6 +3,7 @@ from optimizer.operators import boundary_control as BC
 import numpy as np
 
 
+# a function for optimizer to calculate reward
 def cal_reward(f_old, f_new, d_old, d_new):
     if f_new < f_old and d_new > d_old:
         return 2
@@ -17,6 +18,7 @@ def cal_reward(f_old, f_new, d_old, d_new):
 class QLPSO_Optimizer(Learnable_Optimizer):
     def __init__(self, config):
         super().__init__(config)
+        # define hyperparameters that backbone optimizer needs
         config.NP = 30
         config.C = 1.49618
         config.W = 0.729844
@@ -36,7 +38,7 @@ class QLPSO_Optimizer(Learnable_Optimizer):
         self.__diversity = None
         self.__state = None
         self.fes = None
-        self.cost = None
+        self.cost = None  # a list of costs that need to be maintained by EVERY backbone optimizers
         self.log_index = None
         self.log_interval = 400
 
