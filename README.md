@@ -183,7 +183,9 @@ Note that `Random Search` performs uniformly random sampling to optimize the fit
 
 4. Test your MetaBBO optimizer.
 
-    For using your trained agent to compare with the learning-based `DE_DDQN` and the traditional `DEAP_DE` `JDE21` `DEAP_CMAES` `Random_search`, you can use the following command.
+    For test, you need to specify your own agent and all the optimizers you need to compare.
+
+    Using your trained agent to compare with the learning-based `DE_DDQN` and the traditional `DEAP_DE` `JDE21` `DEAP_CMAES` `Random_search` through the following command.
 
     ```shell
     python main.py --test --agent_load_dir MyAgentLoadDir --agent MyAgent --optimizer MyOptimizer --agent_for_cp DE_DDQN_Agent LDE_Agent --l_optimizer_for_cp DE_DDQN_Optimizer LDE_Optimizer --t_optimizer_for_cp DEAP_DE JDE21 DEAP_CMAES Random_search --log_dir MyLogDir
