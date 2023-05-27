@@ -124,25 +124,25 @@ Note that `Random Search` performs uniformly random sampling to optimize the fit
 
 1. Prepare your backbone optimizer and agent.
 
-    Define a class of your backbone optimizer derived from class `Learnable_Optimizer` in [learnable_optimizer.py](RELOPS/optimizer/learnable_optimizer.py). In this class, 2 methods need to be implemented:
+   Define a class of your backbone optimizer derived from class `Learnable_Optimizer` in [learnable_optimizer.py](RELOPS/optimizer/learnable_optimizer.py). In this class, 2 methods need to be implemented:
 
-      * ```python
-        init_population(self,
-                        problem: Basic_Problem) -> Any
-        ```
-   
-        Method `init_population` is used to initialize the population in backbone optimizer, calculate costs using method `problem.eval` and record some information such as pbest and gbest if needed. It's expected to return a `state` for agent to make decisions.
-        
-      * ```python
-        update(self,
-               action: Any,
-               problem: Basic_Problem) -> Tuple[Any]
-        ```
-   
-        Method `update` is used to update the population or one individual in population as you wish using the `action` given by agent, calculate new costs using method `problem.eval` and update some records if needed. It's expected to return a tuple of `[next_state, reward, is_done]` for agent to learn.
-   
+     * ```python
+       init_population(self,
+                       problem: Basic_Problem) -> Any
+       ```
+      
+       Method `init_population` is used to initialize the population in backbone optimizer, calculate costs using method `problem.eval` and record some information such as pbest and gbest if needed. It's expected to return a `state` for agent to make decisions.
+       
+     * ```python
+       update(self,
+              action: Any,
+              problem: Basic_Problem) -> Tuple[Any]
+       ```
+      
+       Method `update` is used to update the population or one individual in population as you wish using the `action` given by agent, calculate new costs using method `problem.eval` and update some records if needed. It's expected to return a tuple of `[next_state, reward, is_done]` for agent to learn.
+
    Define a class of your agent derived from class `Basic_Agent` in [basic_agent.py](RELOPS/agent/basic_agent.py). In this class, 2 methods need to be implemented:
-   
+
    * ```python
      train_episode(self,
                    env: PBO_Env,
@@ -150,10 +150,10 @@ Note that `Random Search` performs uniformly random sampling to optimize the fit
                    logger: Logger = None) -> Tuple[bool, dict]
      ```
      
-     Method `train_episode` is used to train the agent for an episode by using methods `env.reset` and `env.step` to interact with `env`. It's expected to return a `Tuple[bool, dict]` whose first element indicates whether the learned step has exceeded the max_learning_step and second element is a dictionary that contains:
-       { `normalizer`: the best cost in initial population.
-         `gbest`: the best cost found in this episode.
-         `return`: total reward in this episode.
+     Method `train_episode` is used to train the agent for an episode by using methods `env.reset` and `env.step` to interact with `env`. It's expected to return a `Tuple[bool, dict]` whose first element indicates whether the learned step has exceeded the max_learning_step and second element is a dictionary that contains:  
+       { `normalizer`: the best cost in initial population.  
+         `gbest`: the best cost found in this episode.  
+         `return`: total reward in this episode.  
          `learn_steps`: the number of accumulated learned steps of the agent. }
      
    * ```python
@@ -162,72 +162,43 @@ Note that `Random Search` performs uniformly random sampling to optimize the fit
                      epoch_id: int = None,
                      logger: Logger = None) -> dict
      ```
-     Method `rollout_episode` is used to rollout the agent for an episode by using methods `env.reset` and `env.step` to interact with `env`. It's expected to return a `dict` that contains:
-       { `cost`: a list of costs that need to be maintained in backbone optimizer.
-         `fes`: times of function evaluations used by optimizer.
+     Method `rollout_episode` is used to rollout the agent for an episode by using methods `env.reset` and `env.step` to interact with `env`. It's expected to return a `dict` that contains:  
+       { `cost`: a list of costs that need to be maintained in backbone optimizer.  
+         `fes`: times of function evaluations used by optimizer.  
          `return`: total reward in this episode. }
-   
-   See [example agent](RELOPS/agent/qlpso_agent.py) and [example optimizer](RELOPS/optimizer/qlpso_optimizer.py) for more details.
-   
+
+   See [example agent](RELOPS/agent/qlpso_agent.py) and [example backbone optimizer](RELOPS/optimizer/qlpso_optimizer.py) for more details.
+
 2. Train your agent.
 
-    For train, you need to specify the agent and optimizer that you build during prepare.
+    Assume that you've written an agent class named *MyAgent* and a backbone optimizer class named *MyOptimizer*, and now you can train your agent using:
 
     ```shell
-    python main.py --train --train_agent MyAgent --train_optimizer MyOptimizer --agent_save_dir MyAgentSaveDir --log_dir MyLogDir
+    python main.py --train --problem bbob --difficulty easy --train_agent MyAgent --train_optimizer MyOptimizer
     ```
 
-    Then,initialize a `Trainer` with `config` and start to train.
-
-    ```
-    torch.set_grad_enabled(True)
-    trainer = Trainer(config)
-    trainer.train()
-    ```
-
-    In Trainer,for each problem instance, create an ENV and execute the `train_episode` once.
-
-    ```
-    for problem_id, problem in enumerate(self.train_set):
-    	env = PBO_Env(problem, self.optimizer)
-    	exceed_max_ls, pbar_info_train = self.agent.train_episode(env, epoch, None)
-    ```
+    Once you run the above command, the `runName` which is generated based on the run time and benchmark suite will appear at the command line. 
 
     See [Training](#Training) for more details.
 
 3. Rollout your agent models.
 
-    For rollout, you need to load your agent and specify the optimizer.
+    Fetch your trained agent models named `checkpointN.pkl` in directory `RELOPS/agent_model/train/MyAgent/runName/` and move them to directory `RELOPS/agent_model/rollout/MyAgent/`. Rollout the models with train set using:
 
     ```shell
-    python main.py --rollout --agent_load_dir MyAgentLoadDir --agent_for_rollout MyAgent --optimizer_for_rollout MyOptimizer --log_dir MyLogDir 
+    python main.py --rollout --problem bbob --difficulty easy --agent_for_rollout MyAgent --optimizer_for_rollout MyOptimizer
     ```
 
-    Then start the rollout.
-
-    ```python
-    torch.set_grad_enabled(False)
-    rollout(config)
-    ```
+    When the rollout ends, check the result data in `RELOPS/output/rollout/runName/rollout.pkl` and pick the best model to test.
 
     See [Rollout](#Rollout) for more details.
 
 4. Test your MetaBBO optimizer.
 
-    For test, you need to specify your own agent and all the optimizers you need to compare.
-
-    Using your trained agent to compare with the learning-based `DE_DDQN` and the traditional `DEAP_DE` `JDE21` `DEAP_CMAES` `Random_search` through the following command.
+    Move the best `.pkl` model file to directory `RELOPS/agent_model/test/`, and rename the file to `MyAgent.pkl`. Now use the test set to test `MyAgent` with `DEAP_CMAES` and `Random_search`:
 
     ```shell
-    python main.py --test --agent_load_dir MyAgentLoadDir --agent MyAgent --optimizer MyOptimizer --agent_for_cp DE_DDQN_Agent LDE_Agent --l_optimizer_for_cp DE_DDQN_Optimizer LDE_Optimizer --t_optimizer_for_cp DEAP_DE JDE21 DEAP_CMAES Random_search --log_dir MyLogDir
-    ```
-
-    Then,initialize a `Tester` with `config` and start to test.
-
-    ```
-    torch.set_grad_enabled(False)
-    tester = Tester(config)
-    tester.test()
+    python main.py --test --problem bbob --difficulty easy --agent MyAgent --optimizer MyOptimizer --t_optimizer_for_cp DEAP_CMAES Random_search
     ```
 
     See [Testing](#Testing) for more details.
@@ -258,8 +229,6 @@ In addition, 2 types of data files will be generated in `MyLogDir/train/MyAgent/
 	* `draw_cost`: The cost change for the agent facing different runs for different problems and save it to `MyLogDir/train/MyAgent/runName/pic/problem_name_cost.png`.
 	* `draw_average_cost`: It will plot the average cost of the agent against all problems and save it to `MyLogDir/train/MyAgent/runName/pic/all_problem_cost.png`.
 	* `draw_return`: The return value from the agent training process will be plotted and saved to `MyLogDir/train/MyAgent/runName/pic/return.png`.
-
-Note that the `runName` is automatically generated by `RELOPS` based on the run time and benchmark suites for distinguishment. 
 
 __TODO__ make sure if need add examples pictures or not
 
