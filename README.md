@@ -7,14 +7,14 @@ This is a reinforcement learning benchmark platform that supports benchmarking a
 * [Overview](#Overview)
 * [Requirements](#Requirements)
 * [Datasets](#Datasets)
+* [Baselines](#Baselines)
+* [Quick Start](#Quick-Start)
 * [Training](#Training)
   * [How to Train](#How-to-Train)
   * [Train Results](#Train-Results)
 * [Rollout](#Rollout)
   * [How to Rollout](#How-to-Rollout)
   * [Rollout Results](#Rollout-Results)
-
-* [Baselines](#Baselines)
 * [Testing](#Testing)
   * [How to Test](#How-to-Test)
   * [Test Results](#Test-Results)
@@ -23,17 +23,18 @@ This is a reinforcement learning benchmark platform that supports benchmarking a
 
 ![overview](docs/overview.png)
 
-We have divided `RELOPS` into five modules: **Black Box Optimizer, Test Suite, Trainer, Tester and Logger.**
+`RELOPS` can be divided into six modules: **MetaBBO-RL, Test suites, Baselines, Trainer, Tester and Logger.**
 
-`MetaBBO-RL` is used for optimizing black box problems and consists of a reinforcement learning agent and backbone optimizer.
+* `MetaBBO-RL` is used for optimizing black box problems and consists of a reinforcement agent and a backbone optimizer.
 
-`Testsuites` are used for generating training and testing sets, including **bbob**, **bbob-noisy**, and **protein docking**.
+* `Test suites` are used for generating training and testing sets, including **bbob**, **bbob-noisy**, and **protein docking**.
+* `Baselines` are proposed algorithms including **BBO**, **MetaBBO-RL**, **MetaBBO-SL** optimizers that we implemented for comparison study.
 
-`Trainer` is used to integrate the entire training process of the optimizer and consists of the instantiated agent, the **ENV** consisting of the optimizer and Train set. The trainer organizes the MDP process of reinforcement learning.
+* `Trainer` manages the entire learning process of the agent by building environments consisting of a backbone optimizer and a problem sampled from train set and letting the agent interact with environments sequentially.
 
-`Tester` is used to evaluate the optimization effect of the optimizer. It contains baseline algorithms, trained MetaBBO Agent, and Test set and can generate statistical test results using the above information.
+* `Tester` is used to evaluate the optimization performance of the MetaBBO-RL. By using the test set to test the baselines and the trained MetaBBO agent, it produces test log for logger to generate statistic test results.
 
-`Logger` implements several functions for displaying the logs of the training process and the results on the test set, which facilitate the improvement of the training process and observation of the optimizer's effect.
+* `Logger` implements multiple functions for displaying the logs of the training process and the results of the testing process, which facilitates the improvement of the training process and the observation of MetaBBO-RL's performance.
 
 ## Requirements
 
@@ -54,11 +55,11 @@ We have divided `RELOPS` into five modules: **Black Box Optimizer, Test Suite, T
 
 Currently, three benchmark suites are included:  
 
-* `bbob` containing 24 noiseless functions<sup>1</sup> 
-* `bbob-noisy` containing 30 noisy functions<sup>1</sup> 
-* `protein docking` containing 280 problem instances, which simulate the application of protein docking as a 12-dimensional optimization problem<sup>2</sup>     
+* `bbob` containing 24 noiseless functions, comes from [COCO](https://github.com/numbbo/coco) with [original paper](https://www.tandfonline.com/eprint/DQPF7YXFJVMTQBH8NKR8/pdf?target=10.1080/10556788.2020.1808977).
+* `bbob-noisy` containing 30 noisy functions, comes from [COCO](https://github.com/numbbo/coco) with [original paper](https://www.tandfonline.com/eprint/DQPF7YXFJVMTQBH8NKR8/pdf?target=10.1080/10556788.2020.1808977).
+* `protein docking` containing 280 problem instances, which simulate the application of protein docking as a 12-dimensional optimization problem, comes from [LOIS](https://github.com/Shen-Lab/LOIS) with [original paper](http://papers.nips.cc/paper/9641-learning-to-optimize-in-swarms).
 
-By setting the argument `--problem` to `bbob`, `bbob-noisy` or `protein ` in command line to use the corresponding suite, for example:
+By setting the argument `--problem` to `bbob`, `bbob-noisy` or `protein` in command line to use the corresponding suite, for example:
 
 ```bash
 python main.py --train --problem protein --train_agent MyAgent --train_optimizer MyOptimizer
@@ -66,81 +67,16 @@ python main.py --train --problem protein --train_agent MyAgent --train_optimizer
 
 For the usage of  `--train`  `--train_agent`  `--train_optimizer`, see [Training](#Training) for more details.
 
-> 1. `bbob` and `bbob-noisy` suites come from [COCO](https://github.com/numbbo/coco) with original paper [COCO: a platform for comparing continuous optimizers in a black-box setting](https://www.tandfonline.com/eprint/DQPF7YXFJVMTQBH8NKR8/pdf?target=10.1080/10556788.2020.1808977).
-> 2. `protein docking` comes from [LOIS](https://github.com/Shen-Lab/LOIS) with original paper [Learning to Optimize in Swarms](http://papers.nips.cc/paper/9641-learning-to-optimize-in-swarms).
-
 The data set is split into training set and test set in different proportions with respect to two difficulty levels:  
 
-* `easy` training set accounts for 75% 
-* `difficult` training set accounts for 25%  
+* `easy` training set accounts for 75% and test set accounts for 25%.
+* `difficult` training set accounts for 25% and test set accounts for 75%.
 
 By setting the argument `--difficulty` to `easy` or `difficult` in command line to specify the difficulty level like the following command. Note that `easy` difficulty is used by default.
 
 ```bash
 python main.py --train --problem bbob --difficulty difficult --train_agent MyAgent --train_optimizer MyOptimizer
 ```
-
-
-## Training
-### How to Train
-In `RELOPS`, to facilitate training with our dataset and observing logs during training, we suggest that you put your own MetaBBO Agent declaration file in the folder [agent](RELOPS/agent) and **import** it in [trainer.py](RELOPS/trainer.py). Additionally, if you are using your own optimizer instead of the one provided by `RELOPS`, you need to put your own backbone optimizer declaration file in the folder [optimizer](RELOPS/optimizer) and **import** it in [trainer.py](RELOPS/trainer.py).
-
-**Your own agent are supposed to derive from class `Basic_Agent` in [basic_agent.py](RELOPS/agent/basic_agent.py) and implement methods `train_episode` and `rollout_episode`. Your own optimizer should derive from class `Learnable_Optimizer` in [learnable_optimizer.py](RELOPS/optimizer/learnable_optimizer.py) and implement methods `init_population` and `update`.** See [example agent](RELOPS/agent/de_ddqn_agent.py) and [example optimizer](RELOPS/optimizer/de_ddqn_optimizer.py) for more details.
-
-You will then be able to train your agent using the following command line:
-
-```bash
-python main.py --train --train_agent MyAgent --train_optimizer MyOptimizer --agent_save_dir MyAgentSaveDir --log_dir MyLogDir
-```
-
-For the above commands, `--train` is to specify the training mode. `--train_agent MyAgent` `--train_optimizer MyOptimizer` is to use your agent class named *MyAgent* and your optimizer class named *MyOptimizer*  for training. `--agent_save_dir MyAgentSaveDir` specifies the save directory of the agent models obtained from training or they will be saved in directory `RELOPS/agent_model/train` by default.  `--log_dir MyLogDir` specifies the save directory of the log files during training or directory `RELOPS/output/train` by default.
-
-Once you run the above command, `RELOPS` will initialize a `Trainer` object and use your configuration to build the agent and optimizer, as well as generate the training and test sets. After that, the `Trainer` will control the entire training process, optimize the problems in the train set one by one using the declared agent and optimizer, and record the corresponding information.
-
-### Train Results
-
-After training, **21 agent models named `checkpointN.pkl` (*N* is a number from 0 to 20) will be saved in `MyAgentSaveDir/train/MyAgent/runName/` or `agent_model/train/MyAgent/runName/` by default. **`checkpoint0.pkl` is the agent without any learning and remaining 20 models are agents saved uniformly along the whole training process, i.e., `checkpoint20.pkl` is the one that learned the most, for `--max_learning_step` times. You can choose the best one in [Rollout](#Rollout).
-
-In addition, 2 types of data files will be generated in `MyLogDir/train/MyAgent/runName/` or `output/train/MyAgent/runName/` by default: 
-
-* `.npy` files in `MyLogDir/train/MyAgent/runName/log/`, which you can use to draw your own graphs or tables.
-* `.png` files in `MyLogDir/train/MyAgent/runName/pic/`. In this folder, 3 types of graphs are provided by our unified interfaces which draw the same graph for different agents for comparison:
-	* `draw_cost`: The cost change for the agent facing different runs for different problems and save it to `MyLogDir/train/MyAgent/runName/pic/problem_name_cost.png`.
-	* `draw_average_cost`: It will plot the average cost of the agent against all problems and save it to `MyLogDir/train/MyAgent/runName/pic/all_problem_cost.png`.
-	* `draw_return`: The return value from the agent training process will be plotted and saved to `MyLogDir/train/MyAgent/runName/pic/return.png`.
-
-Note that the `runName` is automatically generated by `RELOPS` based on the run time and benchmark suites for distinguishment. 
-
-## Rollout
-
-### How to Rollout
-
-Use the following command to rollout your own agent models obtained from training: 
-
-```bash
-python main.py --rollout --agent_load_dir MyAgentLoadDir --agent_for_rollout MyAgent --optimizer_for_rollout MyOptimizer --log_dir MyLogDir 
-```
-
-But before running it, **please make sure that the 21 agent models named `checkpointN.pkl` saved from training process are in a folder named your agent class name *MyAgent*, and this folder is in directory *MyAgentLoadDir***, which seems like:
-
-```
-MyAgentLoadDir
-│        
-└─ MyAgent
-    │
-    ├─ checkpoint0.pkl
-    ├─ checkpoint1.pkl
-    ├─ ...
-    └─ checkpoint20.pkl
-```
-
-### Rollout Results
-
-After rollout, in `MyLogDir/rollout/runName` or `output/rollout/runName` by default, `RELOPS` will generate a file named `rollout.pkl` which is a dictionary containing:
-
-* `cost` is the best costs sampled every 400 function evaluations along the rollout process of each checkpoint model running on each problem in train set.
-* `fes` is the function evaluation times used by each checkpoint model running on each problem in train set.
-* `return` is the total reward in the rollout process of each checkpoint model running on each problem in train set.
 
 ## Baselines
 
@@ -181,6 +117,92 @@ After rollout, in `MyLogDir/rollout/runName` or `output/rollout/runName` by defa
 |     Random Search     |  -   |                              -                               |
 
 Note that `Random Search` performs uniformly random sampling to optimize the fitness.
+
+## Quick Start
+
+0. Check out the [Requirements](#Requirements) above.
+
+1. Prepare your agent and backbone optimizer.
+
+    --TODO: example agent and example optimizer--
+
+   Define a class of your agent derived from class `Basic_Agent` in [basic_agent.py](RELOPS/agent/basic_agent.py). In this class, 2 methods need to be implemented:
+
+   * `train_episode`
+   * `rollout_episode` 
+
+   Define a class of your backbone optimizer derived from class `Learnable_Optimizer` in [learnable_optimizer.py](RELOPS/optimizer/learnable_optimizer.py). In this class 2 methods need to be implemented:
+
+   * `init_population`
+   * `update` 
+
+   See [example agent](RELOPS/agent/de_ddqn_agent.py) and [example optimizer](RELOPS/optimizer/de_ddqn_optimizer.py) for more details.
+
+2. Train your agent.
+
+3. Rollout your agent models.
+
+4. Test your MetaBBO optimizer.
+
+## Training
+
+### How to Train
+In `RELOPS`, to facilitate training with our dataset and observing logs during training, we suggest that you put your own MetaBBO Agent declaration file in the folder [agent](RELOPS/agent) and **import** it in [trainer.py](RELOPS/trainer.py). Additionally, if you are using your own optimizer instead of the one provided by `RELOPS`, you need to put your own backbone optimizer declaration file in the folder [optimizer](RELOPS/optimizer) and **import** it in [trainer.py](RELOPS/trainer.py).
+
+You will then be able to train your agent using the following command line:
+
+```bash
+python main.py --train --train_agent MyAgent --train_optimizer MyOptimizer --agent_save_dir MyAgentSaveDir --log_dir MyLogDir
+```
+
+For the above commands, `--train` is to specify the training mode. `--train_agent MyAgent` `--train_optimizer MyOptimizer` is to use your agent class named *MyAgent* and your optimizer class named *MyOptimizer*  for training. `--agent_save_dir MyAgentSaveDir` specifies the save directory of the agent models obtained from training or they will be saved in directory `RELOPS/agent_model/train` by default.  `--log_dir MyLogDir` specifies the save directory of the log files during training or directory `RELOPS/output/train` by default.
+
+Once you run the above command, `RELOPS` will initialize a `Trainer` object and use your configuration to build the agent and optimizer, as well as generate the training and test sets. After that, the `Trainer` will control the entire training process, optimize the problems in the train set one by one using the declared agent and optimizer, and record the corresponding information.
+
+### Train Results
+
+After training, **21 agent models** named `checkpointN.pkl` (*N* is a number from 0 to 20) will be saved in `MyAgentSaveDir/train/MyAgent/runName/` or `agent_model/train/MyAgent/runName/` by default. `checkpoint0.pkl` is the agent without any learning and remaining 20 models are agents saved uniformly along the whole training process, i.e., `checkpoint20.pkl` is the one that learned the most, for `--max_learning_step` times. You can choose the best one in [Rollout](#Rollout).
+
+In addition, 2 types of data files will be generated in `MyLogDir/train/MyAgent/runName/` or `output/train/MyAgent/runName/` by default: 
+
+* `.npy` files in `MyLogDir/train/MyAgent/runName/log/`, which you can use to draw your own graphs or tables.
+* `.png` files in `MyLogDir/train/MyAgent/runName/pic/`. In this folder, 3 types of graphs are provided by our unified interfaces which draw the same graph for different agents for comparison:
+	* `draw_cost`: The cost change for the agent facing different runs for different problems and save it to `MyLogDir/train/MyAgent/runName/pic/problem_name_cost.png`.
+	* `draw_average_cost`: It will plot the average cost of the agent against all problems and save it to `MyLogDir/train/MyAgent/runName/pic/all_problem_cost.png`.
+	* `draw_return`: The return value from the agent training process will be plotted and saved to `MyLogDir/train/MyAgent/runName/pic/return.png`.
+
+Note that the `runName` is automatically generated by `RELOPS` based on the run time and benchmark suites for distinguishment. 
+
+## Rollout
+
+### How to Rollout
+
+By using the following command, you can rollout your agent models obtained from training process above using problems in train set: 
+
+```bash
+python main.py --rollout --agent_load_dir MyAgentLoadDir --agent_for_rollout MyAgent --optimizer_for_rollout MyOptimizer --log_dir MyLogDir 
+```
+
+But before running it, **please make sure that the 21 agent models named `checkpointN.pkl` saved from training process are in a folder named your agent class name *MyAgent*, and this folder is in directory *MyAgentLoadDir***, which seems like:
+
+```
+MyAgentLoadDir
+│        
+└─ MyAgent
+    │
+    ├─ checkpoint0.pkl
+    ├─ checkpoint1.pkl
+    ├─ ...
+    └─ checkpoint20.pkl
+```
+
+### Rollout Results
+
+After rollout, in `MyLogDir/rollout/runName` or `output/rollout/runName` by default, `RELOPS` will generate a file named `rollout.pkl` which is a dictionary containing:
+
+* `cost` is the best costs sampled every 400 function evaluations along the rollout process of each checkpoint model running on each problem in train set.
+* `fes` is the function evaluation times used by each checkpoint model running on each problem in train set.
+* `return` is the total reward in the rollout process of each checkpoint model running on each problem in train set.
 
 ## Testing
 
