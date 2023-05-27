@@ -122,22 +122,53 @@ Note that `Random Search` performs uniformly random sampling to optimize the fit
 
 0. Check out the [Requirements](#Requirements) above.
 
-1. Prepare your agent and backbone optimizer.
+1. Prepare your backbone optimizer and agent.
 
-    --TODO: example agent and example optimizer--
+    Define a class of your backbone optimizer derived from class `Learnable_Optimizer` in [learnable_optimizer.py](RELOPS/optimizer/learnable_optimizer.py). In this class, 2 methods need to be implemented:
 
+      * ```python
+        init_population(self,
+                        problem: Basic_Problem) -> Any
+        ```
+   
+        Method `init_population` is used to initialize the population in backbone optimizer, calculate costs using method `problem.eval` and record some information such as pbest and gbest if needed. It's expected to return a `state` for agent to make decisions.
+        
+      * ```python
+        update(self,
+               action: Any,
+               problem: Basic_Problem) -> Tuple[Any]
+        ```
+   
+        Method `update` is used to update the population or one individual in population as you wish using the `action` given by agent, calculate new costs using method `problem.eval` and update some records if needed. It's expected to return a tuple of `[next_state, reward, is_done]` for agent to learn.
+   
    Define a class of your agent derived from class `Basic_Agent` in [basic_agent.py](RELOPS/agent/basic_agent.py). In this class, 2 methods need to be implemented:
-
-   * `train_episode`
-   * `rollout_episode` 
-
-   Define a class of your backbone optimizer derived from class `Learnable_Optimizer` in [learnable_optimizer.py](RELOPS/optimizer/learnable_optimizer.py). In this class 2 methods need to be implemented:
-
-   * `init_population`
-   * `update` 
-
-   See [example agent](RELOPS/agent/de_ddqn_agent.py) and [example optimizer](RELOPS/optimizer/de_ddqn_optimizer.py) for more details.
-
+   
+   * ```python
+     train_episode(self,
+                   env: PBO_Env,
+                   epoch_id: int = None,
+                   logger: Logger = None) -> Tuple[bool, dict]
+     ```
+     
+     Method `train_episode` is used to train the agent for an episode by using methods `env.reset` and `env.step` to interact with `env`. It's expected to return a `Tuple[bool, dict]` whose first element indicates whether the learned step has exceeded the max_learning_step and second element is a dictionary that contains:
+       { `normalizer`: the best cost in initial population.
+         `gbest`: the best cost found in this episode.
+         `return`: total reward in this episode.
+         `learn_steps`: the number of accumulated learned steps of the agent. }
+     
+   * ```python
+     rollout_episode(self,
+                     env: PBO_Env,
+                     epoch_id: int = None,
+                     logger: Logger = None) -> dict
+     ```
+     Method `rollout_episode` is used to rollout the agent for an episode by using methods `env.reset` and `env.step` to interact with `env`. It's expected to return a `dict` that contains:
+       { `cost`: a list of costs that need to be maintained in backbone optimizer.
+         `fes`: times of function evaluations used by optimizer.
+         `return`: total reward in this episode. }
+   
+   See [example agent](RELOPS/agent/qlpso_agent.py) and [example optimizer](RELOPS/optimizer/qlpso_optimizer.py) for more details.
+   
 2. Train your agent.
 
 3. Rollout your agent models.
@@ -161,7 +192,7 @@ Once you run the above command, `RELOPS` will initialize a `Trainer` object and 
 
 ### Train Results
 
-After training, **21 agent models** named `checkpointN.pkl` (*N* is a number from 0 to 20) will be saved in `MyAgentSaveDir/train/MyAgent/runName/` or `agent_model/train/MyAgent/runName/` by default. `checkpoint0.pkl` is the agent without any learning and remaining 20 models are agents saved uniformly along the whole training process, i.e., `checkpoint20.pkl` is the one that learned the most, for `--max_learning_step` times. You can choose the best one in [Rollout](#Rollout).
+After training, **21 agent models named `checkpointN.pkl` (*N* is a number from 0 to 20) will be saved in `MyAgentSaveDir/train/MyAgent/runName/` or `agent_model/train/MyAgent/runName/` by default.** `checkpoint0.pkl` is the agent without any learning and remaining 20 models are agents saved uniformly along the whole training process, i.e., `checkpoint20.pkl` is the one that learned the most, for `--max_learning_step` times. You can choose the best one in [Rollout](#Rollout).
 
 In addition, 2 types of data files will be generated in `MyLogDir/train/MyAgent/runName/` or `output/train/MyAgent/runName/` by default: 
 
