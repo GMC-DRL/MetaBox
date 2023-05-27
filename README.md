@@ -1,6 +1,6 @@
 # RELOPS: Reinforcement Learning Benchmark Platform for Black Box Optimizer Search
 
-This is a reinforcement learning benchmark platform that supports benchmarking and exploration of black box optimizers. You can train your own optimizer and compare it with several popular RL-based optimizers and traditional optimizers.
+This is a **reinforcement learning benchmark platform** that supports benchmarking and exploration of black box optimizers. You can **train** your own optimizer and **compare** it with several popular RL-based optimizers and traditional optimizers.
 
 ## Contents
 
@@ -25,16 +25,16 @@ This is a reinforcement learning benchmark platform that supports benchmarking a
 
 `RELOPS` can be divided into six modules: **MetaBBO-RL, Test suites, Baselines, Trainer, Tester and Logger.**
 
-* `MetaBBO-RL` is used for optimizing black box problems and consists of a reinforcement agent and a backbone optimizer.
+* `MetaBBO-RL` is used for **optimizing** black box problems and consists of a reinforcement agent and a backbone optimizer.
 
 * `Test suites` are used for generating training and testing sets, including **bbob**, **bbob-noisy**, and **protein docking**.
 * `Baselines` are proposed algorithms including **BBO**, **MetaBBO-RL**, **MetaBBO-SL** optimizers that we implemented for comparison study.
 
-* `Trainer` manages the entire learning process of the agent by building environments consisting of a backbone optimizer and a problem sampled from train set and letting the agent interact with environments sequentially.
+* `Trainer` **manages the entire learning process** of the agent by building environments consisting of a backbone optimizer and a problem sampled from train set and letting the agent interact with environments sequentially.
 
-* `Tester` is used to evaluate the optimization performance of the MetaBBO-RL. By using the test set to test the baselines and the trained MetaBBO agent, it produces test log for logger to generate statistic test results.
+* `Tester` is used to **evaluate** the optimization performance of the MetaBBO-RL. By using the test set to test the baselines and the trained MetaBBO agent, it produces test log for logger to generate statistic test results.
 
-* `Logger` implements multiple functions for displaying the logs of the training process and the results of the testing process, which facilitates the improvement of the training process and the observation of MetaBBO-RL's performance.
+* `Logger` implements multiple functions for **displaying** the logs of the training process and the results of the testing process, which facilitates the improvement of the training process and the observation of MetaBBO-RL's performance.
 
 ## Requirements
 
@@ -124,7 +124,7 @@ Note that `Random Search` performs uniformly random sampling to optimize the fit
 
 1. Prepare your agent and backbone optimizer.
 
-    --TODO: example agent and example optimizer--
+   --TODO: example agent and example optimizer--
 
    Define a class of your agent derived from class `Basic_Agent` in [basic_agent.py](RELOPS/agent/basic_agent.py). In this class, 2 methods need to be implemented:
 
@@ -140,9 +140,64 @@ Note that `Random Search` performs uniformly random sampling to optimize the fit
 
 2. Train your agent.
 
+    For train, you need to specify the agent and optimizer that you build during prepare.
+
+    ```shell
+    python main.py --train --train_agent MyAgent --train_optimizer MyOptimizer --agent_save_dir MyAgentSaveDir --log_dir MyLogDir
+    ```
+
+    Then,initialize a `Trainer` with `config` and start to train.
+
+    ```
+    torch.set_grad_enabled(True)
+    trainer = Trainer(config)
+    trainer.train()
+    ```
+
+    In Trainer,for each problem instance, create an ENV and execute the `train_episode` once.
+
+    ```
+    for problem_id, problem in enumerate(self.train_set):
+    	env = PBO_Env(problem, self.optimizer)
+    	exceed_max_ls, pbar_info_train = self.agent.train_episode(env, epoch, None)
+    ```
+
+    See [Training](#Training) for more details.
+
 3. Rollout your agent models.
 
+    For rollout, you need to load your agent and specify the optimizer.
+
+    ```shell
+    python main.py --rollout --agent_load_dir MyAgentLoadDir --agent_for_rollout MyAgent --optimizer_for_rollout MyOptimizer --log_dir MyLogDir 
+    ```
+
+    Then start the rollout.
+
+    ```python
+    torch.set_grad_enabled(False)
+    rollout(config)
+    ```
+
+    See [Rollout](#Rollout) for more details.
+
 4. Test your MetaBBO optimizer.
+
+    For using your trained agent to compare with the learning-based `DE_DDQN` and the traditional `DEAP_DE` `JDE21` `DEAP_CMAES` `Random_search`, you can use the following command.
+
+    ```shell
+    python main.py --test --agent_load_dir MyAgentLoadDir --agent MyAgent --optimizer MyOptimizer --agent_for_cp DE_DDQN_Agent LDE_Agent --l_optimizer_for_cp DE_DDQN_Optimizer LDE_Optimizer --t_optimizer_for_cp DEAP_DE JDE21 DEAP_CMAES Random_search --log_dir MyLogDir
+    ```
+
+    Then,initialize a `Tester` with `config` and start to test.
+
+    ```
+    torch.set_grad_enabled(False)
+    tester = Tester(config)
+    tester.test()
+    ```
+
+    See [Testing](#Testing) for more details.
 
 ## Training
 
@@ -172,6 +227,8 @@ In addition, 2 types of data files will be generated in `MyLogDir/train/MyAgent/
 	* `draw_return`: The return value from the agent training process will be plotted and saved to `MyLogDir/train/MyAgent/runName/pic/return.png`.
 
 Note that the `runName` is automatically generated by `RELOPS` based on the run time and benchmark suites for distinguishment. 
+
+__TODO__ make sure if need add examples pictures or not
 
 ## Rollout
 
@@ -253,6 +310,7 @@ After testing, 3 types of data files will be generated in `MyLogDir/test/runName
   * `algorithm_name_concrete_performance_table.xlsx` such as *RLEPSO_Agent_concrete_performance_table.xlsx* and *GL_PSO_concrete_performance_table.xlsx*, contains the specific algorithm's performance , i.e., the worst, best, median, mean, std of the costs the optimizer obtained on each problem in test set.
   * `overall_table.xlsx` contains optimization performance of all comparing algorithms on each problem of test set.
 * `.png` files in `MyLogDir/test/runName/pics/`, contains 4 types of graphs:
+  
   * `algorithm_name_concrete_performance_hist.png`, such as *RLEPSO_Agent_concrete_performance_hist.png* and *GL_PSO_concrete_performance_hist.png*, draws the performance histogram of the specific algorithm on each problem.
   * `problem_name_cost_curve.png` such as *Schwefel_cost_curve.png*, draws the cost curve of each algorithm's optimization process on the specific problem.
   * `all_problem_cost_curve.png` draws each algorithm's average cost curve on all problems in test set.
