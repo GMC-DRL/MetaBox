@@ -87,6 +87,7 @@ def pen_func(x, ub):
     Implementing the penalty function on decision values.
 
     :param x: Decision values in shape [NP, dim].
+    :param ub: the upper-bound as a scalar.
     :return: Penalty values in shape [NP].
     """
     return np.sum(np.maximum(0., np.abs(x) - ub) ** 2, axis=-1)
@@ -357,7 +358,7 @@ class _Rosenbrock(BBOB_Basic_Problem):
     Abstract Rosenbrock_original
     """
     def __init__(self, dim, shift, rotate, bias, lb, ub):
-        shift *= 0.75  # [-3, 3]
+        shift *= 0.75  # range_of_shift=0.8*0.75*ub=0.6*ub
         rotate = np.eye(dim)
         BBOB_Basic_Problem.__init__(self, dim, shift, rotate, bias, lb, ub)
 
@@ -777,7 +778,7 @@ class _Gallagher(BBOB_Basic_Problem):
 
         # generate global & local optima y[i]
         self.y = opt_shrink * (np.random.rand(self.n_peaks, dim) * (ub - lb) + lb)  # [n_peaks, dim]
-        self.y[0] = shift * opt_shrink * 0.8  # the global optimum
+        self.y[0] = shift * opt_shrink  # the global optimum
         shift = self.y[0]
 
         # generate the matrix C[i]
@@ -870,7 +871,7 @@ class F24(BBOB_Basic_Problem):
     Lunacek_bi_Rastrigin
     """
     def __init__(self, dim, shift, rotate, bias, lb, ub):
-        self.mu0 = 2.5
+        self.mu0 = 2.5 / 5 * ub
         shift = np.random.choice([-1., 1.], size=dim) * self.mu0 / 2
         scales = (100 ** 0.5) ** np.linspace(0, 1, dim)
         rotate = np.matmul(np.matmul(rotate_gen(dim), np.diag(scales)), rotate)
@@ -903,6 +904,7 @@ class BBOB_Dataset(Dataset):
     @staticmethod
     def get_datasets(suit,
                      dim,
+                     upperbound,
                      shifted=True,
                      rotated=True,
                      biased=True,
@@ -922,8 +924,9 @@ class BBOB_Dataset(Dataset):
         if instance_seed > 0:
             np.random.seed(instance_seed)
         data = []
-        lb = -5
-        ub = 5
+        assert upperbound >= 5., f'Argument upperbound must be at least 5, but got {upperbound}.'
+        ub = upperbound
+        lb = -upperbound
         for id in func_id:
             if shifted:
                 shift = 0.8 * (np.random.random(dim) * (ub - lb) + lb)

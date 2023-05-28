@@ -7,6 +7,7 @@ def get_config(args=None):
     # Common config
     parser.add_argument('--problem', default='bbob', choices=['bbob', 'bbob-noisy', 'bbob-torch', 'bbob-noisy-torch', 'protein', 'protein-torch'])
     parser.add_argument('--dim', type=int, default=10)
+    parser.add_argument('--upperbound', type=float, default=5, help='the upperbound of search space')
     parser.add_argument('--difficulty', default='easy', choices=['easy', 'difficult'])
     parser.add_argument('--validate_interval', type=int, default=3)
     parser.add_argument('--validate_runs', type=int, default=3)
@@ -31,7 +32,7 @@ def get_config(args=None):
 
     # Testing parameters
     parser.add_argument('--agent', default=None, help='None: traditional optimizer, else Learnable optimizer')
-    parser.add_argument('--agent_load_dir', type=str, default='agent_model/test/',
+    parser.add_argument('--agent_load_dir', type=str, default='agent_model/',
                         help='load your own agent model')
     parser.add_argument('--optimizer', default=None, help='your own learnable or traditional optimizer')
     parser.add_argument('--agent_for_cp', type=str, nargs='+', default=[],
@@ -60,7 +61,10 @@ def get_config(args=None):
 
     if config.train:
         config.agent_save_dir = config.agent_save_dir + config.train_agent + '/' + config.run_time + '/'
-
+    if config.rollout:
+        config.agent_load_dir = config.agent_load_dir + '/rollout/'
+    if config.test:
+        config.agent_load_dir = config.agent_load_dir + '/test/'
     config.save_interval = config.max_learning_step // config.n_checkpoint
 
     if 'DEAP_CMAES' not in config.t_optimizer_for_cp:

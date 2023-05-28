@@ -534,7 +534,7 @@ class Logger:
 
 
 def post_processing_test_statics(log_dir: str, logger: Logger) -> None:
-    with open(log_dir+'data.pkl', 'rb') as f:
+    with open(log_dir+'test.pkl', 'rb') as f:
         results = pickle.load(f)
     
     # Genetate excel tables
