@@ -1,6 +1,6 @@
-# RELOPS: Reinforcement Learning Benchmark Platform for Black Box Optimizer Search
+# MetaBox: Reinforcement Learning Benchmark Platform for Meta Black Box Optimization
 
-This is a **reinforcement learning benchmark platform** that supports benchmarking and exploration of black box optimizers. You can **train** your own optimizer and **compare** it with several popular RL-based optimizers and traditional optimizers.
+This is a **reinforcement learning benchmark platform** for benchmarking and MetaBBO-RL methods. You can **train** your own MetaBBO-RL approach and **compare** it with several popular peers and classic optimizers.
 
 ## Contents
 
