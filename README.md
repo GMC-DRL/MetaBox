@@ -122,53 +122,197 @@ Note that `Random Search` performs uniformly random sampling to optimize the fit
 
 0. Check out the [Requirements](#Requirements) above.
 
-1. Prepare your backbone optimizer and agent.
+1. Prepare your agent and backbone optimizer.
 
-   Define a class of your backbone optimizer derived from class `Learnable_Optimizer` in [learnable_optimizer.py](RELOPS/optimizer/learnable_optimizer.py). In this class, 2 methods need to be implemented:
+   * Your agent should follow this template:
 
-     * ```python
-       init_population(self,
-                       problem: Basic_Problem) -> Any
-       ```
-      
-       Method `init_population` is used to initialize the population in backbone optimizer, calculate costs using method `problem.eval` and record some information such as pbest and gbest if needed. It's expected to return a `state` for agent to make decisions.
-       
-     * ```python
-       update(self,
-              action: Any,
-              problem: Basic_Problem) -> Tuple[Any]
-       ```
-      
-       Method `update` is used to update the population or one individual in population as you wish using the `action` given by agent, calculate new costs using method `problem.eval` and update some records if needed. It's expected to return a tuple of `[next_state, reward, is_done]` for agent to learn.
-
-   Define a class of your agent derived from class `Basic_Agent` in [basic_agent.py](RELOPS/agent/basic_agent.py). In this class, 2 methods need to be implemented:
-
-   * ```python
-     train_episode(self,
-                   env: PBO_Env,
-                   epoch_id: int = None,
-                   logger: Logger = None) -> Tuple[bool, dict]
+     ```python
+     from agent.basic_agent import Basic_Agent
+     from agent.utils import save_class
+     
+     class MyAgent(Basic_Agent):
+         def __init__(self, config):
+             """
+             Parameter
+             ----------
+             config: An argparse.Namespace object for passing some core configurations such as max_learning_step.
+     
+             Must To Do
+             ----------
+             1. Save the model of initialized agent.
+             2. Initialize a counter to record the number of accumulated learned steps
+             3. Initialize a counter to record the current checkpoint of saving agent
+             """
+             super().__init__(config)
+             self.config = config
+             save_class(self.config.agent_save_dir, 'checkpoint0', self)  # save the model of initialized agent.
+             self.learned_steps = 0   # record the number of accumulated learned steps
+             self.cur_checkpoint = 1  # record the current checkpoint of saving agent
+             """
+             Do whatever other setup is needed
+             """
+     
+         def train_episode(self, env):
+             """ Called by Trainer.
+                 Optimize a problem instance in training set until reaching max_learning_step or satisfy the convergence condition.
+                 During every train_episode,you need to train your own network.
+     
+             Parameter
+             ----------
+             env: an environment consisting of a backbone optimizer and a problem sampled from train set.
+     
+             Must To Do
+             ----------
+             1. record total reward
+             2. record current learning steps and check if reach max_learning_step
+             3. save agent model if checkpoint arrives
+     
+             Return
+             ----------
+             A boolean that is true when fes reaches max_learning_step otherwise false
+             A dict that record normalizer,gbest,return and learning step.Notice that the key in dict must be the same as template.
+             """
+             state = env.reset()
+             R = 0  # total reward
+             """
+             begin loop：
+             """
+                 """
+                 to get an action using state
+                 """
+                 next_state, reward, done = env.step(action) # feed the action to environment
+                 R += reward  # accumulate reward
+                 """
+                 improve your agent using MDP trajectory as you want
+                 """
+     
+                 # save agent model if checkpoint arrives
+                 if self.learned_steps >= (self.config.save_interval * self.cur_checkpoint):
+                     save_class(self.config.agent_save_dir, 'checkpoint'+str(self.cur_checkpoint), self)
+                     self.learned_steps += 1
+     
+                 state = next_state
+     
+                 """
+                 check if finish loop
+                 """
+             return self.learned_steps >= self.config.max_learning_step, {'normalizer': env.optimizer.cost[0],
+                                                                          'gbest': env.optimizer.cost[-1],
+                                                                          'return': R,
+                                                                          'learn_steps': self.learned_steps}
+     
+         def rollout_episode(self, env):
+             """ Called by method rollout and Tester.test
+     
+             Parameter
+             ----------
+             env: an environment consisting of a backbone optimizer and a problem sampled from test set
+     
+             Return
+             ----------
+             A dict that record cost, fes and total reward.Notice that the key in dict must be the same as template.
+             """
+             state = env.reset()
+             R = 0  # total reward
+             """
+             begin loop：
+             """
+                 """
+                     to get an action using state
+                 """
+                 next_state, reward, done = env.step(action) # feed the action to environment
+                 R += reward  # accumulate reward
+                 state = next_state
+                 """
+                 check if finish loop
+                 """
+     
+             return {'cost': env.optimizer.cost, 'fes': env.optimizer.fes, 'return': R}
      ```
      
-     Method `train_episode` is used to train the agent for an episode by using methods `env.reset` and `env.step` to interact with `env`. It's expected to return a `Tuple[bool, dict]` whose first element indicates whether the learned step has exceeded the max_learning_step and second element is a dictionary that contains:  
-       { `normalizer`: the best cost in initial population.  
-         `gbest`: the best cost found in this episode.  
-         `return`: total reward in this episode.  
-         `learn_steps`: the number of accumulated learned steps of the agent. }
+   * Your optimizer should follow this template:
+   
+     ```python
+     from optimizer.learnable_optimizer import Learnable_Optimizer
      
-   * ```python
-     rollout_episode(self,
-                     env: PBO_Env,
-                     epoch_id: int = None,
-                     logger: Logger = None) -> dict
+     class MyOptimizer(Learnable_Optimizer):
+         def __init__(self, config):
+             """
+             Parameter
+             ----------
+             config: An argparse.Namespace object for passing some core configurations such as maxFEs.
+             """
+             super().__init__(config)
+             self.config = config
+             """
+             Do whatever other setup is needed
+             """
+     
+         def init_population(self, problem):
+             """ Called by method PBOEnv.reset.
+                 Init the population for optimization.
+     
+             Parameter
+             ----------
+             problem: a problem instance given by Trainer.
+             Notice: When Trainer select a problem instance, it will initialize an Env(include a problem and an optimizer),then Trainer will run agent's train_episode to solve the problem.So one Env object has its unique problem instance.
+     
+             Must To Do
+             ----------
+             1. Initialize a counter named "fes" to record the number of function evaluations used.
+             2. Initialize a list named "cost" to record the best cost at logpoints.
+             3. Initialize a counter to record the current logpoint.
+     
+             Return
+             ----------
+             state: represents the observation of current population.
+             """
+     
+             """
+             Initialize the population and calculate the cost using method problem.eval
+             """
+             self.fes = self.population_size  # record the number of function evaluations used
+             self.cost = [self.best_cost]     # record the best cost of first generation
+             self.cur_logpoint = 1               # record the current logpoint
+             """
+             calculate the state
+             """
+             return state
+     
+         def update(self, action, problem):
+             """ update the population using action and problem.
+                 Used in Environment's step
+     
+             Parameter
+             ----------
+             action: the action inferenced by agent.
+             problem: a problem instance given by Trainer.
+     
+             Must To Do
+             ----------
+             1. Update the counter "fes".
+             2. Update the list "cost" if logpoint arrives.
+     
+             Return
+             ----------
+             state: represents the observation of current population.
+             reward: the reward obtained for taking the given action.
+             done: whether the termination conditions are met.
+             """
+     
+             """
+             update population using given action and "fes"
+             """
+             # append the best cost if logpoint arrives
+             if self.fes >= self.cur_logpoint * self.config.log_interval:
+                 self.cur_logpoint += 1
+                 self.cost.append(self.best_cost)
+             """
+             get state, reward and check if it's done
+             """
+             return state, reward, done
      ```
-     Method `rollout_episode` is used to rollout the agent for an episode by using methods `env.reset` and `env.step` to interact with `env`. It's expected to return a `dict` that contains:  
-       { `cost`: a list of costs that need to be maintained in backbone optimizer.  
-         `fes`: times of function evaluations used by optimizer.  
-         `return`: total reward in this episode. }
-
-   See [example agent](RELOPS/agent/qlpso_agent.py) and [example backbone optimizer](RELOPS/optimizer/qlpso_optimizer.py) for more details.
-
+   
 2. Train your agent.
 
     Assume that you've written an agent class named *MyAgent* and a backbone optimizer class named *MyOptimizer*, and now you can train your agent using:
