@@ -33,7 +33,7 @@ class RL_HPSDE_Agent(Basic_Agent):
         prob = exp / exp.sum()
         return np.random.choice(self.__n_actions, size=1, p=prob)
 
-    def train_episode(self, env, epoch_id=None, logger=None):
+    def train_episode(self, env):
         state = env.reset()
         done = False
         R = 0
@@ -60,7 +60,7 @@ class RL_HPSDE_Agent(Basic_Agent):
                                                               'return': R,
                                                               'learn_steps': self.__global_ls}
 
-    def rollout_episode(self, env, epoch_id=None, logger=None):
+    def rollout_episode(self, env):
         state = env.reset()
         done = False
         R=0

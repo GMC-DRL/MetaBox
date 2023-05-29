@@ -75,7 +75,7 @@ class LDE_Agent(Basic_Agent):
                 all_disc_norm_rs = np.hstack((all_disc_norm_rs, discounted_rs))
         return all_disc_norm_rs
 
-    def train_episode(self, env, epoch_id=None, logger=None):
+    def train_episode(self, env):
         self.__optimizer.zero_grad()
         inputs_batch = []
         action_batch = []
@@ -137,7 +137,7 @@ class LDE_Agent(Basic_Agent):
                                                                        'return': R,
                                                                        'learn_steps': self.__learn_steps}
 
-    def rollout_episode(self, env, epoch_id=None, logger=None):
+    def rollout_episode(self, env):
         is_done = False
         input_net = env.reset()
         h0 = torch.zeros(self.__config.LAYERS_NUM, self.__BATCH_SIZE, self.__config.CELL_SIZE).to(self.__config.device)

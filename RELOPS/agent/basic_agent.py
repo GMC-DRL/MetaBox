@@ -29,13 +29,9 @@ class Basic_Agent:
         self.__config = config
 
     def train_episode(self,
-                      env: PBO_Env,
-                      epoch_id: int = None,
-                      logger: Logger = None) -> Tuple[bool, dict]:
+                      env: PBO_Env) -> Tuple[bool, dict]:
         raise NotImplementedError
 
     def rollout_episode(self,
-                        env: PBO_Env,
-                        epoch_id: int = None,
-                        logger: Logger = None) -> dict:
+                        env: PBO_Env) -> dict:
         raise NotImplementedError

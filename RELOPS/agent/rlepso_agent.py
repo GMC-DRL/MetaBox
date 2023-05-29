@@ -107,7 +107,7 @@ class RLEPSO_Agent(Basic_Agent):
             save_class(self.__config.agent_save_dir,'checkpoint'+str(self.__cur_checkpoint),self)
             self.__cur_checkpoint+=1
 
-    def train_episode(self, env, epoch_id=None, logger=None):
+    def train_episode(self, env):
         config = self.__config
         # setup
         memory = Memory()
@@ -302,7 +302,7 @@ class RLEPSO_Agent(Basic_Agent):
                                                                 'return': _R,
                                                                 'learn_steps': self.__learning_time}
     
-    def rollout_episode(self, env, epoch_id=None, logger=None):
+    def rollout_episode(self, env):
         is_done=False
         state=env.reset()
         R=0

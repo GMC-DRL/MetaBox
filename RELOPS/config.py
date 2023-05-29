@@ -54,6 +54,8 @@ def get_config(args=None):
         config.dim = 12
         config.maxFEs = 1000
 
+    config.log_interval = 400
+
     config.run_time = f'{time.strftime("%Y%m%dT%H%M%S")}_{config.problem}_{config.difficulty}_{config.dim}D'
     config.test_log_dir = config.log_dir + '/test/' + config.run_time + '/'
 
