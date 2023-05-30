@@ -122,7 +122,46 @@ Note that `Random Search` performs uniformly random sampling to optimize the fit
 
 0. Check out the [Requirements](#Requirements) above.
 
-1. Prepare your agent and backbone optimizer.
+1. if you want to run the examples instead of your own agent,you can try `RELOPS` through:
+
+    The file architecture should be liked this:
+
+    ```
+    RELOPS
+    │        
+    └─ Agent
+        │
+        ├─ ...
+        └─ DE_DDQN_Agent
+    └─ Optimizer
+        │
+        ├─ ...
+        └─ DE_DDQN_Optimizer
+    ```
+
+    Train DE_DDQN:
+
+    ```
+    python main.py --train --train_agent DE_DDQN_Agent --train_optimizer DE_DDQN_Optimizer --agent_save_dir YourAgentSaveDir --log_dir YourLogDir
+    ```
+
+    Rollout DE_DDQN:
+
+    ```
+    python main.py --rollout --agent_load_dir YourAgentSaveDir --agent_for_rollout DE_DDQN_Agent --optimizer_for_rollout DE_DDQN_Optimizer --log_dir YourLogDir 
+    ```
+
+    Test DE_DDQN:
+
+    ```
+    python main.py --test --agent_load_dir YourAgentSaveDir --agent DE_DDQN_Agent --optimizer DE_DDQN_Optimizer --agent_for_cp LDE_Agent --l_optimizer_for_cp LDE_Optimizer --t_optimizer_for_cp DEAP_DE JDE21 DEAP_CMAES Random_search --log_dir YourLogDir
+    ```
+
+    Then you can get all results in directory `output/`
+
+    
+
+2. If you want to run your own agent,you must prepare your agent and backbone optimizer first.
 
    * Your agent should follow this template:
 
@@ -231,7 +270,7 @@ Note that `Random Search` performs uniformly random sampling to optimize the fit
      ```
      
    * Your optimizer should follow this template:
-   
+
      ```python
      from optimizer.learnable_optimizer import Learnable_Optimizer
      
@@ -312,8 +351,25 @@ Note that `Random Search` performs uniformly random sampling to optimize the fit
              """
              return state, reward, done
      ```
+
+   After that,you should put your own declare file in directory `agent` and `optimizer`. Then the file structure should be like:
+
+   ```
+   RELOPS
+   │        
+   └─ Agent
+       │
+       ├─ ...
+       └─ YourAgent
+   └─ Optimizer
+       ├─
+       ├─ ...
+       └─ YourOptimizer
+   ```
+
    
-2. Train your agent.
+
+3. Train your agent.
 
     Assume that you've written an agent class named *MyAgent* and a backbone optimizer class named *MyOptimizer*, and now you can train your agent using:
 
@@ -325,7 +381,7 @@ Note that `Random Search` performs uniformly random sampling to optimize the fit
 
     See [Training](#Training) for more details.
 
-3. Rollout your agent models.
+4. Rollout your agent models.
 
     Fetch your trained agent models named `checkpointN.pkl` in directory `RELOPS/agent_model/train/MyAgent/runName/` and move them to directory `RELOPS/agent_model/rollout/MyAgent/`. Rollout the models with train set using:
 
@@ -337,7 +393,7 @@ Note that `Random Search` performs uniformly random sampling to optimize the fit
 
     See [Rollout](#Rollout) for more details.
 
-4. Test your MetaBBO optimizer.
+5. Test your MetaBBO optimizer.
 
     Move the best `.pkl` model file to directory `RELOPS/agent_model/test/`, and rename the file to `MyAgent.pkl`. Now use the test set to test `MyAgent` with `DEAP_CMAES` and `Random_search`:
 
