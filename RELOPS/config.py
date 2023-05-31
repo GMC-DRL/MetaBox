@@ -15,6 +15,7 @@ def get_config(args=None):
     parser.add_argument('--train', default=None, action='store_true', help='switch to train mode')
     parser.add_argument('--test', default=None, action='store_true', help='switch to inference mode')
     parser.add_argument('--rollout', default=None, action='store_true', help='switch to rollout mode')
+    parser.add_argument('--train_test_log', default=None, action='store_true', help='switch to train-test-log mode')
 
     # Training parameters
     parser.add_argument('--max_learning_step', type=int, default=1500000, help='the maximum learning step for training')
@@ -28,11 +29,12 @@ def get_config(args=None):
     parser.add_argument('--draw_interval', type=int, default=3)
     parser.add_argument('--agent_for_plot_training', type=str, nargs='+', default=['RL_HPSDE_Agent'],
                         help='learnable optimizer to compare')
-    parser.add_argument('--n_checkpoint', type=int, default=20, help='numbel of training checkpoint')
+    parser.add_argument('--n_checkpoint', type=int, default=20, help='number of training checkpoints')
+    parser.add_argument('--resume_dir', type=str, help='directory to load previous checkpoint model')
 
     # Testing parameters
     parser.add_argument('--agent', default=None, help='None: traditional optimizer, else Learnable optimizer')
-    parser.add_argument('--agent_load_dir', type=str, default='agent_model/',
+    parser.add_argument('--agent_load_dir', type=str,
                         help='load your own agent model')
     parser.add_argument('--optimizer', default=None, help='your own learnable or traditional optimizer')
     parser.add_argument('--agent_for_cp', type=str, nargs='+', default=[],
@@ -46,6 +48,7 @@ def get_config(args=None):
     # Rollout parameters
     parser.add_argument('--agent_for_rollout', type=str, nargs='+', help='learnable optimizer for rollout')
     parser.add_argument('--optimizer_for_rollout', type=str, nargs='+', help='learnabel optimizer for rollout')
+    parser.add_argument('--plot_smooth', type=float, default=0, help='a float between 0 and 1')
 
     config = parser.parse_args(args)
     config.maxFEs = 2000 * config.dim
@@ -63,10 +66,7 @@ def get_config(args=None):
 
     if config.train:
         config.agent_save_dir = config.agent_save_dir + config.train_agent + '/' + config.run_time + '/'
-    if config.rollout:
-        config.agent_load_dir = config.agent_load_dir + '/rollout/'
-    if config.test:
-        config.agent_load_dir = config.agent_load_dir + '/test/'
+
     config.save_interval = config.max_learning_step // config.n_checkpoint
 
     if 'DEAP_CMAES' not in config.t_optimizer_for_cp:

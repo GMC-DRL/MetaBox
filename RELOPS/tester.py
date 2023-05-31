@@ -240,11 +240,15 @@ def rollout(config):
         train_rollout_results['fes'][problem.__str__()] = {}
         train_rollout_results['return'][problem.__str__()] = {}
         for agent_name in agent_for_rollout:
-            train_rollout_results['cost'][problem.__str__()][agent_name] = []  # n_checkpoint 个np.array
+            train_rollout_results['cost'][problem.__str__()][agent_name] = []  # n_checkpoint 个[np.array len=5]
             train_rollout_results['fes'][problem.__str__()][agent_name] = []  # n_checkpoint 个数字
             train_rollout_results['return'][problem.__str__()][agent_name]=[]
+            for checkpoint in range(0,n_checkpoint+1):
+                train_rollout_results['cost'][problem.__str__()][agent_name].append([])  # run 个array
+                train_rollout_results['fes'][problem.__str__()][agent_name].append([])  # run 个数字
+                train_rollout_results['return'][problem.__str__()][agent_name].append([]) # run个数字
 
-    pbar_len = (len(agent_for_rollout)) * train_set.N * (n_checkpoint+1)
+    pbar_len = (len(agent_for_rollout)) * train_set.N * (n_checkpoint+1) * 5
     with tqdm(range(pbar_len), desc='Rollouting') as pbar:
         for agent_name,optimizer in zip(agent_for_rollout,optimizer_for_rollout):
             return_list=[]  # n_checkpoint + 1
@@ -253,25 +257,28 @@ def rollout(config):
                 agent=load_agents[agent_name][checkpoint]
                 # return_sum=0
                 for problem in train_set:
-                    env = PBO_Env(problem,optimizer)
-                    info = agent.rollout_episode(env)
-                    cost=info['cost']
-                    while len(cost)<51:
-                        cost.append(cost[-1])
-                    fes=info['fes']
-                    R=info['return']
+                    for run in range(5):
+                        np.random.seed(run)
+                        env = PBO_Env(problem,optimizer)
+                        info = agent.rollout_episode(env)
+                        cost=info['cost']
+                        while len(cost)<51:
+                            cost.append(cost[-1])
+                        fes=info['fes']
+                        R=info['return']
 
-                    train_rollout_results['cost'][problem.__str__()][agent_name].append(cost)
-                    train_rollout_results['fes'][problem.__str__()][agent_name].append(fes)
-                    train_rollout_results['return'][problem.__str__()][agent_name].append(R)
+                        train_rollout_results['cost'][problem.__str__()][agent_name][checkpoint].append(cost)
+                        train_rollout_results['fes'][problem.__str__()][agent_name][checkpoint].append(fes)
+                        train_rollout_results['return'][problem.__str__()][agent_name][checkpoint].append(R)
 
-                    pbar_info = {'problem': problem.__str__(),
-                                'agent': type(agent).__name__,
-                                'checkpoint': checkpoint,
-                                'cost': cost[-1],
-                                'fes': fes, }
-                    pbar.set_postfix(pbar_info)
-                    pbar.update(1)
+                        pbar_info = {'problem': problem.__str__(),
+                                    'agent': type(agent).__name__,
+                                    'checkpoint': checkpoint,
+                                    'run':run,
+                                    'cost': cost[-1],
+                                    'fes': fes, }
+                        pbar.set_postfix(pbar_info)
+                        pbar.update(1)
             
     log_dir=config.rollout_log_dir
     if not os.path.exists(log_dir):

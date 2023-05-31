@@ -60,6 +60,13 @@ class LDE_Agent(Basic_Agent):
             save_class(self.__config.agent_save_dir,'checkpoint'+str(self.__cur_checkpoint),self)
             self.__cur_checkpoint+=1
 
+    def update_setting(self, config):
+        self.__config.max_learning_step = config.max_learning_step
+        self.__config.agent_save_dir = config.agent_save_dir
+        self.__learn_steps = 0
+        save_class(self.__config.agent_save_dir, 'checkpoint0', self)
+        self.__cur_checkpoint = 1
+
     def __discounted_norm_rewards(self, r):
         for ep in range(self.__config.TRAJECTORY_NUM * self.__BATCH_SIZE):
             length = r.shape[0] // self.__config.TRAJECTORY_NUM

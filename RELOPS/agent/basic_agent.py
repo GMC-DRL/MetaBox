@@ -28,6 +28,9 @@ class Basic_Agent:
     def __init__(self, config):
         self.__config = config
 
+    def update_setting(self, config):
+        pass
+
     def train_episode(self,
                       env: PBO_Env) -> Tuple[bool, dict]:
         raise NotImplementedError

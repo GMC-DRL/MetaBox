@@ -47,7 +47,13 @@ matplotlib.use('Agg')
 class Trainer(object):
     def __init__(self, config):
         self.config = config
-        self.agent = eval(config.train_agent)(config)
+        if config.resume_dir is None:
+            self.agent = eval(config.train_agent)(config)
+        else:
+            file_path = config.resume_dir + config.train_agent + '.pkl'
+            with open(file_path, 'rb') as f:
+                self.agent = pickle.load(f)
+            self.agent.update_setting(config)
         self.optimizer = eval(config.train_optimizer)(config)
         self.train_set, self.test_set = construct_problem_set(config)
 
@@ -140,7 +146,7 @@ class Trainer(object):
             with tqdm(range(self.train_set.N), desc=f'Training {self.agent.__class__.__name__} Epoch {epoch}') as pbar:
                 for problem_id, problem in enumerate(self.train_set):
                     env = PBO_Env(problem, self.optimizer)
-                    exceed_max_ls, pbar_info_train = self.agent.train_episode(env, epoch, None)  # pbar_info -> dict
+                    exceed_max_ls, pbar_info_train = self.agent.train_episode(env)  # pbar_info -> dict
                     pbar.set_postfix(pbar_info_train)
                     pbar.update(1)
                     name = problem.__str__()
