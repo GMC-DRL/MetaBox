@@ -6,14 +6,13 @@ from bayes_opt import UtilityFunction
 from tqdm import tqdm
 from skopt import gp_minimize
 
-
 class BayesianOptimizer(basic_optimizer):
     def __init__(self, config):
         super().__init__(config)
         self.__config = config
         # self.fes = 0
         # self.log_interval = config.log_interval
-        self.log_interval = 4
+        self.log_interval = 2
 
 
     def run_episode(self, problem):
@@ -21,7 +20,6 @@ class BayesianOptimizer(basic_optimizer):
         cost=[]
         best = None
         fes = 0
-
         def black_box_function(x):
             if problem.optimum is None:
                 return problem.eval(x)
@@ -34,10 +32,10 @@ class BayesianOptimizer(basic_optimizer):
                   bounds,      # the bounds on each dimension of x
                   acq_func="EI",      # the acquisition function
                   # n_calls=self.__config.maxFEs,         # the number of evaluations of f
-                  n_calls=200,
+                  n_calls=100,
                   n_random_starts=5,  # the number of random initialization points
                   )   # the random seed
-
+        # print("res:",res)
         for i in range(len(res.func_vals)):
             if best is None:
                 best=res.func_vals[i]
