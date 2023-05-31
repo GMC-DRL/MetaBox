@@ -45,7 +45,7 @@ This is a **reinforcement learning benchmark platform** for benchmarking and Met
 * `matplotlib`==3.4.3  
 * `pandas`==1.3.3  
 * `scipy`==1.7.1
-* `bayesian_optimization`==1.4.3  
+* `scikit_optimize`==0.9.0  
 * `deap`==1.3.3  
 * `tqdm`==4.62.3  
 * `openpyxl`==3.1.2
