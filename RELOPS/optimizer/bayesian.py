@@ -12,8 +12,8 @@ class BayesianOptimizer(basic_optimizer):
         super().__init__(config)
         self.__config = config
         # self.fes = 0
+        # self.log_interval = config.log_interval
         self.log_interval = 4
-
 
 
     def run_episode(self, problem):
@@ -33,7 +33,8 @@ class BayesianOptimizer(basic_optimizer):
         res = gp_minimize(black_box_function,                  # the function to minimize
                   bounds,      # the bounds on each dimension of x
                   acq_func="EI",      # the acquisition function
-                  n_calls=self.__config.maxFEs,         # the number of evaluations of f
+                  # n_calls=self.__config.maxFEs,         # the number of evaluations of f
+                  n_calls=200,
                   n_random_starts=5,  # the number of random initialization points
                   )   # the random seed
 
