@@ -17,7 +17,7 @@ class DEAP_PSO(basic_optimizer):
         self.__creator = creator
         self.__creator.create("Fitnessmin", base.Fitness, weights=(-1.0,))
         self.__creator.create("Particle", np.ndarray, fitness=creator.Fitnessmin, speed=list, smin=None, smax=None, best=None)
-        self.log_interval = 400
+        self.log_interval = config.log_interval
 
     def run_episode(self, problem):
 
@@ -107,5 +107,9 @@ class DEAP_PSO(basic_optimizer):
                     done = fes >= self.__config.maxFEs or best.fitness.values[0] <= 1e-8
 
                 if done:
+                    if len(cost) >= self.__config.n_logpoint + 1:
+                        cost[-1] = best.fitness.values[0]
+                    else:
+                        cost.append(best.fitness.values[0])
                     break
         return {'cost': cost, 'fes': fes}

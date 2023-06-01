@@ -49,6 +49,10 @@ class BayesianOptimizer(basic_optimizer):
                 break
         # print("cost:",cost)
         # print(len(cost))
+        if len(cost) >= self.__config.n_logpoint + 1:
+            cost[-1] = best
+        else:
+            cost.append(best)
         return {'cost': cost, 'fes': fes}
 
 

@@ -118,7 +118,7 @@ class RL_HPSDE_Optimizer(Learnable_Optimizer):
         self.fes = None
         self.cost = None
         self.log_index = None
-        self.log_interval = 400
+        self.log_interval = config.log_interval
 
     def init_population(self, problem):
         self.__population = Population(self.__config)
@@ -279,4 +279,9 @@ class RL_HPSDE_Optimizer(Learnable_Optimizer):
             done = self.fes >= self.__maxFEs
         else:
             done = (self.fes >= self.__maxFEs or population.gbest <= 1e-8)
+        if done:
+            if len(self.cost) >= self.__config.n_logpoint + 1:
+                self.cost[-1] = population.gbest
+            else:
+                self.cost.append(population.gbest)
         return self.__get_state(problem), reward, done

@@ -31,7 +31,7 @@ class RLEPSO_Optimizer(Learnable_Optimizer):
         self.fes = None
         self.cost = None
         self.log_index = None
-        self.log_interval = 400
+        self.log_interval = config.log_interval
         self.__max_fes = config.maxFEs
         self.__is_done = False
         self.name = 'EPSO'
@@ -291,4 +291,11 @@ class RLEPSO_Optimizer(Learnable_Optimizer):
         else:
             reward = -1
         next_state = self.__get_state()
+
+        if is_end:
+            if len(self.cost) >= self.__config.n_logpoint + 1:
+                self.cost[-1] = self.__particles['gbest_val']
+            else:
+                self.cost.append(self.__particles['gbest_val'])
+
         return next_state, reward, is_end

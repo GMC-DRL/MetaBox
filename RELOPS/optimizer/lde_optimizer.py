@@ -17,7 +17,7 @@ class LDE_Optimizer(Learnable_Optimizer):
         self.fes = None
         self.cost = None
         self.log_index = None
-        self.log_interval = 400
+        self.log_interval = config.log_interval
 
     def __get_cost(self, batch, pop):
         bs = len(batch)
@@ -191,4 +191,9 @@ class LDE_Optimizer(Learnable_Optimizer):
         if self.fes >= self.log_index * self.log_interval:
             self.log_index += 1
             self.cost.append(self.gbest_cost)
+        if is_done:
+            if len(self.cost) >= self.__config.n_logpoint + 1:
+                self.cost[-1] = self.gbest_cost
+            else:
+                self.cost.append(self.gbest_cost)
         return self.__get_feature(), reward, is_done

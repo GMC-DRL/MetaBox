@@ -17,7 +17,7 @@ class DEAP_CMAES(basic_optimizer):
         self.__algorithm = algorithms
         self.__creator.create("Fitnessmin", base.Fitness, weights=(-1.0,))
         self.__creator.create("Individual", list, fitness=creator.Fitnessmin)
-        self.log_interval = 400
+        self.log_interval = config.log_interval
 
     def run_episode(self, problem):
 
@@ -53,5 +53,9 @@ class DEAP_CMAES(basic_optimizer):
             else:
                 done = fes >= self.__config.maxFEs or hof[0].fitness.values[0] <= 1e-8
             if done:
+                if len(cost) >= self.__config.n_logpoint + 1:
+                    cost[-1] = hof[0].fitness.values[0]
+                else:
+                    cost.append(hof[0].fitness.values[0])
                 break
         return {'cost': cost, 'fes': fes}

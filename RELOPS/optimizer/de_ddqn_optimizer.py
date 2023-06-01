@@ -41,7 +41,7 @@ class DE_DDQN_Optimizer(Learnable_Optimizer):
         self.fes = None
         self.cost = None
         self.log_index = None
-        self.log_interval = 400
+        self.log_interval = config.log_interval
 
     def init_population(self, problem):
         # population initialization
@@ -213,4 +213,10 @@ class DE_DDQN_Optimizer(Learnable_Optimizer):
             is_done = (self.fes >= self.__maxFEs or self.__c_gbest <= 1e-8)
         # get next state
         next_state = self.__get_state(problem)
+
+        if is_done:
+            if len(self.cost) >= self.__config.n_logpoint + 1:
+                self.cost[-1] = self.__c_gbest
+            else:
+                self.cost.append(self.__c_gbest)
         return next_state, reward, is_done

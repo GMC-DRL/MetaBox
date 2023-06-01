@@ -219,7 +219,8 @@ class Logger:
                     if agent not in self.color_arrangement.keys():
                         self.color_arrangement[agent] = colors[self.arrange_index]
                         self.arrange_index += 1
-                    values = np.array(data[name][agent])
+                    # values = np.array(data[name][agent])
+                    values = np.maximum(data[name][agent],1e-8)
                     x = np.arange(values.shape[-1])
                     x = np.array(x, dtype=np.float64)
                     x *= (self.config.maxFEs / x[-1])
@@ -247,7 +248,8 @@ class Logger:
                     if agent not in self.color_arrangement.keys():
                         self.color_arrangement[agent] = colors[self.arrange_index]
                         self.arrange_index += 1
-                    values = np.array(data[name][agent])
+                    # values = np.array(data[name][agent])
+                    values = np.maximum(data[name][agent],1e-8)
                     x = np.arange(values.shape[-1])
                     x = np.array(x, dtype=np.float64)
                     x *= (self.config.maxFEs / x[-1])
@@ -275,7 +277,8 @@ class Logger:
                     if agent not in self.color_arrangement.keys():
                         self.color_arrangement[agent] = colors[self.arrange_index]
                         self.arrange_index += 1
-                    values = np.array(data[name][agent])
+                    # values = np.array(data[name][agent])
+                    values = np.maximum(data[name][agent],1e-8)
                     x = np.arange(values.shape[-1])
                     x = np.array(x, dtype=np.float64)
                     x *= (self.config.maxFEs / x[-1])

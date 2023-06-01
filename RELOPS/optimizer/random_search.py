@@ -11,7 +11,8 @@ class Random_search(basic_optimizer):
         self.__dim=config.dim
         self.__max_fes=config.maxFEs
         self.__NP=100
-        self.log_interval=400
+        self.__n_logpoint = config.n_logpoint
+        self.log_interval = config.log_interval
 
 
     def __reset(self,problem):
@@ -50,6 +51,10 @@ class Random_search(basic_optimizer):
                 is_done = self.gbest<=1e-8 or self.__fes>=self.__max_fes
 
             if is_done:
+                if len(self.cost) >= self.__n_logpoint + 1:
+                    self.cost[-1] = self.gbest
+                else:
+                    self.cost.append(self.gbest)
                 break
                 
         return {'cost':self.cost,'fes':self.__fes}

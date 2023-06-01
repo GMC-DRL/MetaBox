@@ -40,7 +40,7 @@ class QLPSO_Optimizer(Learnable_Optimizer):
         self.fes = None
         self.cost = None  # a list of costs that need to be maintained by EVERY backbone optimizers
         self.log_index = None
-        self.log_interval = 400
+        self.log_interval = config.log_interval
 
     def __cal_diversity(self):
         return np.mean(np.sqrt(np.sum(np.square(self.__population - np.mean(self.__population,0)),1)))
@@ -118,4 +118,9 @@ class QLPSO_Optimizer(Learnable_Optimizer):
             is_done = self.fes >= self.__maxFEs
         else:
             is_done = (self.fes >= self.__maxFEs or self.__cost.min() <= 1e-8)
+        if is_done:
+            if len(self.cost) >= self.__config.n_logpoint + 1:
+                self.cost[-1] = self.__gbest_cost
+            else:
+                self.cost.append(self.__gbest_cost)
         return self.__state[self.__solution_pointer], reward, is_done

@@ -34,7 +34,8 @@ class JDE21(basic_optimizer):
         self.gbest = 1e15
         self.__F = np.ones(self.__NP) * 0.5
         self.__Cr = np.ones(self.__NP) * 0.9
-        self.log_interval = 400
+        self.__n_logpoint = config.n_logpoint
+        self.log_interval = config.log_interval
 
     # check whether the optimization stuck(global best doesn't improve for a while)
     def __prevecEnakih(self, cost, best):
@@ -269,4 +270,8 @@ class JDE21(basic_optimizer):
             is_done = self.__update(problem)
             if is_done:
                 break
+        if len(self.cost) >= self.__n_logpoint + 1:
+            self.cost[-1] = self.gbest
+        else:
+            self.cost.append(self.gbest)
         return {'cost': self.cost, 'fes': self.__FEs}

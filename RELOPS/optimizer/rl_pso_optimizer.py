@@ -26,7 +26,7 @@ class RL_PSO_Optimizer(Learnable_Optimizer):
         self.fes = None
         self.cost = None
         self.log_index = None
-        self.log_interval = 400
+        self.log_interval = config.log_interval
 
     # initialize PSO environment
     def init_population(self, problem):
@@ -143,4 +143,10 @@ class RL_PSO_Optimizer(Learnable_Optimizer):
         reward = (pre_cost-new_cost)/(self.__max_cost-self.__particles['gbest_val'])
 
         self.__cur_index = (self.__cur_index+1) % self.__NP
+
+        if is_done:
+            if len(self.cost) >= self.__config.n_logpoint + 1:
+                self.cost[-1] = self.__particles['gbest_val']
+            else:
+                self.cost.append(self.__particles['gbest_val'])
         return self.__get_state(self.__cur_index), reward, is_done

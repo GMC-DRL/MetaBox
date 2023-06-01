@@ -17,7 +17,7 @@ class GL_PSO(basic_optimizer):
         
         self.__fes=0
         self.__exemplar_stag=np.zeros(self.__NP)
-        self.log_interval = 400
+        self.log_interval = config.log_interval
     
     def __exemplar_crossover(self):
         rand_index=np.random.randint(low=0,high=self.__NP,size=(self.__NP,self.__dim))
@@ -169,5 +169,9 @@ class GL_PSO(basic_optimizer):
             is_end = self.__fes >= self.config.maxFEs
         else:
             is_end = self.__fes >= self.config.maxFEs or self.__particles['gbest_val'] <= 1e-8
-        
+        if is_end:
+            if len(self.cost) >= self.config.n_logpoint + 1:
+                self.cost[-1] = self.__particles['gbest_val']
+            else:
+                self.cost.append(self.__particles['gbest_val'])
         return is_end, {'cost': self.cost, 'fes': self.__fes}

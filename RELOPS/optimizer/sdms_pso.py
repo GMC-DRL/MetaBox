@@ -31,7 +31,7 @@ class sDMS_PSO(basic_optimizer):
         
         self.__parameter_set=[]
         self.__success_num=np.zeros((self.__n_swarm))
-        self.log_interval = 400
+        self.log_interval = config.log_interval
 
     def __get_costs(self,problem,position):
         ps=position.shape[0]
@@ -258,6 +258,10 @@ class sDMS_PSO(basic_optimizer):
             else:
                 done = self.__fes>=self.__max_fes or self.__particles['gbest_val']<=1e-8
             if done:
+                if len(self.cost) >= self.config.n_logpoint + 1:
+                    self.cost[-1] = self.__particles['gbest_val']
+                else:
+                    self.cost.append(self.__particles['gbest_val'])
                 break
 
         return {'cost': self.cost, 'fes': self.__fes}

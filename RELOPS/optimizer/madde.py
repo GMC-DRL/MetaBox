@@ -19,7 +19,8 @@ class MadDE(basic_optimizer):
         self.__H = self.__hm * self.__dim
         self.__FEs = 0
         self.__MaxFEs = config.maxFEs
-        self.log_interval = 400
+        self.__n_logpoint = config.n_logpoint
+        self.log_interval = config.log_interval
 
     def __ctb_w_arc(self, group, best, archive, Fs):
         NP, dim = group.shape
@@ -276,4 +277,8 @@ class MadDE(basic_optimizer):
             is_done = self.__update(problem)
             if is_done:
                 break
+        if len(self.cost) >= self.__n_logpoint + 1:
+            self.cost[-1] = self.gbest
+        else:
+            self.cost.append(self.gbest)
         return {'cost': self.cost, 'fes': self.__FEs}

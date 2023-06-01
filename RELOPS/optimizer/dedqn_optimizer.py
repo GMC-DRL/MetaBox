@@ -125,7 +125,7 @@ class DEDQN_Optimizer(Learnable_Optimizer):
         self.fes = None
         self.cost = None
         self.log_index = None
-        self.log_interval = 400
+        self.log_interval = config.log_interval
 
     def __cal_feature(self, problem):
         samples = random_walk_sampling(self.__population, self.__dim, self.__rwsteps)
@@ -197,6 +197,10 @@ class DEDQN_Optimizer(Learnable_Optimizer):
             is_done = self.fes >= self.__maxFEs
         else:
             is_done = self.fes >= self.__maxFEs or self.__cost.min() <= 1e-8
-
+        if is_done:
+            if len(self.cost) >= self.__config.n_logpoint + 1:
+                self.cost[-1] = self.__gbest_cost
+            else:
+                self.cost.append(self.__gbest_cost)
         self.__solution_pointer = (self.__solution_pointer + 1) % self.__population.shape[0]
         return self.__state, reward, is_done
