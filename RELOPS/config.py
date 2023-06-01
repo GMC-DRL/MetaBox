@@ -53,21 +53,23 @@ def get_config(args=None):
     config = parser.parse_args(args)
     config.maxFEs = 2000 * config.dim
 
+    config.n_logpoint = 50
+
     if config.problem in ['protein', 'protein-torch']:
         config.dim = 12
         config.maxFEs = 1000
-
-    config.log_interval = 400
+        config.n_logpoint = 5
 
     config.run_time = f'{time.strftime("%Y%m%dT%H%M%S")}_{config.problem}_{config.difficulty}_{config.dim}D'
     config.test_log_dir = config.log_dir + '/test/' + config.run_time + '/'
 
     config.rollout_log_dir = config.log_dir + '/rollout/' + config.run_time + '/'
 
-    if config.train:
+    if config.train or config.train_test_log:
         config.agent_save_dir = config.agent_save_dir + config.train_agent + '/' + config.run_time + '/'
 
     config.save_interval = config.max_learning_step // config.n_checkpoint
+    config.log_interval = config.maxFEs // config.n_logpoint
 
     if 'DEAP_CMAES' not in config.t_optimizer_for_cp:
         config.t_optimizer_for_cp.append('DEAP_CMAES')
