@@ -41,29 +41,37 @@ from optimizer import (
     BayesianOptimizer
 )
 
-def cal_t0(dim,fes):
-    start = time.perf_counter()
-    for _ in range(fes):
-        x = np.random.rand(dim)
-        x + x
-        x / (x+2)
-        x * x
-        np.sqrt(x)
-        np.log(x)
-        np.exp(x)
-    end = time.perf_counter()
+def cal_t0(dim, fes):
+    T0 = 0
+    for i in range(10):
+        start = time.perf_counter()
+        for _ in range(fes):
+            x = np.random.rand(dim)
+            x + x
+            x / (x+2)
+            x * x
+            np.sqrt(x)
+            np.log(x)
+            np.exp(x)
+        end = time.perf_counter()
+        T0 += (end - start) * 1000
     # ms
-    return (end - start) * 1000
+    return T0/10
+
 
 def cal_t1(problem, dim, fes):
-    x = np.random.rand(fes, dim)
-    start = time.perf_counter()
-    # for i in range(fes):
-    #     problem.eval(x[i])
-    problem.eval(x)
-    end = time.perf_counter()
+    T1 = 0
+    for i in range(10):
+        x = np.random.rand(fes, dim)
+        start = time.perf_counter()
+        # for i in range(fes):
+        #     problem.eval(x[i])
+        problem.eval(x)
+        end = time.perf_counter()
+        T1 += (end - start) * 1000
     # ms
-    return (end - start) * 1000
+    return T1/10
+
 
 class Tester(object):
     def __init__(self, config):
