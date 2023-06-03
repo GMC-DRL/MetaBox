@@ -18,7 +18,9 @@ This is a **reinforcement learning benchmark platform** for benchmarking and Met
 * [Testing](#Testing)
   * [How to Test](#How-to-Test)
   * [Test Results](#Test-Results)
-
+* [Train_test_log](#Train_test_log)
+  * [How to Train_test_log](#How to Train_test_log)
+  * [Train_test_log  Results](#Train_test_log-Results)
 ## Overview
 
 ![overview](docs/overview.png)
@@ -155,6 +157,14 @@ Note that `Random Search` performs uniformly random sampling to optimize the fit
 
     ```
     python main.py --test --agent_load_dir YourAgentSaveDir --agent DE_DDQN_Agent --optimizer DE_DDQN_Optimizer --agent_for_cp LDE_Agent --l_optimizer_for_cp LDE_Optimizer --t_optimizer_for_cp DEAP_DE JDE21 DEAP_CMAES Random_search --log_dir YourLogDir
+    ```
+
+    What's more,we provide a mode called `train_test_log` which can automate the train, rollout, test and log functions that means  you don't need to control each training and testing step yourself, but have direct access to the final training model and testing results.
+
+    Train_test_log DE_DDQN:
+
+    ```
+    python main.py --train_test_log --train_agent DE_DDQN_Agent --train_optimizer DE_DDQN_Optimizer --agent_for_cp LDE_Agent --l_optimizer_for_cp LDE_Optimizer --t_optimizer_for_cp DEAP_DE JDE21 DEAP_CMAES Random_search --log_dir YourLogDir
     ```
 
     Then you can get all results in directory `output/`
@@ -403,6 +413,16 @@ Note that `Random Search` performs uniformly random sampling to optimize the fit
 
     See [Testing](#Testing) for more details.
 
+6. Train_test_log your  MetaBBO optimizer.
+
+    Assume that you've written an agent class named *MyAgent* and a backbone optimizer class named *MyOptimizer*, and now you can train your agent using:
+
+    ```shell
+    python main.py --train_test_log --problem bbob --difficulty easy --train_agent MyAgent --train_optimizer MyOptimizer --agent_for_cp LDE_Agent --l_optimizer_for_cp LDE_Optimizer --t_optimizer_for_cp DEAP_DE JDE21 DEAP_CMAES Random_search --log_dir YourLogDir
+    ```
+
+    See [Train_test_log](#Train_test_log) for more details.
+
 ## Training
 
 ### How to Train
@@ -516,3 +536,22 @@ After testing, 3 types of data files will be generated in `MyLogDir/test/runName
   * `problem_name_cost_curve.png` such as *Schwefel_cost_curve.png*, draws the cost curve of each algorithm's optimization process on the specific problem.
   * `all_problem_cost_curve.png` draws each algorithm's average cost curve on all problems in test set.
   * `rank_hist.png` plots a histogram of each algorithm's score.
+
+## Train_test_log
+### How to train_test_log
+
+In `Relops`,you can select the train_test_log mode by using the `--train_test_log` option. We will help you automatically organize the four functions including `train`, `rollout`, `test`, and log, and help you automatically plan the file directory to save the model, load the model, and save the test results during the process of train, test and etc. Note that you need to initialize your defined agent and optimizer and select the learning-based and traditional optimizers you need to compare before starting the `train_test_log` mode.
+
+```shell
+python main.py --train_test_log --problem bbob --difficulty easy --train_agent MyAgent --train_optimizer MyOptimizer --agent_for_cp LDE_Agent --l_optimizer_for_cp LDE_Optimizer --t_optimizer_for_cp DEAP_DE JDE21 DEAP_CMAES Random_search --log_dir YourLogDir
+```
+
+Notice that during `test` function in `train_test_log`, although we rollout the 21 models generated in the train and save the results, we will choose the last checkpoint i.e. checkpoint20.pkl for the comparison of the test.
+
+#todo explain the file dir during train test log
+
+### Train_test_log Results
+
+After `Train_test_log`, we will save the generated results of train,rollout,test in `output`/ respectively.
+
+The specific content and location of the generated results can be found in the corresponding section.
