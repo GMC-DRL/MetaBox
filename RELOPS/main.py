@@ -12,7 +12,7 @@ if __name__ == '__main__':
     assert ((config.train is not None) +
             (config.rollout is not None) +
             (config.test is not None) +
-            (config.train_test_log is not None)) == 1, 'Among train, rollout, test & train_test_log, only one mode can be given at one time.'
+            (config.run_experiment is not None)) == 1, 'Among train, rollout, test & run_experiment, only one mode can be given at one time.'
 
     # train
     if config.train:
@@ -33,8 +33,8 @@ if __name__ == '__main__':
         tester.test()
         post_processing_test_statics(config.test_log_dir, Logger(config))
 
-    # train_test_log
-    if config.train_test_log:
+    # run_experiment
+    if config.run_experiment:
         # train
         torch.set_grad_enabled(True)
         trainer = Trainer(config)

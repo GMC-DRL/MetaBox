@@ -21,7 +21,7 @@ colors = ['b', 'g', 'orange', 'r', 'purple', 'brown', 'grey', 'limegreen', 'turq
           ]
 
 
-def get_average_returns(results: dict):
+def get_average_returns(results: dict, norm: bool=False):
     problems=[]
     agents=[]
 
@@ -30,44 +30,54 @@ def get_average_returns(results: dict):
     for agent in results[problems[0]].keys():
         agents.append(agent)
     avg_return={}
+    std_return={}
     # n_checkpoint=len(results[problems[0]][agents[0]])
     for agent in agents:
         avg_return[agent]=[]
+        std_return[agent]=[]
         for problem in problems:
             values = results[problem][agent]
-            values = (values - np.min((values))) / (np.max(values) - np.min(values))
-            avg_return[agent].append(values)
+            if norm:
+                values = (values - np.min((values))) / (np.max(values) - np.min(values))
+            std_return[agent].append(np.std(values, -1))
+            avg_return[agent].append(np.mean(values, -1))
         avg_return[agent] = np.mean(avg_return[agent], 0)
+        std_return[agent] = np.mean(std_return[agent], 0)
         # for checkpoint in range(n_checkpoint):
         #     return_sum=0
         #     for problem in problems:
         #         return_sum+=results[problem][agent][checkpoint]
         #     avg_return[agent].append(return_sum/len(problems))
-    return avg_return  # {'agent':[] len = n_checkpoints}
+    return avg_return, std_return  # {'agent':[] len = n_checkpoints}
 
 
-def get_average_costs(results: dict):
+def get_average_costs(results: dict, norm: bool=False):
     problems=[]
     agents=[]
     for problem in results.keys():
         problems.append(problem)
     for agent in results[problems[0]].keys():
         agents.append(agent)
-    avg_cost={}
+    avg_cost = {}
+    std_cost = {}
     # n_checkpoint=len(results[problems[0]][agents[0]])
     for agent in agents:
         avg_cost[agent]=[]
+        std_cost[agent]=[]
         for problem in problems:
-            values = np.array(results[problem][agent])[:, -1]
-            values = (values - np.min((values))) / (np.max(values) - np.min(values))
-            avg_cost[agent].append(values)
+            values = np.array(results[problem][agent])[:, :, -1]
+            if norm:
+                values = (values - np.min((values))) / (np.max(values) - np.min(values))
+            std_cost[agent].append(np.std(values, -1))
+            avg_cost[agent].append(np.mean(values, -1))
         avg_cost[agent] = np.mean(avg_cost[agent], 0)
+        std_cost[agent] = np.mean(std_cost[agent], 0)
         # for checkpoint in range(n_checkpoint):
-        #     return_sum=0
-        #     for problem in problems:
-        #         return_sum+=results[problem][agent][checkpoint]
-        #     avg_return[agent].append(return_sum/len(problems))
-    return avg_cost  # {'agent':[] len = n_checkpoints}
+        #      return_sum=0
+        #      for problem in problems:
+        #           return_sum+=results[problem][agent][checkpoint]
+        #      avg_return[agent].append(return_sum/len(problems))
+    return avg_cost, std_cost  # {'agent':[] len = n_checkpoints}
 
 
 def cal_scores1(D: dict, maxf: float):
@@ -186,16 +196,17 @@ def gen_overall_tab(results: dict, out_dir: str) -> None:
             avg_obj = sum(objs_)/51
             df_results.loc[optimizer,(problem,'Obj')] = np.format_float_scientific(avg_obj, precision=3, exp_digits=1)
             # calculate each Gap
-            # df_results.loc[optimizer, (problem, 'Gap')] = "%.2f%%" % ((avg_obj - cmaes_obj[problem]) / cmaes_obj[problem] * 100)
             df_results.loc[optimizer, (problem, 'Gap')] = "%.3f" % (1-(rs_obj[problem]-avg_obj) / (rs_obj[problem]-cmaes_obj[problem]+1e-10) )
-            # df_results.loc[optimizer, (problem, 'Gap')] = "%.3f" % (1-cmaes_obj[problem] / (avg_obj+1e-10) )
-            # if avg_obj > rs_obj[problem]:
-            #     print(f'optimizr:{optimizer},problem:{problem}')
             fes_problem_optimizer = np.array(results['fes'][problem][optimizer])
             df_results.loc[optimizer, (problem, 'FEs')] = np.format_float_scientific(fes_problem_optimizer.mean(), precision=3, exp_digits=1)
 
     df_results.to_excel(out_dir+'overall_table.xlsx')
 
+def to_label(agent_name: str) -> str:
+    label = agent_name
+    if len(label) > 6 and (label[-6:] == '_Agent' or label[-6:] == '_agent'):
+        label = label[:-6]
+    return label
 
 class Logger:
     def __init__(self, config: argparse.Namespace):
@@ -219,16 +230,15 @@ class Logger:
                     if agent not in self.color_arrangement.keys():
                         self.color_arrangement[agent] = colors[self.arrange_index]
                         self.arrange_index += 1
-                    # values = np.array(data[name][agent])
-                    values = np.maximum(data[name][agent],1e-8)
+                    values = np.array(data[name][agent])
                     x = np.arange(values.shape[-1])
                     x = np.array(x, dtype=np.float64)
                     x *= (self.config.maxFEs / x[-1])
                     if logged:
-                        values = np.log(values)
+                        values = np.log(np.maximum(values, 1e-8))
                     std = np.std(values, 0)
                     mean = np.mean(values, 0)
-                    plt.plot(x, mean, label=agent, marker='*', markevery=8, markersize=13, c=self.color_arrangement[agent])
+                    plt.plot(x, mean, label=to_label(agent), marker='*', markevery=8, markersize=13, c=self.color_arrangement[agent])
                     plt.fill_between(x, mean - std, mean + std, alpha=0.2, facecolor=self.color_arrangement[agent])
                 plt.grid()
                 plt.xlabel('FEs')
@@ -248,16 +258,15 @@ class Logger:
                     if agent not in self.color_arrangement.keys():
                         self.color_arrangement[agent] = colors[self.arrange_index]
                         self.arrange_index += 1
-                    # values = np.array(data[name][agent])
-                    values = np.maximum(data[name][agent],1e-8)
+                    values = np.array(data[name][agent])
                     x = np.arange(values.shape[-1])
                     x = np.array(x, dtype=np.float64)
                     x *= (self.config.maxFEs / x[-1])
                     if logged:
-                        values = np.log(values)
+                        values = np.log(np.maximum(values, 1e-8))
                     std = np.std(values, 0)
                     mean = np.mean(values, 0)
-                    plt.plot(x, mean, label=agent, marker='*', markevery=8, markersize=13, c=self.color_arrangement[agent])
+                    plt.plot(x, mean, label=to_label(agent), marker='*', markevery=8, markersize=13, c=self.color_arrangement[agent])
                     plt.fill_between(x, mean - std, mean + std, alpha=0.2, facecolor=self.color_arrangement[agent])
                 plt.grid()
                 plt.xlabel('FEs')
@@ -277,16 +286,15 @@ class Logger:
                     if agent not in self.color_arrangement.keys():
                         self.color_arrangement[agent] = colors[self.arrange_index]
                         self.arrange_index += 1
-                    # values = np.array(data[name][agent])
-                    values = np.maximum(data[name][agent],1e-8)
+                    values = np.array(data[name][agent])
                     x = np.arange(values.shape[-1])
                     x = np.array(x, dtype=np.float64)
                     x *= (self.config.maxFEs / x[-1])
                     if logged:
-                        values = np.log(values)
+                        values = np.log(np.maximum(values, 1e-8))
                     std = np.std(values, 0)
                     mean = np.mean(values, 0)
-                    plt.plot(x, mean, label=agent, marker='*', markevery=8, markersize=13, c=self.color_arrangement[agent])
+                    plt.plot(x, mean, label=to_label(agent), marker='*', markevery=8, markersize=13, c=self.color_arrangement[agent])
                     plt.fill_between(x, mean - std, mean + std, alpha=0.2, facecolor=self.color_arrangement[agent])
                 plt.grid()
                 plt.xlabel('FEs')
@@ -307,11 +315,7 @@ class Logger:
         for id, title in enumerate(named_agents.keys()):
             ax = plt.subplot(1, plots+1, id+1)
             ax.set_title(title, fontsize=25)
-            X = np.arange(51)
-            X = np.array(X, dtype=np.float64)
-            X *= (self.config.maxFEs / X[-1])
-            X = np.log(X)/np.log(10)
-            X[0] = 2
+            
             Y = {}
             for problem in list(data.keys()):
                 for agent in list(data[problem].keys()):
@@ -325,7 +329,7 @@ class Logger:
                     values = np.array(data[problem][agent])
                     values /= values[:, 0].repeat(values.shape[-1]).reshape(values.shape)
                     if logged:
-                        values = np.log(values)
+                        values = np.log(np.maximum(values, 1e-8))
                     std = np.std(values, 0)
                     mean = np.mean(values, 0)
                     Y[agent]['mean'].append(mean)
@@ -334,9 +338,14 @@ class Logger:
             for id, agent in enumerate(list(Y.keys())):
                 mean = np.mean(Y[agent]['mean'], 0)
                 std = np.mean(Y[agent]['std'], 0)
-                
 
-                ax.plot(X, mean, label=agent, marker='*', markevery=8, markersize=13, c=self.color_arrangement[agent])
+                X = np.arange(mean.shape[-1])
+                X = np.array(X, dtype=np.float64)
+                X *= (self.config.maxFEs / X[-1])
+                X = np.log10(X)
+                X[0] = 2
+
+                ax.plot(X, mean, label=to_label(agent), marker='*', markevery=8, markersize=13, c=self.color_arrangement[agent])
                 ax.fill_between(X, (mean - std), (mean + std), alpha=0.2, facecolor=self.color_arrangement[agent])
             plt.grid()
             plt.xlabel('log10 FEs')
@@ -377,8 +386,8 @@ class Logger:
             plt.ylabel('Normalized Costs')
             plt.savefig(output_dir + f'{agent}_concrete_performance_hist.png', bbox_inches='tight')
 
-    def draw_train_return(self, data: dict, output_dir: str) -> None:
-        returns = get_average_returns(data['return'])
+    def draw_train_return(self, data: dict, output_dir: str, norm: bool=False) -> None:
+        returns, stds = get_average_returns(data['return'], norm=norm)
         plt.figure()
         for agent in returns.keys():
             x = np.arange(len(returns[agent]), dtype=np.float64)
@@ -395,17 +404,18 @@ class Logger:
             if agent not in self.color_arrangement.keys():
                 self.color_arrangement[agent] = colors[self.arrange_index]
                 self.arrange_index += 1
-            plt.plot(x, s, label=agent, marker='*', markersize=12, markevery=2, c=self.color_arrangement[agent])
-            # plt.plot(x, returns[agent], label=agent)
+            plt.plot(x, s, label=to_label(agent), marker='*', markersize=12, markevery=2, c=self.color_arrangement[agent])
+            plt.fill_between(x, (s - stds[agent]), (s + stds[agent]), alpha=0.2, facecolor=self.color_arrangement[agent])
+            # plt.plot(x, returns[agent], label=to_label(agent))
         plt.legend()
         plt.xlabel('Learning Steps')
-        plt.ylabel('Avg Normalized Return')
+        plt.ylabel('Avg Return')
         plt.grid()
         plt.savefig(output_dir + f'avg_return_curve.png', bbox_inches='tight')
         plt.close()
 
-    def draw_train_avg_cost(self, data: dict, output_dir: str) -> None:
-        costs = get_average_costs(data['cost'])
+    def draw_train_avg_cost(self, data: dict, output_dir: str, norm: bool=False) -> None:
+        costs, stds = get_average_costs(data['cost'], norm=norm)
         plt.figure()
         for agent in costs.keys():
             x = np.arange(len(costs[agent]), dtype=np.float64)
@@ -422,11 +432,12 @@ class Logger:
             if agent not in self.color_arrangement.keys():
                 self.color_arrangement[agent] = colors[self.arrange_index]
                 self.arrange_index += 1
-            plt.plot(x, s, label=agent, marker='*', markersize=12, markevery=2, c=self.color_arrangement[agent])
-            # plt.plot(x, returns[agent], label=agent)
+            plt.plot(x, s, label=to_label(agent), marker='*', markersize=12, markevery=2, c=self.color_arrangement[agent])
+            plt.fill_between(x, (s - stds[agent]), (s + stds[agent]), alpha=0.2, facecolor=self.color_arrangement[agent])
+            # plt.plot(x, returns[agent], label=to_label(agent))
         plt.legend()
         plt.xlabel('Learning Steps')
-        plt.ylabel('Avg Normalized Cost')
+        plt.ylabel('Avg Cost')
         plt.grid()
         plt.savefig(output_dir + f'avg_cost_curve.png', bbox_inches='tight')
         plt.close()
@@ -491,10 +502,92 @@ class Logger:
         plt.savefig(output_dir + f'overall_boxplot.png', bbox_inches='tight')
         plt.close()
 
-    def draw_rank_hist(self, data: dict, output_dir: str, ignore: Optional[list]=None) -> None:
+    def draw_rank_hist(self, data: dict, output_dir: str, mode: str='AEI', ignore: Optional[list]=None) -> None:
         plt.figure(figsize=(30,15))
         # plt.title('rank histgram')
-        D = {}
+        if mode == 'AEI':
+            with_optimum = (self.config.problem == 'bbob' or self.config.problem == 'bbob-noisy')
+            metric = self.aei_metric(data, with_optimum=with_optimum, ignore=ignore)
+        elif mode == 'CEC':
+            metric = self.cec_metric(data, ignore=ignore)
+        X, Y = metric.keys(), metric.values()
+        plt.bar(X, Y)
+        for a,b in zip(X, Y):
+            plt.text(a, b+0.05, '%.2f' % b, ha='center', fontsize=16)
+        plt.xticks(rotation=30, fontsize=15)
+        plt.xlabel('Agents')
+        plt.ylabel('Metric')
+        plt.savefig(output_dir + f'rank_hist.png', bbox_inches='tight')
+
+    def aei_metric(self, data: dict, with_optimum: bool=True, ignore: Optional[list]=None):
+        problems=[]
+        agents=[]
+        cost_metric = {}
+        fes_metric = {}
+        complexity = {}
+        metric = {}
+        for problem in data['cost'].keys():
+            problems.append(problem)
+        for agent in data['cost'][problems[0]].keys():
+            if ignore is not None and agent in ignore:
+                continue
+            if agent == 'DEAP_CMAES' or agent == 'Random_search':
+                continue
+            agents.append(agent)
+            key = to_label(agent)
+            cost_metric[key] = []
+            fes_metric[key] = []
+            complexity[key] = 0
+            metric[key] = 0
+
+        # baseline: CMAES, Random
+        cmaes = []
+        random = []
+        for problem in problems:
+            agent = 'DEAP_CMAES'
+            values = np.array(data['cost'][problem][agent])[:, -1]
+            cost = np.mean(values)
+            cmaes.append(cost)
+
+            agent = 'Random_search'
+            values = np.array(data['cost'][problem][agent])[:, -1]
+            cost = np.mean(values)
+            random.append(cost)
+        cmaes = np.array(cmaes)
+        random = np.array(random)
+        
+        for agent in agents:
+            if agent == 'DEAP_CMAES' or agent == 'Random_search':
+                continue
+            if ignore is not None and agent in ignore:
+                continue
+            key = to_label(agent)
+            for problem in problems:
+                # cost item
+                values = np.array(data['cost'][problem][agent])[:, -1]
+                cost = np.mean(values)
+                if with_optimum:
+                    cost_metric[key].append(10 - np.log10(np.maximum(cost, 1e-8) / random))
+                else:
+                    cost_metric[key].append(10 - np.log10((random - cmaes) / np.maximum(random - cost, 1e-8)))
+
+                # fes item
+                fes = np.mean(data['fes'][problem][agent])
+                if agent == 'L2L_Agent' or agent == 'BayesianOptimizer':
+                    fes_metric[key].append(np.exp(-fes / 100))
+                else:
+                    fes_metric[key].append(np.exp(-fes / self.config.maxFEs))
+            # complexity item
+            t0=data['T0']
+            t1=data['T1']
+            t2=data['T2'][agent]
+            t = (t2 - t1) / t0
+            complexity[key] = (5 - np.log10(t)) / 5
+            metric[key] = np.mean(np.array(cost_metric[key]) * np.array(fes_metric[key]) * complexity[key])
+        return metric
+
+    def cec_metric(self, data: dict, ignore: Optional[list]=None):
+        score = {}
         M = []
         X = []
         Y = []
@@ -507,10 +600,11 @@ class Logger:
             for agent in list(data[problem].keys()):
                 if ignore is not None and agent in ignore:
                     continue
-                if agent not in D.keys():
-                    D[agent] = []
+                key = to_label(agent)
+                if key not in score.keys():
+                    score[key] = []
                 values = np.array(data[problem][agent])[:, -1]
-                D[agent].append(values)
+                score[key].append(values)
                 maxf = max(maxf, np.max(values))
                 avg_cost.append(np.mean(values))
                 avg_fes.append(np.mean(fes[problem][agent]))
@@ -522,18 +616,10 @@ class Logger:
             R.append(rank)
         sr = 0.5 * np.sum(R, 0)
         score2 = (1 - (sr - np.min(sr)) / sr) * 50
-        score1 = cal_scores1(D, M)
-        score = score1 + score2
-        for i, agent in enumerate(D.keys()):
-            X.append(agent)
-            Y.append(score[i])
-        plt.bar(X, Y)
-        for a,b in zip(X, Y):
-            plt.text(a, b+0.5, '%.2f' % b, ha='center', fontsize=16)
-        plt.xticks(rotation=30, fontsize=15)
-        plt.xlabel('Agents')
-        plt.ylabel('Scores')
-        plt.savefig(output_dir + f'rank_hist.png', bbox_inches='tight')
+        score1 = cal_scores1(score, M)
+        for i, key in enumerate(score.keys()):
+            score[key] = score1[i] + score2[i]
+        return score
 
 
 def post_processing_test_statics(log_dir: str, logger: Logger) -> None:
@@ -555,9 +641,9 @@ def post_processing_test_statics(log_dir: str, logger: Logger) -> None:
                                         {'RLs': ['DE_DDQN_Agent', 'RL_HPSDE_Agent', 'LDE_Agent', 'QLPSO_Agent', 'RLEPSO_Agent', 'RL_PSO_Agent', 'DEDQN_Agent'], 
                                          'RL+Tra': ['RL_HPSDE_Agent',  'LDE_Agent', 'RLEPSO_Agent', 'RL_PSO_Agent', 'DEAP_DE', 'DEAP_CMAES', 'DEAP_PSO']},
                                         logged=False)
-    logger.draw_rank_hist(results,log_dir + 'pics/', ignore=['L2:_Agent', 'BayesianOptimizer'])
-    logger.draw_boxplot(results['cost'],log_dir + 'pics/', ignore=['L2:_Agent', 'BayesianOptimizer'])
-    logger.draw_overall_boxplot(results['cost'],log_dir + 'pics/', ignore=['L2:_Agent', 'BayesianOptimizer'])
+    logger.draw_rank_hist(results,log_dir + 'pics/')
+    logger.draw_boxplot(results['cost'],log_dir + 'pics/')
+    logger.draw_overall_boxplot(results['cost'],log_dir + 'pics/')
     logger.draw_concrete_performance_hist(results['cost'],log_dir + 'pics/')
 
 

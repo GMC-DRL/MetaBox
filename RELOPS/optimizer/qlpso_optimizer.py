@@ -104,7 +104,7 @@ class QLPSO_Optimizer(Learnable_Optimizer):
         # update population information
         self.__cost[self.__solution_pointer] = f_new
         self.__diversity = d_new
-        self.__gbest_cost = self.__cost.min().copy()
+        self.__gbest_cost = min(self.__gbest_cost, self.__cost.min().copy())
         if f_new < f_old:
             self.__pbest[self.__solution_pointer] = self.__population[self.__solution_pointer] #record pbest position
         self.__state[self.__solution_pointer] = action
@@ -117,7 +117,7 @@ class QLPSO_Optimizer(Learnable_Optimizer):
         if problem.optimum is None:
             is_done = self.fes >= self.__maxFEs
         else:
-            is_done = (self.fes >= self.__maxFEs or self.__cost.min() <= 1e-8)
+            is_done = (self.fes >= self.__maxFEs or self.__gbest_cost <= 1e-8)
         if is_done:
             if len(self.cost) >= self.__config.n_logpoint + 1:
                 self.cost[-1] = self.__gbest_cost
