@@ -131,7 +131,7 @@ Note that `Random Search` performs uniformly random sampling to optimize the fit
     ```
     src
     │        
-    │─ agent
+    ├─ agent
     │   │
     │   ├─ de_ddqn_agent.py
     │   ├─ ...
@@ -369,12 +369,12 @@ Note that `Random Search` performs uniformly random sampling to optimize the fit
    ```
    src
    │        
-   │─ agent
+   ├─ agent
    │   │
    │   ├─ ...
    │   └─ my_agent.py
    └─ optimizer
-       ├─
+       │
        ├─ ...
        └─ my_optimizer.py
    ```
