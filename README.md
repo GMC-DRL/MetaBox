@@ -1,4 +1,4 @@
-# MetaBox: Reinforcement Learning Benchmark Platform for Meta Black Box Optimization
+# MetaBox: A Benchmark Platform for Meta-Black-Box Optimization with Reinforcement Learning
 
 This is a **reinforcement learning benchmark platform** for benchmarking and MetaBBO-RL methods. You can **train** your own MetaBBO-RL approach and **compare** it with several popular peers and classic optimizers.
 
@@ -19,13 +19,13 @@ This is a **reinforcement learning benchmark platform** for benchmarking and Met
   * [How to Test](#How-to-Test)
   * [Test Results](#Test-Results)
 * [Train_test_log](#Train_test_log)
-  * [How to Train_test_log](#How to Train_test_log)
+  * [How to Train_test_log](#How-to-Train_test_log)
   * [Train_test_log  Results](#Train_test_log-Results)
 ## Overview
 
 ![overview](docs/overview.png)
 
-`RELOPS` can be divided into six modules: **MetaBBO-RL, Test suites, Baselines, Trainer, Tester and Logger.**
+`MetaBox` can be divided into six modules: **MetaBBO-RL, Test suites, Baselines, Trainer, Tester and Logger.**
 
 * `MetaBBO-RL` is used for **optimizing** black box problems and consists of a reinforcement agent and a backbone optimizer.
 
@@ -124,12 +124,12 @@ Note that `Random Search` performs uniformly random sampling to optimize the fit
 
 0. Check out the [Requirements](#Requirements) above.
 
-1. if you want to run the examples instead of your own agent,you can try `RELOPS` through:
+1. if you want to run the examples instead of your own agent,you can try `MetaBox` through:
 
     The file architecture should be liked this:
 
     ```
-    RELOPS
+    src
     │        
     └─ Agent
         │
@@ -365,7 +365,7 @@ Note that `Random Search` performs uniformly random sampling to optimize the fit
    After that,you should put your own declare file in directory `agent` and `optimizer`. Then the file structure should be like:
 
    ```
-   RELOPS
+   src
    │        
    └─ Agent
        │
@@ -393,19 +393,19 @@ Note that `Random Search` performs uniformly random sampling to optimize the fit
 
 4. Rollout your agent models.
 
-    Fetch your trained agent models named `checkpointN.pkl` in directory `RELOPS/agent_model/train/MyAgent/runName/` and move them to directory `RELOPS/agent_model/rollout/MyAgent/`. Rollout the models with train set using:
+    Fetch your trained agent models named `checkpointN.pkl` in directory `src/agent_model/train/MyAgent/runName/` and move them to directory `src/agent_model/rollout/MyAgent/`. Rollout the models with train set using:
 
     ```shell
     python main.py --rollout --problem bbob --difficulty easy --agent_for_rollout MyAgent --optimizer_for_rollout MyOptimizer
     ```
 
-    When the rollout ends, check the result data in `RELOPS/output/rollout/runName/rollout.pkl` and pick the best model to test.
+    When the rollout ends, check the result data in `src/output/rollout/runName/rollout.pkl` and pick the best model to test.
 
     See [Rollout](#Rollout) for more details.
 
 5. Test your MetaBBO optimizer.
 
-    Move the best `.pkl` model file to directory `RELOPS/agent_model/test/`, and rename the file to `MyAgent.pkl`. Now use the test set to test `MyAgent` with `DEAP_CMAES` and `Random_search`:
+    Move the best `.pkl` model file to directory `src/agent_model/test/`, and rename the file to `MyAgent.pkl`. Now use the test set to test `MyAgent` with `DEAP_CMAES` and `Random_search`:
 
     ```shell
     python main.py --test --problem bbob --difficulty easy --agent MyAgent --optimizer MyOptimizer --t_optimizer_for_cp DEAP_CMAES Random_search
@@ -426,7 +426,7 @@ Note that `Random Search` performs uniformly random sampling to optimize the fit
 ## Training
 
 ### How to Train
-In `RELOPS`, to facilitate training with our dataset and observing logs during training, we suggest that you put your own MetaBBO Agent declaration file in the folder [agent](RELOPS/agent) and **import** it in [trainer.py](RELOPS/trainer.py). Additionally, if you are using your own optimizer instead of the one provided by `RELOPS`, you need to put your own backbone optimizer declaration file in the folder [optimizer](RELOPS/optimizer) and **import** it in [trainer.py](RELOPS/trainer.py).
+In `MetaBox`, to facilitate training with our dataset and observing logs during training, we suggest that you put your own MetaBBO Agent declaration file in the folder [agent](src/agent) and **import** it in [trainer.py](src/trainer.py). Additionally, if you are using your own optimizer instead of the one provided by `MetaBox`, you need to put your own backbone optimizer declaration file in the folder [optimizer](src/optimizer) and **import** it in [trainer.py](src/trainer.py).
 
 You will then be able to train your agent using the following command line:
 
@@ -434,9 +434,9 @@ You will then be able to train your agent using the following command line:
 python main.py --train --train_agent MyAgent --train_optimizer MyOptimizer --agent_save_dir MyAgentSaveDir --log_dir MyLogDir
 ```
 
-For the above commands, `--train` is to specify the training mode. `--train_agent MyAgent` `--train_optimizer MyOptimizer` is to use your agent class named *MyAgent* and your optimizer class named *MyOptimizer*  for training. `--agent_save_dir MyAgentSaveDir` specifies the save directory of the agent models obtained from training or they will be saved in directory `RELOPS/agent_model/train` by default.  `--log_dir MyLogDir` specifies the save directory of the log files during training or directory `RELOPS/output/train` by default.
+For the above commands, `--train` is to specify the training mode. `--train_agent MyAgent` `--train_optimizer MyOptimizer` is to use your agent class named *MyAgent* and your optimizer class named *MyOptimizer*  for training. `--agent_save_dir MyAgentSaveDir` specifies the save directory of the agent models obtained from training or they will be saved in directory `src/agent_model/train` by default.  `--log_dir MyLogDir` specifies the save directory of the log files during training or directory `src/output/train` by default.
 
-Once you run the above command, `RELOPS` will initialize a `Trainer` object and use your configuration to build the agent and optimizer, as well as generate the training and test sets. After that, the `Trainer` will control the entire training process, optimize the problems in the train set one by one using the declared agent and optimizer, and record the corresponding information.
+Once you run the above command, `MetaBox` will initialize a `Trainer` object and use your configuration to build the agent and optimizer, as well as generate the training and test sets. After that, the `Trainer` will control the entire training process, optimize the problems in the train set one by one using the declared agent and optimizer, and record the corresponding information.
 
 ### Train Results
 
@@ -477,7 +477,7 @@ MyAgentLoadDir
 
 ### Rollout Results
 
-After rollout, in `MyLogDir/rollout/runName` or `output/rollout/runName` by default, `RELOPS` will generate a file named `rollout.pkl` which is a dictionary containing:
+After rollout, in `MyLogDir/rollout/runName` or `output/rollout/runName` by default, `MetaBox` will generate a file named `rollout.pkl` which is a dictionary containing:
 
 * `cost` is the best costs sampled every 400 function evaluations along the rollout process of each checkpoint model running on each problem in train set.
 * `fes` is the function evaluation times used by each checkpoint model running on each problem in train set.
@@ -487,9 +487,9 @@ After rollout, in `MyLogDir/rollout/runName` or `output/rollout/runName` by defa
 
 ### How to Test
 
-In `RELOPS`, you can select the test mode by using the `--test` option. When conducting evaluations, we first instantiate a `Tester` object and load all agents and optimizers. Then, we build the test sets and, for each problem in the test set, we call each instantiated optimizer to test the problem and obtain a solution, recording 51 runs of optimization performance.
+In `MetaBox`, you can select the test mode by using the `--test` option. When conducting evaluations, we first instantiate a `Tester` object and load all agents and optimizers. Then, we build the test sets and, for each problem in the test set, we call each instantiated optimizer to test the problem and obtain a solution, recording 51 runs of optimization performance.
 
-Currently, we have implemented 7 MetaBBO-RL learnable optimizers, 1 MetaBBO-SL optimizer and 11 BBO optimizers, which are listed in [Baselines](#Baselines). You can also find their implementations in [RELOPS/agent](RELOPS/agent) and [RELOPS/optimizer](RELOPS/optimizer). **We have imported all of these agents and optimizers in [tester.py](RELOPS/tester.py) for you to compare, and you are supposed to import your own agent and optimizer in it**.
+Currently, we have implemented 7 MetaBBO-RL learnable optimizers, 1 MetaBBO-SL optimizer and 11 BBO optimizers, which are listed in [Baselines](#Baselines). You can also find their implementations in [src/agent](src/agent) and [src/optimizer](src/optimizer). **We have imported all of these agents and optimizers in [tester.py](src/tester.py) for you to compare, and you are supposed to import your own agent and optimizer in it**.
 
 You can use the `--agent_for_cp xxx` option to select the agent(s) for comparison and `--l_optimizer_for_cp xxx` option to select the learnable optimizer(s) for comparison. Please note that the agent needs to support the corresponding learnable optimizer. Additionally, you can use `--t_optimizer_for_cp xxx` to select the traditional optimizer(s) for comparison.  **`--agent_load_dir` option specifies the directory that contains the `.pkl` model files of your own agent and all comparing agents, and make sure that the model files are named after the class name of corresponding agent**, for example, `DE_DDQN_Agent.pkl`. `--log_dir` option specifies the directory where log files will be saved. 
 
@@ -499,7 +499,7 @@ You can test your own agent *MyAgent* and optimizer *MyOptimizer* with DE_DDQN, 
 python main.py --test --agent_load_dir MyAgentLoadDir --agent MyAgent --optimizer MyOptimizer --agent_for_cp DE_DDQN_Agent LDE_Agent --l_optimizer_for_cp DE_DDQN_Optimizer LDE_Optimizer --t_optimizer_for_cp DEAP_DE JDE21 DEAP_CMAES Random_search --log_dir MyLogDir
 ```
 
-For the above command, `RELOPS` will first load the trained model from *MyAgentLoadDir*, then initialize the agents and optimizers of yours, DE_DDQN and LDE and the selected traditional optimizers, and use the generated test set to optimize all the selected problems for testing. 
+For the above command, `MetaBox` will first load the trained model from *MyAgentLoadDir*, then initialize the agents and optimizers of yours, DE_DDQN and LDE and the selected traditional optimizers, and use the generated test set to optimize all the selected problems for testing. 
 
 ### Test Results
 
@@ -540,7 +540,7 @@ After testing, 3 types of data files will be generated in `MyLogDir/test/runName
 ## Train_test_log
 ### How to train_test_log
 
-In `Relops`,you can select the train_test_log mode by using the `--train_test_log` option. We will help you automatically organize the four functions including `train`, `rollout`, `test`, and log, and help you automatically plan the file directory to save the model, load the model, and save the test results during the process of train, test and etc. Note that you need to initialize your defined agent and optimizer and select the learning-based and traditional optimizers you need to compare before starting the `train_test_log` mode.
+In `MetaBox`,you can select the train_test_log mode by using the `--train_test_log` option. We will help you automatically organize the four functions including `train`, `rollout`, `test`, and log, and help you automatically plan the file directory to save the model, load the model, and save the test results during the process of train, test and etc. Note that you need to initialize your defined agent and optimizer and select the learning-based and traditional optimizers you need to compare before starting the `train_test_log` mode.
 
 ```shell
 python main.py --train_test_log --problem bbob --difficulty easy --train_agent MyAgent --train_optimizer MyOptimizer --agent_for_cp LDE_Agent --l_optimizer_for_cp LDE_Optimizer --t_optimizer_for_cp DEAP_DE JDE21 DEAP_CMAES Random_search --log_dir YourLogDir
