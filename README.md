@@ -18,9 +18,9 @@ This is a **reinforcement learning benchmark platform** for benchmarking and Met
 * [Testing](#Testing)
   * [How to Test](#How-to-Test)
   * [Test Results](#Test-Results)
-* [Train_test_log](#Train_test_log)
-  * [How to Train_test_log](#How-to-Train_test_log)
-  * [Train_test_log  Results](#Train_test_log-Results)
+* [Run Experiment](#run-experiment)
+  * [How to Run Experiment](#How-to-run-experiment)
+  * [Run Experiment  Results](#run-experiment-Results)
 ## Overview
 
 ![overview](docs/overview.png)
@@ -57,9 +57,9 @@ This is a **reinforcement learning benchmark platform** for benchmarking and Met
 
 Currently, three benchmark suites are included:  
 
-* `bbob` containing 24 noiseless functions, comes from [COCO](https://github.com/numbbo/coco) with [original paper](https://www.tandfonline.com/eprint/DQPF7YXFJVMTQBH8NKR8/pdf?target=10.1080/10556788.2020.1808977).
-* `bbob-noisy` containing 30 noisy functions, comes from [COCO](https://github.com/numbbo/coco) with [original paper](https://www.tandfonline.com/eprint/DQPF7YXFJVMTQBH8NKR8/pdf?target=10.1080/10556788.2020.1808977).
-* `protein docking` containing 280 problem instances, which simulate the application of protein docking as a 12-dimensional optimization problem, comes from [LOIS](https://github.com/Shen-Lab/LOIS) with [original paper](http://papers.nips.cc/paper/9641-learning-to-optimize-in-swarms).
+* `Synthetic` containing 24 noiseless functions, borrowed from [coco](https://github.com/numbbo/coco):bbob with [original paper](https://www.tandfonline.com/eprint/DQPF7YXFJVMTQBH8NKR8/pdf?target=10.1080/10556788.2020.1808977).
+* `Noisy-Synthetic` containing 30 noisy functions, borrowed from [coco](https://github.com/numbbo/coco):bbob-noisy with [original paper](https://www.tandfonline.com/eprint/DQPF7YXFJVMTQBH8NKR8/pdf?target=10.1080/10556788.2020.1808977).
+* `Protein-Docking` containing 280 problem instances, which simulate the application of protein docking as a 12-dimensional optimization problem, borrowed from [LOIS](https://github.com/Shen-Lab/LOIS) with [original paper](http://papers.nips.cc/paper/9641-learning-to-optimize-in-swarms).
 
 By setting the argument `--problem` to `bbob`, `bbob-noisy` or `protein` in command line to use the corresponding suite, for example:
 
@@ -69,7 +69,7 @@ python main.py --train --problem protein --train_agent MyAgent --train_optimizer
 
 For the usage of  `--train`  `--train_agent`  `--train_optimizer`, see [Training](#Training) for more details.
 
-The data set is split into training set and test set in different proportions with respect to two difficulty levels:  
+Each test suites are regarded as a dataset, which is split into training set and test set in different proportions with respect to two difficulty levels:  
 
 * `easy` training set accounts for 75% and test set accounts for 25%.
 * `difficult` training set accounts for 25% and test set accounts for 75%.
@@ -124,21 +124,23 @@ Note that `Random Search` performs uniformly random sampling to optimize the fit
 
 0. Check out the [Requirements](#Requirements) above.
 
-1. if you want to run the examples instead of your own agent,you can try `MetaBox` through:
+1. if you want to run the examples instead of your own agent, you can try `MetaBox` through:
 
     The file architecture should be liked this:
 
     ```
     src
     │        
-    └─ Agent
+    │─ agent
+    │   │
+    │   ├─ de_ddqn_agent.py
+    │   ├─ ...
+    │   └─ rlepso_agent.py
+    └─ optimizer
         │
+        ├─ dq_ddqn_optimizer.py
         ├─ ...
-        └─ DE_DDQN_Agent
-    └─ Optimizer
-        │
-        ├─ ...
-        └─ DE_DDQN_Optimizer
+        └─ rlepso_optimizer.py
     ```
 
     Train DE_DDQN:
@@ -159,15 +161,15 @@ Note that `Random Search` performs uniformly random sampling to optimize the fit
     python main.py --test --agent_load_dir YourAgentSaveDir --agent DE_DDQN_Agent --optimizer DE_DDQN_Optimizer --agent_for_cp LDE_Agent --l_optimizer_for_cp LDE_Optimizer --t_optimizer_for_cp DEAP_DE JDE21 DEAP_CMAES Random_search --log_dir YourLogDir
     ```
 
-    What's more,we provide a mode called `train_test_log` which can automate the train, rollout, test and log functions that means  you don't need to control each training and testing step yourself, but have direct access to the final training model and testing results.
+    What's more, we provide a mode called `run_experiment` which can automate the train, rollout, test and log functions that means you don't need to control each training and testing step yourself, but have direct access to the final training model and testing results.
 
-    Train_test_log DE_DDQN:
+    `run_experiment` DE_DDQN:
 
     ```
-    python main.py --train_test_log --train_agent DE_DDQN_Agent --train_optimizer DE_DDQN_Optimizer --agent_for_cp LDE_Agent --l_optimizer_for_cp LDE_Optimizer --t_optimizer_for_cp DEAP_DE JDE21 DEAP_CMAES Random_search --log_dir YourLogDir
+    python main.py --run_experiment --train_agent DE_DDQN_Agent --train_optimizer DE_DDQN_Optimizer --agent_for_cp LDE_Agent --l_optimizer_for_cp LDE_Optimizer --t_optimizer_for_cp DEAP_DE JDE21 DEAP_CMAES Random_search --log_dir YourLogDir
     ```
 
-    Then you can get all results in directory `output/`
+    Then you can get all results in directory `src/output/`
 
     
 
@@ -367,17 +369,15 @@ Note that `Random Search` performs uniformly random sampling to optimize the fit
    ```
    src
    │        
-   └─ Agent
-       │
-       ├─ ...
-       └─ YourAgent
-   └─ Optimizer
+   └─ agent
+   │   │
+   │   ├─ ...
+   │   └─ my_agent.py
+   └─ optimizer
        ├─
        ├─ ...
-       └─ YourOptimizer
+       └─ my_optimizer.py
    ```
-
-   
 
 3. Train your agent.
 
@@ -413,15 +413,15 @@ Note that `Random Search` performs uniformly random sampling to optimize the fit
 
     See [Testing](#Testing) for more details.
 
-6. Train_test_log your  MetaBBO optimizer.
+6. run_experiment your  MetaBBO optimizer.
 
-    Assume that you've written an agent class named *MyAgent* and a backbone optimizer class named *MyOptimizer*, and now you can train your agent using:
+    Instead of using `--train`, `--rollout` and `--test` manually, `--run_experiment` mode which implements fully automated workflow can be used to trigger the entire processes of train, rollout then test:  
 
     ```shell
-    python main.py --train_test_log --problem bbob --difficulty easy --train_agent MyAgent --train_optimizer MyOptimizer --agent_for_cp LDE_Agent --l_optimizer_for_cp LDE_Optimizer --t_optimizer_for_cp DEAP_DE JDE21 DEAP_CMAES Random_search --log_dir YourLogDir
+    python main.py --run_experiment --problem bbob --difficulty easy --train_agent MyAgent --train_optimizer MyOptimizer --agent_for_cp LDE_Agent --l_optimizer_for_cp LDE_Optimizer --t_optimizer_for_cp DEAP_DE JDE21 DEAP_CMAES Random_search --log_dir YourLogDir
     ```
 
-    See [Train_test_log](#Train_test_log) for more details.
+    See [run_experiment](#run_experiment) for more details.
 
 ## Training
 
@@ -537,21 +537,21 @@ After testing, 3 types of data files will be generated in `MyLogDir/test/runName
   * `all_problem_cost_curve.png` draws each algorithm's average cost curve on all problems in test set.
   * `rank_hist.png` plots a histogram of each algorithm's score.
 
-## Train_test_log
-### How to train_test_log
+## Run Experiment
+### How to Run Experiment
 
-In `MetaBox`,you can select the train_test_log mode by using the `--train_test_log` option. We will help you automatically organize the four functions including `train`, `rollout`, `test`, and log, and help you automatically plan the file directory to save the model, load the model, and save the test results during the process of train, test and etc. Note that you need to initialize your defined agent and optimizer and select the learning-based and traditional optimizers you need to compare before starting the `train_test_log` mode.
+In `MetaBox`,you can select the run_experiment mode by using the `--run_experiment` option. We will help you automatically organize the four functions including `train`, `rollout`, `test`, and log, and help you automatically plan the file directory to save the model, load the model, and save the test results during the process of train, test and etc. Note that you need to initialize your defined agent and optimizer and select the learning-based and traditional optimizers you need to compare before starting the `run_experiment` mode.
 
 ```shell
-python main.py --train_test_log --problem bbob --difficulty easy --train_agent MyAgent --train_optimizer MyOptimizer --agent_for_cp LDE_Agent --l_optimizer_for_cp LDE_Optimizer --t_optimizer_for_cp DEAP_DE JDE21 DEAP_CMAES Random_search --log_dir YourLogDir
+python main.py --run_experiment --problem bbob --difficulty easy --train_agent MyAgent --train_optimizer MyOptimizer --agent_for_cp LDE_Agent --l_optimizer_for_cp LDE_Optimizer --t_optimizer_for_cp DEAP_DE JDE21 DEAP_CMAES Random_search --log_dir YourLogDir
 ```
 
-Notice that during `test` function in `train_test_log`, although we rollout the 21 models generated in the train and save the results, we will choose the last checkpoint i.e. checkpoint20.pkl for the comparison of the test.
+Notice that during `test` function in `run_experiment`, although we rollout the 21 models generated in the train and save the results, we will choose the last checkpoint i.e. checkpoint20.pkl for the comparison of the test.
 
 #todo explain the file dir during train test log
 
-### Train_test_log Results
+### Run Experiment Results
 
-After `Train_test_log`, we will save the generated results of train,rollout,test in `output`/ respectively.
+After `run_experiment`, we will save the generated results of train,rollout,test in `output`/ respectively.
 
 The specific content and location of the generated results can be found in the corresponding section.
