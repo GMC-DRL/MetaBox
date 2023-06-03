@@ -369,7 +369,7 @@ Note that `Random Search` performs uniformly random sampling to optimize the fit
    ```
    src
    │        
-   └─ agent
+   │─ agent
    │   │
    │   ├─ ...
    │   └─ my_agent.py
@@ -421,7 +421,7 @@ Note that `Random Search` performs uniformly random sampling to optimize the fit
     python main.py --run_experiment --problem bbob --difficulty easy --train_agent MyAgent --train_optimizer MyOptimizer --agent_for_cp LDE_Agent --l_optimizer_for_cp LDE_Optimizer --t_optimizer_for_cp DEAP_DE JDE21 DEAP_CMAES Random_search --log_dir YourLogDir
     ```
 
-    See [run_experiment](#run_experiment) for more details.
+    See [Run Experiment](#Run-Experiment) for more details.
 
 ## Training
 
