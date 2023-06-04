@@ -269,7 +269,7 @@ Note that `Random Search` performs uniformly random sampling to optimize the fit
              begin loop：
              """
                  """
-                     to get an action using state
+                 to get an action using state
                  """
                  next_state, reward, done = env.step(action) # feed the action to environment
                  R += reward  # accumulate reward
@@ -324,7 +324,7 @@ Note that `Random Search` performs uniformly random sampling to optimize the fit
              """
              self.fes = self.population_size  # record the number of function evaluations used
              self.cost = [self.best_cost]     # record the best cost of first generation
-             self.cur_logpoint = 1               # record the current logpoint
+             self.cur_logpoint = 1            # record the current logpoint
              """
              calculate the state
              """
@@ -359,9 +359,14 @@ Note that `Random Search` performs uniformly random sampling to optimize the fit
                  self.cur_logpoint += 1
                  self.cost.append(self.best_cost)
              """
-             get state, reward and check if it's done
+             get state, reward and check if it is done
              """
-             return state, reward, done
+             if is_done:
+                 if len(self.cost) >= self.config.n_logpoint + 1:
+                     self.cost[-1] = self.best_cost
+                 else:
+                     self.cost.append(self.best_cost)
+             return state, reward, is_done
      ```
 
    After that,you should put your own declare file in directory `agent` and `optimizer`. Then the file structure should be like:
