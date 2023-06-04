@@ -1,6 +1,6 @@
 # MetaBox: A Benchmark Platform for Meta-Black-Box Optimization with Reinforcement Learning
 
-This is a **reinforcement learning benchmark platform** for benchmarking and MetaBBO-RL methods. You can **train** your own MetaBBO-RL approach and **compare** it with several popular peers and classic optimizers.
+This is a **reinforcement learning benchmark platform** for benchmarking and MetaBBO-RL methods. You can develop your own MetaBBO-RL approach and complare it with baseline approaches build-in following the **Train-Test-Log** philosophy automated by MetaBox.
 
 ## Contents
 
@@ -36,7 +36,7 @@ This is a **reinforcement learning benchmark platform** for benchmarking and Met
 
 * `Tester` is used to **evaluate** the optimization performance of the MetaBBO-RL. By using the test set to test the baselines and the trained MetaBBO agent, it produces test log for logger to generate statistic test results.
 
-* `Logger` implements multiple functions for **displaying** the logs of the training process and the results of the testing process, which facilitates the improvement of the training process and the observation of MetaBBO-RL's performance.
+* `Logger` implements multiple interfaces for **displaying** the logs of the training process and the results of the testing process, which facilitates the improvement of the training process and the observation of MetaBBO-RL's performance.
 
 ## Requirements
 
