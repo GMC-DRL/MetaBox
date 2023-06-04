@@ -1,6 +1,6 @@
 # MetaBox: A Benchmark Platform for Meta-Black-Box Optimization with Reinforcement Learning
 
-This is a **reinforcement learning benchmark platform** for benchmarking and MetaBBO-RL methods. You can develop your own MetaBBO-RL approach and complare it with baseline approaches build-in following the **Train-Test-Log** philosophy automated by MetaBox.
+This is a **reinforcement learning benchmark platform** for benchmarking and MetaBBO-RL methods. You can develop your own MetaBBO-RL approach and complare it with baseline approaches built-in following the **Train-Test-Log** philosophy automated by MetaBox.
 
 ## Contents
 
@@ -124,7 +124,19 @@ Note that `Random Search` performs uniformly random sampling to optimize the fit
 
 0. Check out the [Requirements](#Requirements) above.
 
-1. if you want to run the build-in baseline MetaBBO-RL instead of your own agent, you can try `MetaBox` through:
+1. if you want to run the built-in baseline MetaBBO-RL instead of your own agent, you can try `MetaBox` through:
+
+    The built-in baseline MetaBBO-RL that we provide:
+
+    | Algorithm Name | Corresponding Agent Class | Corresponding Backbone Optimizer Class |
+    | :------------: | :-----------------------: | :------------------------------------: |
+    |    DE-DDQN     |       DE_DDQN_Agent       |           DE_DDQN_Optimizer            |
+    |     QLPSO      |        QLPSO_Agent        |            QLPSO_Optimizer             |
+    |     DEDQN      |        DEDQN_Agent        |            DEDQN_Optimizer             |
+    |      LDE       |         LDE_Agent         |             LDE_Optimizer              |
+    |     RL-PSO     |       RL_PSO_Agent        |            RL_PSO_Optimizer            |
+    |     RLEPSO     |       RLEPSO_Agent        |            RLEPSO_Optimizer            |
+    |    RL-HPSDE    |      RL_HPSDE_Agent       |           RL_HPSDE_Optimizer           |
 
     The file architecture should be liked this:
 
@@ -157,8 +169,27 @@ Note that `Random Search` performs uniformly random sampling to optimize the fit
 
     Test DE_DDQN:
 
+    When testing, you can specify traditional optimizers for comparing in option `--t_optimizer_for_cp`.
+
+    Traditional optimizers that we provide:
+
+    |    Algorithm Name     | Corresponding Optimizer Class |
+    | :-------------------: | :---------------------------: |
+    |          PSO          |           DEAP_PSO            |
+    |          DE           |            DEAP_DE            |
+    |        CMA-ES         |          DEAP_CMAES           |
+    | Bayesian Optimization |       BayesianOptimizer       |
+    |        GL-PSO         |            GL_PSO             |
+    |       sDMS_PSO        |           sDMS_PSO            |
+    |          j21          |             JDE21             |
+    |         MadDE         |             MadDE             |
+    |        SAHLPSO        |            SAHLPSO            |
+    |     NL_SHADE_LBC      |         NL_SHADE_LBC          |
+    |     Random Search     |         Random_search         |
+    
+    Run the following command to test DE-DDQN with DE, j21, CMA-ES and random search:
     ```
-    python main.py --test --agent_load_dir YourAgentSaveDir --agent DE_DDQN_Agent --optimizer DE_DDQN_Optimizer --agent_for_cp LDE_Agent --l_optimizer_for_cp LDE_Optimizer --t_optimizer_for_cp DEAP_DE JDE21 DEAP_CMAES Random_search --log_dir YourLogDir
+    python main.py --test --agent_load_dir YourAgentSaveDir --agent DE_DDQN_Agent --optimizer DE_DDQN_Optimizer --t_optimizer_for_cp DEAP_DE JDE21 DEAP_CMAES Random_search --log_dir YourLogDir
     ```
 
     What's more, we provide a mode called `run_experiment` which can automate the train, rollout, test and log functions that means you don't need to control each training and testing step yourself, but have direct access to the final training model and testing results.
@@ -166,7 +197,7 @@ Note that `Random Search` performs uniformly random sampling to optimize the fit
     `run_experiment` DE_DDQN:
 
     ```
-    python main.py --run_experiment --train_agent DE_DDQN_Agent --train_optimizer DE_DDQN_Optimizer --agent_for_cp LDE_Agent --l_optimizer_for_cp LDE_Optimizer --t_optimizer_for_cp DEAP_DE JDE21 DEAP_CMAES Random_search --log_dir YourLogDir
+    python main.py --run_experiment --train_agent DE_DDQN_Agent --train_optimizer DE_DDQN_Optimizer --t_optimizer_for_cp DEAP_DE JDE21 DEAP_CMAES Random_search --log_dir YourLogDir
     ```
 
     Then you can get all results in directory `src/output/`
@@ -174,9 +205,9 @@ Note that `Random Search` performs uniformly random sampling to optimize the fit
     
 
 2. If you want to develop your own MetaBBO-RL approach, to fit into `MetaBox` running logic, you should meet with the following protocol about the `Agent` and `Optimizer`. 
-  
+
    `Agent` is the same definition in RL area, taking the state from `env` as input and `action` as output. But to fit into MetaBox pre-defined `Trainer` and `Tester` calling logic, `Agent` should has `train_episode` interface which will be called in `Trainer` and `rollout_episode` interface which will be called in `Tester`. 
-  
+
    `Optimizer` is a component of `env` in MetaBBO task. It's controlled by `Agent` and take `action` from `Agent` to perfrom corresponding change like hyper-parameters adjusting or operators selection. But to fit into `env` calling logic. Interfaces namely `init_population` and `update` is needed.
 
    * Your agent should follow this template:
@@ -225,7 +256,11 @@ Note that `Random Search` performs uniformly random sampling to optimize the fit
              Return
              ----------
              A boolean that is true when fes reaches max_learning_step otherwise false
-             A dict that record normalizer,gbest,return and learning step.Notice that the key in dict must be the same as template.
+             A dict: {'normalizer': float,
+                      'gbest': float,
+                      'return': float,
+                      'learn_steps': int
+                      }
              """
              state = env.reset()
              R = 0  # total reward
@@ -265,7 +300,10 @@ Note that `Random Search` performs uniformly random sampling to optimize the fit
      
              Return
              ----------
-             A dict that record cost, fes and total reward.Notice that the key in dict must be the same as template.
+             A dict: {'cost': list, 
+                      'fes': int, 
+                      'return': float
+                      }
              """
              state = env.reset()
              R = 0  # total reward
@@ -372,7 +410,7 @@ Note that `Random Search` performs uniformly random sampling to optimize the fit
              return state, reward, is_done
      ```
 
-   After that,you should put your own declare file in directory `agent` and `optimizer`. Then the file structure should be like:
+   After that, you should put your own declare file in directory `agent` and `optimizer`. Then the file structure should be like:
 
    ```
    src
@@ -386,12 +424,12 @@ Note that `Random Search` performs uniformly random sampling to optimize the fit
        ├─ ...
        └─ my_optimizer.py
    ```
-   
+
    In addition, you should register you own agent in file `src/agent/__init__.py`. For example, to register the previous My_agent, you should add one line into the `src/agent/__init__.py` file as below.
    ```python
    from .my_agent import *
    ```
-   
+
    Meanwhile, you should also import your own agent and optimizer into `src/trainer.py` and `src/tester.py`. Take trainer as an example, you should add two lines into file `src/trainer.py` as follow.
    ```python
    ...
@@ -403,7 +441,7 @@ Note that `Random Search` performs uniformly random sampling to optimize the fit
    # import your optimizer
    from optimizer import{
         ...
-        Myoptimizer
+        MyOptimizer
    }
    ```
    The same action should be done also in `src/tester.py`.
