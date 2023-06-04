@@ -124,7 +124,7 @@ Note that `Random Search` performs uniformly random sampling to optimize the fit
 
 0. Check out the [Requirements](#Requirements) above.
 
-1. if you want to run the examples instead of your own agent, you can try `MetaBox` through:
+1. if you want to run the build-in baseline MetaBBO-RL instead of your own agent, you can try `MetaBox` through:
 
     The file architecture should be liked this:
 
@@ -190,11 +190,11 @@ Note that `Random Search` performs uniformly random sampling to optimize the fit
              """
              Parameter
              ----------
-             config: An argparse.Namespace object for passing some core configurations such as max_learning_step.
+             config: An argparse. Namespace object for passing some core configurations such as max_learning_step.
      
              Must To Do
              ----------
-             1. Save the model of initialized agent.
+             1. Save the model of initialized agent, which will be used in "rollout" to study the training process.
              2. Initialize a counter to record the number of accumulated learned steps
              3. Initialize a counter to record the current checkpoint of saving agent
              """
@@ -238,13 +238,13 @@ Note that `Random Search` performs uniformly random sampling to optimize the fit
                  next_state, reward, done = env.step(action) # feed the action to environment
                  R += reward  # accumulate reward
                  """
-                 improve your agent using MDP trajectory as you want
+                 perform update strategy of agent, which is defined by you. Every time update your agent, please increase self.learned_step accordingly
                  """
      
                  # save agent model if checkpoint arrives
                  if self.learned_steps >= (self.config.save_interval * self.cur_checkpoint):
                      save_class(self.config.agent_save_dir, 'checkpoint'+str(self.cur_checkpoint), self)
-                     self.learned_steps += 1
+                     self.cur_checkpoint += 1
      
                  state = next_state
      
@@ -309,8 +309,7 @@ Note that `Random Search` performs uniformly random sampling to optimize the fit
      
              Parameter
              ----------
-             problem: a problem instance given by Trainer.
-             Notice: When Trainer select a problem instance, it will initialize an Env(include a problem and an optimizer),then Trainer will run agent's train_episode to solve the problem.So one Env object has its unique problem instance.
+             problem: a problem instance, you can call `problem.eval` to evaluate one solution.
      
              Must To Do
              ----------
@@ -320,7 +319,7 @@ Note that `Random Search` performs uniformly random sampling to optimize the fit
      
              Return
              ----------
-             state: represents the observation of current population.
+             state: state features defined by developer.
              """
      
              """
@@ -341,7 +340,7 @@ Note that `Random Search` performs uniformly random sampling to optimize the fit
              Parameter
              ----------
              action: the action inferenced by agent.
-             problem: a problem instance given by Trainer.
+             problem: a problem instance.
      
              Must To Do
              ----------
@@ -387,6 +386,27 @@ Note that `Random Search` performs uniformly random sampling to optimize the fit
        ├─ ...
        └─ my_optimizer.py
    ```
+   
+   In addition, you should register you own agent in file `src/agent/__init__.py`. For example, to register the previous My_agent, you should add one line into the `src/agent/__init__.py` file as below.
+   ```python
+   from .my_agent import *
+   ```
+   
+   Meanwhile, you should also import your own agent and optimizer into `src/trainer.py` and `src/tester.py`. Take trainer as an example, you should add two lines into file `src/trainer.py` as follow.
+   ```python
+   ...
+   # import your agent
+   from agent import{
+        ...
+        MyAgent
+   }
+   # import your optimizer
+   from optimizer import{
+        ...
+        Myoptimizer
+   }
+   ```
+   The same action should be done also in `src/tester.py`.
 
 3. Train your agent.
 
