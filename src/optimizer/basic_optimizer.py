@@ -7,7 +7,7 @@ Your own traditional should have the following functions:
 from problem.basic_problem import Basic_Problem
 
 
-class basic_optimizer:
+class Basic_Optimizer:
     def __init__(self, config):
         self.__config = config
 

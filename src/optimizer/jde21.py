@@ -1,9 +1,9 @@
 import numpy as np
 import copy
-from optimizer.basic_optimizer import basic_optimizer
+from optimizer.basic_optimizer import Basic_Optimizer
 
 
-class JDE21(basic_optimizer):
+class JDE21(Basic_Optimizer):
     def __init__(self, config):
         super(JDE21, self).__init__(config)
         self.__dim = config.dim      # problem dimension

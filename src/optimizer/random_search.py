@@ -1,8 +1,8 @@
 import numpy as np
 
-from .basic_optimizer import basic_optimizer
+from .basic_optimizer import Basic_Optimizer
 
-class Random_search(basic_optimizer):
+class Random_search(Basic_Optimizer):
     def __init__(self, config):
         super().__init__(config)
         self.__fes=0

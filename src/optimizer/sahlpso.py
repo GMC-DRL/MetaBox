@@ -1,9 +1,9 @@
-from optimizer.basic_optimizer import basic_optimizer
+from optimizer.basic_optimizer import Basic_Optimizer
 from optimizer.operators import clipping
 import numpy as np
 
 
-class SAHLPSO(basic_optimizer):
+class SAHLPSO(Basic_Optimizer):
     def __init__(self, config):
         super().__init__(config)
         self.config = config

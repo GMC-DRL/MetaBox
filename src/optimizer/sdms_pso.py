@@ -1,10 +1,10 @@
 import torch
 import numpy as np
 from scipy.optimize import minimize
-from optimizer.basic_optimizer import basic_optimizer
+from optimizer.basic_optimizer import Basic_Optimizer
 
 
-class sDMS_PSO(basic_optimizer):
+class sDMS_PSO(Basic_Optimizer):
     def __init__(self,config):
         super().__init__(config)
         self.__w,self.__c1,self.__c2=0.729,1.49445,1.49445

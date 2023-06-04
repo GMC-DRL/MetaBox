@@ -1,9 +1,9 @@
 import numpy as np
 import scipy.stats as stats
-from optimizer.basic_optimizer import basic_optimizer
+from optimizer.basic_optimizer import Basic_Optimizer
 
 
-class MadDE(basic_optimizer):
+class MadDE(Basic_Optimizer):
     def __init__(self, config):
         super(MadDE, self).__init__(config)
         self.__dim = config.dim

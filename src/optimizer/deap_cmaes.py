@@ -4,10 +4,10 @@ from deap import creator
 from deap import tools
 from deap import algorithms
 from deap import cma
-from optimizer.basic_optimizer import basic_optimizer
+from optimizer.basic_optimizer import Basic_Optimizer
 
 
-class DEAP_CMAES(basic_optimizer):
+class DEAP_CMAES(Basic_Optimizer):
     def __init__(self, config):
         super().__init__(config)
         config.NP = 50

@@ -1,8 +1,8 @@
 import numpy as np
-from optimizer.basic_optimizer import basic_optimizer
+from optimizer.basic_optimizer import Basic_Optimizer
 
 
-class GL_PSO(basic_optimizer):
+class GL_PSO(Basic_Optimizer):
     def __init__(self, config):
         super().__init__(config)
         self.__pm=0.01

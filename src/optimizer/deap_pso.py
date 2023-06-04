@@ -2,10 +2,10 @@ import numpy as np
 from deap import base
 from deap import creator
 from deap import tools
-from optimizer.basic_optimizer import basic_optimizer
+from optimizer.basic_optimizer import Basic_Optimizer
 
 
-class DEAP_PSO(basic_optimizer):
+class DEAP_PSO(Basic_Optimizer):
     def __init__(self, config):
         super().__init__(config)
         config.phi1 = 2.
