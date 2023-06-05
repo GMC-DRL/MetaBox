@@ -137,7 +137,9 @@ Note that `Random Search` performs uniformly random sampling to optimize the fit
     |     RL-PSO     |       RL_PSO_Agent        |            RL_PSO_Optimizer            |
     |     RLEPSO     |       RLEPSO_Agent        |            RLEPSO_Optimizer            |
     |    RL-HPSDE    |      RL_HPSDE_Agent       |           RL_HPSDE_Optimizer           |
-
+     
+    `Corresponding Agent Class` name in the table above is the signature used to identify them in the shell command, `Corresponding Backbone Optimizer Class` name is to identify the corresponding optimizer.
+    
     The file architecture should be liked this:
 
     ```
@@ -186,6 +188,8 @@ Note that `Random Search` performs uniformly random sampling to optimize the fit
     |        SAHLPSO        |            SAHLPSO            |
     |     NL_SHADE_LBC      |         NL_SHADE_LBC          |
     |     Random Search     |         Random_search         |
+    
+    As mentioned above, `Corresponding Optimizer Class` name is to identify the optimizer in shell command.
     
     Run the following command to test DE-DDQN with DE, j21, CMA-ES and random search:
     ```
