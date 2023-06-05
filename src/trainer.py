@@ -17,7 +17,8 @@ from agent import (
     LDE_Agent,
     QLPSO_Agent,
     RLEPSO_Agent,
-    RL_PSO_Agent
+    RL_PSO_Agent,
+    L2L_Agent
 )
 from optimizer import (
     DE_DDQN_Optimizer,
@@ -27,6 +28,7 @@ from optimizer import (
     QLPSO_Optimizer,
     RLEPSO_Optimizer,
     RL_PSO_Optimizer,
+    L2L_Optimizer,
 
     DEAP_DE,
     JDE21,
@@ -172,3 +174,55 @@ class Trainer(object):
         self.draw_cost()
         self.draw_average_cost()
         self.draw_return()
+
+
+class Trainer_l2l(object):
+    def __init__(self, config):
+        self.config = config
+
+        # two way 
+        self.agent = eval(config.train_agent)(config)
+        self.optimizer = eval(config.train_optimizer)(config)
+        # need to be torch version
+        self.train_set, self.test_set = construct_problem_set(config)
+
+
+    def train(self):
+        print(f'start training: {self.config.run_time}')
+        agent_save_dir = self.config.agent_save_dir + self.agent.__class__.__name__ + '/' + self.config.run_time + '/'
+        exceed_max_ls = False
+        epoch = 0
+        cost_record = {}
+        normalizer_record = {}
+        return_record = []
+        learn_steps = []
+        epoch_steps = []
+        for problem in self.train_set:
+            cost_record[problem.__str__()] = []
+            normalizer_record[problem.__str__()] = []
+        while not exceed_max_ls:
+            learn_step = 0
+            self.train_set.shuffle()
+            with tqdm(range(self.train_set.N), desc=f'Training {self.agent.__class__.__name__} Epoch {epoch}') as pbar:
+                for problem_id, problem in enumerate(self.train_set):
+                    
+                    env=PBO_Env(problem,self.optimizer)
+                    exceed_max_ls= self.agent.train_episode(env, epoch, None)  # pbar_info -> dict
+                    
+                    pbar.update(1)
+                    name = problem.__str__()
+                    
+                    learn_steps.append(learn_step)
+                    if exceed_max_ls:
+                        break
+            epoch_steps.append(learn_step)
+            if not os.path.exists(agent_save_dir):
+                os.makedirs(agent_save_dir)
+            if epoch%100 == 0:
+                with open(agent_save_dir+'agent_epoch'+str(epoch)+'.pkl', 'wb') as f:
+                    pickle.dump(self.agent, f, -1)
+                    
+            epoch += 1
+            
+        with open(agent_save_dir+'agent_epoch'+str(epoch)+'.pkl', 'wb') as f:
+            pickle.dump(self.agent, f, -1)

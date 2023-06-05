@@ -15,7 +15,8 @@ from agent import (
     LDE_Agent,
     QLPSO_Agent,
     RLEPSO_Agent,
-    RL_PSO_Agent
+    RL_PSO_Agent,
+    L2L_Agent
 )
 from optimizer import (
     DE_DDQN_Optimizer,
@@ -25,6 +26,7 @@ from optimizer import (
     QLPSO_Optimizer,
     RLEPSO_Optimizer,
     RL_PSO_Optimizer,
+    L2L_Optimizer,
 
     DEAP_DE,
     JDE21,
@@ -92,6 +94,12 @@ class Tester(object):
             os.makedirs(self.log_dir)
         self.config = config
         _, self.test_set = construct_problem_set(self.config)
+        if 'L2L_Agent' in config.agent_for_cp or 'L2L_Agent' == config.agent:
+            pre_problem=config.problem
+            config.problem=pre_problem+'-torch'
+            _,self.torch_test_set = construct_problem_set(config)
+            config.problem=pre_problem
+        
         self.seed = range(51)
         # initialize the dataframe for logging
         self.test_results = {'cost': {},
@@ -163,14 +171,19 @@ class Tester(object):
         pbar_len = (len(self.t_optimizer_for_cp) + len(self.agent_for_cp)) * self.test_set.N * 51
         with tqdm(range(pbar_len), desc='Testing') as pbar:
             for i,problem in enumerate(self.test_set):
+
                 # run learnable optimizer
                 for agent,optimizer in zip(self.agent_for_cp,self.l_optimizer_for_cp):
+                    
                     T2 = 0
                     for run in range(51):
                         start = time.perf_counter()
                         np.random.seed(self.seed[run])
                         # construct an ENV for (problem,optimizer)
-                        env = PBO_Env(problem,optimizer)
+                        if type(agent).__name__ == 'L2L_Agent':
+                            env = PBO_Env(self.torch_test_set[i],optimizer)
+                        else:
+                            env = PBO_Env(problem,optimizer)
                         info = agent.rollout_episode(env)
                         cost = info['cost']
                         while len(cost) < 51:
@@ -223,6 +236,12 @@ def rollout(config):
     print(f'start rollout: {config.run_time}')
 
     train_set,_=construct_problem_set(config)
+    if 'L2L_Agent' in config.agent_for_rollout:
+        pre_problem=config.problem
+        config.problem=pre_problem+'-torch'
+        torch_train_set,_ = construct_problem_set(config)
+        config.problem=pre_problem
+
     agent_load_dir=config.agent_load_dir
     n_checkpoint=config.n_checkpoint
 
@@ -264,10 +283,14 @@ def rollout(config):
             for checkpoint in range(0,n_checkpoint+1):
                 agent=load_agents[agent_name][checkpoint]
                 # return_sum=0
-                for problem in train_set:
+                for i,problem in enumerate(train_set):
                     for run in range(5):
                         np.random.seed(run)
-                        env = PBO_Env(problem,optimizer)
+                        if type(agent).__name__ == 'L2L_Agent':
+                            env = PBO_Env(torch_train_set[i],optimizer)
+                        else:
+                            env = PBO_Env(problem,optimizer)
+
                         info = agent.rollout_episode(env)
                         cost=info['cost']
                         while len(cost)<51:
