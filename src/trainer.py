@@ -207,7 +207,7 @@ class Trainer_l2l(object):
                 for problem_id, problem in enumerate(self.train_set):
                     
                     env=PBO_Env(problem,self.optimizer)
-                    exceed_max_ls= self.agent.train_episode(env, epoch, None)  # pbar_info -> dict
+                    exceed_max_ls= self.agent.train_episode(env)  # pbar_info -> dict
                     
                     pbar.update(1)
                     name = problem.__str__()
@@ -216,13 +216,8 @@ class Trainer_l2l(object):
                     if exceed_max_ls:
                         break
             epoch_steps.append(learn_step)
-            if not os.path.exists(agent_save_dir):
-                os.makedirs(agent_save_dir)
-            if epoch%100 == 0:
-                with open(agent_save_dir+'agent_epoch'+str(epoch)+'.pkl', 'wb') as f:
-                    pickle.dump(self.agent, f, -1)
+            
                     
             epoch += 1
             
-        with open(agent_save_dir+'agent_epoch'+str(epoch)+'.pkl', 'wb') as f:
-            pickle.dump(self.agent, f, -1)
+        

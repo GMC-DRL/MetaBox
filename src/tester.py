@@ -93,6 +93,10 @@ class Tester(object):
         if not os.path.exists(self.log_dir):
             os.makedirs(self.log_dir)
         self.config = config
+
+        if self.config.problem[-6:]=='-torch':
+            self.config.problem=self.config.problem[:-6]
+            
         _, self.test_set = construct_problem_set(self.config)
         if 'L2L_Agent' in config.agent_for_cp or 'L2L_Agent' == config.agent:
             pre_problem=config.problem
@@ -234,6 +238,9 @@ class Tester(object):
 
 def rollout(config):
     print(f'start rollout: {config.run_time}')
+
+    if config.problem[-6:]=='-torch':
+        config.problem=config.problem[:-6]
 
     train_set,_=construct_problem_set(config)
     if 'L2L_Agent' in config.agent_for_rollout:
