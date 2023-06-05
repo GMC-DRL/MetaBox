@@ -23,21 +23,21 @@ class DE_DDQN_Optimizer(Learnable_Optimizer):
         self.__dim = config.dim
         self.__dim_max = config.dim
         # records
-        self.__gen = None  # 记录当前第几代
-        self.__pointer = None    # 记录当前代中将要更新的个体index
+        self.__gen = None  # record current generation
+        self.__pointer = None    # the index of the individual to be updated
         self.__stagcount = None  # stagnation counter
-        self.__X = None  # 种群
-        self.__cost = None  # 当前种群各个个体的适应度
-        self.__X_gbest = None  # 全局最优个体
-        self.__c_gbest = None  # 全局最优cost
-        self.__c_gworst = None  # 全局最差cost
-        self.__X_prebest = None  # 父代中的最优个体
-        self.__c_prebest = None  # 父代中的最优cost
-        self.__OM = None  # 记录四种变异策略的近gen_max代的OM1~OM4的数据
-        self.__N_succ = None  # 记录四种变异策略的近gen_max代的OM1~OM4的有效步数(OMx>0即有效)
-        self.__N_tot = None  # 记录四种变异策略的近gen_max代的应用次数
-        self.__OM_W = None  # 记录各变异策略共W个的最优个体，元素为六元组[strategy, OM1, OM2, OM3, OM4, cost]
-        self.__r = None     # random indexes used for generating states and mutation
+        self.__X = None  # population
+        self.__cost = None
+        self.__X_gbest = None
+        self.__c_gbest = None
+        self.__c_gworst = None
+        self.__X_prebest = None
+        self.__c_prebest = None
+        self.__OM = None
+        self.__N_succ = None
+        self.__N_tot = None
+        self.__OM_W = None
+        self.__r = None   # random indexes used for generating states and mutation
         self.fes = None
         self.cost = None
         self.log_index = None
@@ -60,10 +60,10 @@ class DE_DDQN_Optimizer(Learnable_Optimizer):
         self.__c_gworst = np.max(self.__cost)
         self.__X_prebest = self.__X[np.argmin(self.__cost)]
         self.__c_prebest = np.min(self.__cost)
-        self.__OM = [[], [], [], []]  # 记录四种变异策略的近gen_max代的OM1~OM4的数据
-        self.__N_succ = [[], [], [], []]  # 记录四种变异策略的近gen_max代的OM1~OM4的有效步数(OMx>0即有效)
-        self.__N_tot = []  # 记录四种变异策略的近gen_max代的应用次数
-        self.__OM_W = []  # 记录各变异策略共W个的最优个体，元素为六元组[strategy, OM1, OM2, OM3, OM4, cost]
+        self.__OM = [[], [], [], []]
+        self.__N_succ = [[], [], [], []]
+        self.__N_tot = []
+        self.__OM_W = []
         for op in range(4):
             self.__N_tot.append(deque(maxlen=self.__gen_max))
             for m in range(4):
@@ -91,8 +91,8 @@ class DE_DDQN_Optimizer(Learnable_Optimizer):
         features[17] = (self.__cost[self.__pointer] - self.__c_prebest) / (self.__c_gworst - self.__c_gbest)
         features[18] = np.linalg.norm(self.__X[self.__pointer] - self.__X_gbest, 2) / max_dist
         i = 19
-        for op in range(4):  # 对应四种变异操作op
-            for m in range(4):  # m = 1,2,3,4对应四种OM m
+        for op in range(4):
+            for m in range(4):
                 for g in range(min(self.__gen_max, self.__gen)):
                     if self.__N_tot[op][g] > 0:
                         features[i] += self.__N_succ[op][m][g] / self.__N_tot[op][g]  # features[19] ~ features[34]
@@ -129,13 +129,12 @@ class DE_DDQN_Optimizer(Learnable_Optimizer):
         return features
 
     def update(self, action, problem):
-        if self.__pointer == 0:  # 进入新的一代
-            # 更新cbest
+        if self.__pointer == 0:
+            # update prebest
             self.__X_prebest = self.__X_gbest
             self.__c_prebest = self.__c_prebest
-            # 更新代数
+            # update gen
             self.__gen = self.__gen + 1
-            # 为OM、N_succ、N_tot插入新的一代
             for op in range(4):
                 self.__N_tot[op].appendleft(0)
                 for m in range(4):
@@ -164,7 +163,7 @@ class DE_DDQN_Optimizer(Learnable_Optimizer):
         self.fes += 1
         # compute reward
         reward = max(self.__cost[self.__pointer] - trial_cost, 0)
-        # 更新OM, N_succ, N_tot, OM_W等记录
+        # update records OM, N_succ, N_tot, OM_W
         self.__N_tot[action][0] += 1
         om = np.zeros(4)
         om[0] = self.__cost[self.__pointer] - trial_cost
@@ -175,38 +174,37 @@ class DE_DDQN_Optimizer(Learnable_Optimizer):
             if om[m] > 0:
                 self.__N_succ[action][m][0] += 1
                 self.__OM[action][m][0].append(om[m])
-        # 更新OM_W
-        if len(self.__OM_W) >= self.__W:  # OM_W已满，需要先淘汰一个
-            found = False  # 标识OM_W中是否有找到该strategy的六元组
+        # update OM_W
+        if len(self.__OM_W) >= self.__W:
+            found = False
             for i in range(len(self.__OM_W)):
                 if self.__OM_W[i][0] == action:
-                    found = True  # 找到了该strategy的六元组（最先进去的一个，FIFO）
-                    del self.__OM_W[i]  # 删除之
+                    found = True
+                    del self.__OM_W[i]
                     break
-            if not found:  # OM_W中没有该strategy的六元组
-                del self.__OM_W[np.argmax(np.array(self.__OM_W)[:, 5])]  # 淘汰适应值最大的六元组
-        self.__OM_W.append([action, om[0], om[1], om[2], om[3], trial_cost])  # 尾插新的六元组
-        # 更新stagcount
+            if not found:
+                del self.__OM_W[np.argmax(np.array(self.__OM_W)[:, 5])]
+        self.__OM_W.append([action, om[0], om[1], om[2], om[3], trial_cost])
+        # update stagcount
         if trial_cost >= self.__c_gbest:
             self.__stagcount += 1
         # selection
         if trial_cost <= self.__cost[self.__pointer]:  # better than its parent
             self.__cost[self.__pointer] = trial_cost
             self.__X[self.__pointer] = trial
-            # 更新gbest、cbest记录
+            # update gbest, cbest
             if trial_cost <= self.__c_gbest:  # better than the global best
                 self.__c_gbest = trial_cost
                 self.__X_gbest = trial
-        # 更新gworst记录
+        # update gworst
         if trial_cost > self.__c_gworst:
             self.__c_gworst = trial_cost
-        # 更新指针
         self.__pointer = (self.__pointer + 1) % self.__NP
 
         if self.fes >= self.log_index * self.log_interval:
             self.log_index += 1
             self.cost.append(self.__c_gbest)
-        # 检查是否已done
+
         if problem.optimum is None:
             is_done = (self.fes >= self.__maxFEs)
         else:

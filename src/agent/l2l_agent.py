@@ -1,15 +1,14 @@
-
-
 import torch
-from agent.basic_agent import Basic_Agent
 from torch import nn
-
+from agent.basic_agent import Basic_Agent
 from agent.utils import *
+
 
 def scale(x,lb,ub):
     x=torch.sigmoid(x)
     x=lb+(ub-lb)*x
     return x
+
 
 class L2L_Agent(Basic_Agent):
     def __init__(self, config):
@@ -25,27 +24,25 @@ class L2L_Agent(Basic_Agent):
 
         save_class(self.__config.agent_save_dir,'checkpoint0',self)
         self.__cur_checkpoint=1
-        
 
-    # train 返回什么？
     def train_episode(self, env):
         T=100
         train_interval=10
         t=0
         dim=self.__config.dim
 
-        # 初始input全0  dim + 1 + 1
+        # init input to zeros
         input=torch.zeros((self.__config.dim+2),dtype=torch.float64)
         input=input[None,None,:]
         y_sum=0
-        # 初始h，c全零
+        # init h & c to zeros
         h=torch.zeros((self.proj_size),dtype=torch.float64)[None,None,:]
         c=torch.zeros((self.hidden_size),dtype=torch.float64)[None,None,:]
         exceed_max_ls=False
         
         while t < T:
             out,(h,c)=self.net(input,(h,c))
-            # 得到new x
+            # get new x
             x=out[0,0]
             # print(x)
             y,_,_=env.step(x)
@@ -77,7 +74,6 @@ class L2L_Agent(Basic_Agent):
                 #     print('-->name:', name)
                 #     print('-->grad_value:',parms.grad)
                 self.optimizer.step()
-                # detach让前面更新过的不再参与更新
                 y_sum=y_sum.detach()
                 h=h.detach()
                 c=c.detach()
@@ -95,14 +91,12 @@ class L2L_Agent(Basic_Agent):
         #                        'gbest': env.optimizer.cost[-1],
         #                        'return': R,
         #                        'learn_steps': self.__learning_time}
-    
-    
+
     def rollout_episode(self,env) :
         torch.set_grad_enabled(False)
         T=100
         
         dim=self.__config.dim
-        
         
         fes=0
         
@@ -136,7 +130,6 @@ class L2L_Agent(Basic_Agent):
             if is_done:
                 break
             t+=1
-        # todo 
         cost=cost[::2]
         
         torch.set_grad_enabled(True)

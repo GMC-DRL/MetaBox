@@ -472,7 +472,7 @@ class _Ellipsoidal(BBOB_Basic_Problem_torch):
         self.FES += x.shape[0]
         nx = self.dim
         z = sr_func(x, self.shift, self.rotate)
-        z = osc_transform(z)  # 跟Ellipsoidal的唯一区别
+        z = osc_transform(z)
         i = torch.arange(nx, dtype=torch.float64)
         return torch.sum((self.condition ** (i / (nx - 1))) * (z ** 2), -1, dtype=torch.float64) + self.bias + self.boundaryHandling(x)
 
@@ -522,7 +522,7 @@ class F11(BBOB_Basic_Problem_torch):
     def func(self, x):
         self.FES += x.shape[0]
         z = sr_func(x, self.shift, self.rotate)
-        z = osc_transform(z)  # 跟class Discus的唯一区别
+        z = osc_transform(z)
         return 1e6 * (z[:, 0] ** 2) + torch.sum(z[:, 1:] ** 2, -1) + self.bias
 
 

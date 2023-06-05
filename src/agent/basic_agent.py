@@ -20,7 +20,6 @@ Your own agent should have the following methods:
 """
 
 from environment import PBO_Env
-from logger import Logger
 from typing import Tuple
 
 

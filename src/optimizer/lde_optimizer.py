@@ -44,8 +44,8 @@ class LDE_Optimizer(Learnable_Optimizer):
         # Crossover
         r = np.random.uniform(size=(batch_size, pop_size, problem_size))
         r[np.arange(batch_size)[:, None].repeat(pop_size, axis=1),
-        np.arange(pop_size)[None, :].repeat(batch_size, axis=0),
-        np.random.randint(low=0, high=problem_size, size=[batch_size, self.__config.NP])] = 0.  # 对每个个体的dim个随机数，随机地取其中一个置0
+          np.arange(pop_size)[None, :].repeat(batch_size, axis=0),
+          np.random.randint(low=0, high=problem_size, size=[batch_size, self.__config.NP])] = 0.
         cross_pop = np.where(r <= cr_vector[:, :, None].repeat(problem_size, axis=-1), m_pop, pop)
 
         # Boundary Control
@@ -113,13 +113,13 @@ class LDE_Optimizer(Learnable_Optimizer):
         pop_index = torch.arange(self.__config.NP)
         for col in range(0, 2):
             while True:
-                is_repeated = [torch.eq(r[:, :, col], r[:, :, i]) for i in range(col)]  # 检查当前列与其前面所有列有无重复
-                is_repeated.append(torch.eq(r[:, :, col], pop_index))  # 检查当前列是否与该个体编号重复
-                repeated_index = torch.nonzero(torch.any(torch.stack(is_repeated), dim=0))  # 获取重复随机数的下标[batch_index, population_index]
-                repeated_sum = repeated_index.size(0)  # 重复随机数的个数
+                is_repeated = [torch.eq(r[:, :, col], r[:, :, i]) for i in range(col)]
+                is_repeated.append(torch.eq(r[:, :, col], pop_index))
+                repeated_index = torch.nonzero(torch.any(torch.stack(is_repeated), dim=0))
+                repeated_sum = repeated_index.size(0)
                 if repeated_sum != 0:
                     r[repeated_index[:, 0], repeated_index[:, 1], col] = torch.randint(high=self.__config.NP,
-                                                                                    size=[repeated_sum])  # 重新生成并替换
+                                                                                    size=[repeated_sum])
                 else:
                     break
         r = r.numpy()
@@ -144,7 +144,7 @@ class LDE_Optimizer(Learnable_Optimizer):
         return self.gbest_cost
 
     def __get_feature(self):
-        self.__pop, self.__fit = self.__order_by_f(self.__pop, self.__fit)  # fitness降序排序
+        self.__pop, self.__fit = self.__order_by_f(self.__pop, self.__fit)
         fitness = self.__maxmin_norm(self.__fit)
         hist_fit = []
         for b in range(self.__BATCH_SIZE):
@@ -158,7 +158,7 @@ class LDE_Optimizer(Learnable_Optimizer):
         return input_net
 
     def update(self, action, problem):
-        self.__pop, self.__fit = self.__order_by_f(self.__pop, self.__fit)  # fitness降序排序
+        self.__pop, self.__fit = self.__order_by_f(self.__pop, self.__fit)
         fitness = self.__maxmin_norm(self.__fit)
 
         # sf_cr = np.squeeze(action.cpu().numpy(), axis=0)  # [bs, NP*2]

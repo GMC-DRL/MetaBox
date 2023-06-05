@@ -36,15 +36,12 @@ class RL_PSO_Optimizer(Learnable_Optimizer):
         rand_vel = np.random.uniform(low=-self.__max_velocity, high=self.__max_velocity, size=(self.__NP, self.__dim))
         # rand_vel = torch.zeros(size=(self.__batch_size, self.__NP, self.__dim),dtype=torch.float32).to(self.__cuda)
 
-        # todo
         c_cost = self.__get_costs(problem,rand_pos) # ps
-        # print('finish get_cost')
-        
+
         gbest_val = np.min(c_cost)
         gbest_index = np.argmin(c_cost)
         gbest_position = rand_pos[gbest_index]
         self.__max_cost = np.max(c_cost)
-        # print("rand_pos.shape:{}".format(rand_pos.shape))
 
         self.__particles={'current_position': rand_pos.copy(),  # ?ps, dim
                           'c_cost': c_cost.copy(),  # ?ps

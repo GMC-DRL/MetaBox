@@ -44,13 +44,11 @@ class RLEPSO_Optimizer(Learnable_Optimizer):
         self.fes = 0
 
         c_cost = self.__get_costs(problem, rand_pos)  # ps
-        # print('finish get_cost')
-        
+
         gbest_val = np.min(c_cost)
         gbest_index = np.argmin(c_cost)
         gbest_position = rand_pos[gbest_index]
         self.__max_cost = np.max(c_cost)
-        # print("rand_pos.shape:{}".format(rand_pos.shape))
 
         self.__particles = {'current_position': rand_pos.copy(),  #  ps, dim
                             'c_cost': c_cost.copy(),  #  ps
@@ -79,7 +77,6 @@ class RLEPSO_Optimizer(Learnable_Optimizer):
     def __get_v_clpso(self):
         rand = np.random.rand(self.__NP, self.__dim)
         filter = rand > self.__pci[:, None]
-        # �����е����⣬��ʱû�뵽�������
         # tournament selection 2
         # rand_index1=np.random.randint(low=0,high=self.__NP,size=(self.__NP,))
         # rand_index2=np.random.randint(low=0,high=self.__NP,size=(self.__NP,))
@@ -105,21 +102,6 @@ class RLEPSO_Optimizer(Learnable_Optimizer):
         target_pos = candidate[ps_index, np.arange(self.__dim)[None, :], target_pos_index]
         # print(f'target_pos.shape:{target_pos.shape}')
         return target_pos
-
-    # def get_v_fdr(self):
-    #     # fdr:  ps, ps
-    #     fitness=self.__particles['c_cost']     # ps
-    #     fitness_delta=fitness[:,None].repeat(self.__NP,axis=-1)-fitness[None,:].repeat(self.__NP,axis=-2)   #  ps, ps
-    #     position=self.__particles['current_position'] # ps, dim
-    #     distance=np.sum((position[:,None,:]-position[None,:,:])**2,axis=-1)   # ps, ps
-    #     # ���⣺�Լ����Լ���fdrҪ����
-    #     fdr=fitness_delta/(distance+1e-5)
-        
-    #     target_index=np.argmax(fdr,axis=-1)      # min_fdr: ps    target_index: ps
-    #     target_part=np.zeros_like(position)   #  ps, dim
-    #     target_part=position[target_index]
-    #     v_fdr=np.random.rand(self.__NP,self.__dim)*(target_part-position)
-    #     return v_fdr
 
     def __get_v_fdr(self):
         pos = self.__particles['pbest_position']
@@ -161,7 +143,6 @@ class RLEPSO_Optimizer(Learnable_Optimizer):
                 'c3': c3s[:, None],
                 'c4': c4s[:, None]}
 
-    # ��Ե��������reinit
     def __reinit(self, filter, problem):
         if not np.any(filter):
             return
@@ -171,7 +152,6 @@ class RLEPSO_Optimizer(Learnable_Optimizer):
         new_velocity = np.where(filter, rand_vel, self.__particles['velocity'])
         pre_fes = self.fes
         new_cost = self.__get_costs(problem, new_position)
-        # ����Ҫ����һ��fes
         self.fes = pre_fes + np.sum(filter)
         
         filters = new_cost < self.__particles['pbest']

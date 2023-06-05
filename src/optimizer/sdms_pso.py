@@ -48,7 +48,6 @@ class sDMS_PSO(Basic_Optimizer):
         rand_vel = np.random.uniform(low=-self.__max_velocity,high=self.__max_velocity,size=(self.__NP,self.__dim))
         # rand_vel = torch.zeros(size=(self.__batch_size, self.__ps, self.__dim),dtype=torch.float32).to(self.__cuda)
 
-        # todo  
         c_cost = self.__get_costs(problem,rand_pos) # ps
 
         gbest_val = np.min(c_cost)
@@ -67,12 +66,6 @@ class sDMS_PSO(Basic_Optimizer):
                           }
         self.__particles['lbest_cost']=np.zeros(self.__n_swarm)
         self.__particles['lbest_position']=np.zeros((self.__n_swarm,self.__dim))
-        
-    # def run_episode(self,problem):
-    #     self.__reset(problem)
-    #     is_done=False
-    #     while not is_done:
-    #         is_done,info=self.__step(problem)
         
     def __reset(self,problem):
         if self.__w_decay:
@@ -105,7 +98,6 @@ class sDMS_PSO(Basic_Optimizer):
         self.__per_no_improve=self.__per_no_improve[regroup_index]
         
     def __update_lbest(self,init=False):
-        # 进来之前pbest_feature应该已经更新完毕
         if init:
             grouped_pbest=self.__particles['pbest'].reshape(self.__n_swarm,self.__m)
             grouped_pbest_pos=self.__particles['pbest_position'].reshape(self.__n_swarm,self.__m,self.__dim)
@@ -227,7 +219,6 @@ class sDMS_PSO(Basic_Optimizer):
                 self.__particles['pbest_position'][self.__lbest_index[refine_index[i]]]=res.x
                 self.__particles['pbest'][self.__lbest_index[refine_index[i]]]=res.fun
 
-    # 这里的step直接当作run_once
     def run_episode(self, problem):
         self.__reset(problem)
         while self.__fes<self.__max_fes:

@@ -626,14 +626,14 @@ def post_processing_test_statics(log_dir: str, logger: Logger) -> None:
     with open(log_dir+'test.pkl', 'rb') as f:
         results = pickle.load(f)
     
-    # Genetate excel tables
+    # Generate excel tables
     if not os.path.exists(log_dir + 'tables/'):
         os.makedirs(log_dir + 'tables/')
     gen_overall_tab(results, log_dir+'tables/')
     gen_algorithm_complexity_table(results, log_dir+'tables/')
     gen_agent_performance_table(results, log_dir+'tables/')
 
-    # Genetate figures
+    # Generate figures
     if not os.path.exists(log_dir + 'pics/'):
         os.makedirs(log_dir + 'pics/')
     logger.draw_test_cost(results['cost'],log_dir + 'pics/', logged=True, categorized=True)

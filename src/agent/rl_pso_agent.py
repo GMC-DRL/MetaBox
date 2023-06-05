@@ -34,7 +34,6 @@ class PolicyNetwork(nn.Module):
         filter = torch.abs(action - 0.5) >= 0.5
         # action=torch.where(filter,action*(1./(6*sigma)),action)
         action = torch.where(filter, (action + 3 * sigma.detach() - mu.detach()) * (1. / 6 * sigma.detach()), action)
-        # todo: clip the action
         log_prob = policy.log_prob(action)
 
         if require_entropy:
@@ -89,7 +88,6 @@ class RL_PSO_Agent(Basic_Agent):
         exceed_max_ls = False
         R = 0
         while True:
-            # print(1)
             action, log_prob = self.__nets(state)
             action = action.reshape(self.__config.action_shape)
             action = action.cpu().numpy()
@@ -108,7 +106,6 @@ class RL_PSO_Agent(Basic_Agent):
             if self.__learning_time >= (self.__config.save_interval * self.__cur_checkpoint):
                 save_class(self.__config.agent_save_dir,'checkpoint'+str(self.__cur_checkpoint),self)
                 self.__cur_checkpoint+=1
-
 
             if self.__learning_time >= self.__config.max_learning_step:
                 exceed_max_ls = True

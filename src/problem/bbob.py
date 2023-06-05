@@ -448,7 +448,7 @@ class _Ellipsoidal(BBOB_Basic_Problem):
         self.FES += x.shape[0]
         nx = self.dim
         z = sr_func(x, self.shift, self.rotate)
-        z = osc_transform(z)  # 跟Ellipsoidal的唯一区别
+        z = osc_transform(z)
         i = np.arange(nx)
         return np.sum((self.condition ** (i / (nx - 1))) * (z ** 2), -1) + self.bias + self.boundaryHandling(x)
 
@@ -498,7 +498,7 @@ class F11(BBOB_Basic_Problem):
     def func(self, x):
         self.FES += x.shape[0]
         z = sr_func(x, self.shift, self.rotate)
-        z = osc_transform(z)  # 跟class Discus的唯一区别
+        z = osc_transform(z)
         return np.power(10, 6) * (z[:, 0] ** 2) + np.sum(z[:, 1:] ** 2, -1) + self.bias
 
 

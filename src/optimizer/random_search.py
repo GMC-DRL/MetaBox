@@ -1,6 +1,6 @@
 import numpy as np
-
 from .basic_optimizer import Basic_Optimizer
+
 
 class Random_search(Basic_Optimizer):
     def __init__(self, config):
@@ -13,7 +13,6 @@ class Random_search(Basic_Optimizer):
         self.__NP=100
         self.__n_logpoint = config.n_logpoint
         self.log_interval = config.log_interval
-
 
     def __reset(self,problem):
         self.__fes=0
@@ -34,7 +33,6 @@ class Random_search(Basic_Optimizer):
         else:
             if self.gbest>np.min(cost):
                 self.gbest=np.min(cost)
-    
 
     def run_episode(self, problem):
         self.__reset(problem)

@@ -32,7 +32,6 @@ class Actor(nn.Module):
             action = torch.clamp(policy.sample(), min=0, max=1)
         log_prob = policy.log_prob(action)
 
-        # ! 不同算法这个应该不一样？
         log_prob = torch.sum(log_prob)
 
         if require_entropy:
@@ -107,6 +106,13 @@ class RLEPSO_Agent(Basic_Agent):
             save_class(self.__config.agent_save_dir,'checkpoint'+str(self.__cur_checkpoint),self)
             self.__cur_checkpoint+=1
 
+    def update_setting(self, config):
+        self.__config.max_learning_step = config.max_learning_step
+        self.__config.agent_save_dir = config.agent_save_dir
+        self.__learning_time = 0
+        save_class(self.__config.agent_save_dir, 'checkpoint0', self)
+        self.__cur_checkpoint = 1
+
     def train_episode(self, env):
         config = self.__config
         # setup
@@ -135,7 +141,7 @@ class RLEPSO_Agent(Basic_Agent):
             bl_val_detached = []
             bl_val = []
 
-            while t - t_s < n_step:  # ����ѵ��һ��ʱ�����transition
+            while t - t_s < n_step:
                 # encoding the state
 
                 memory.states.append(state.clone())
@@ -183,17 +189,15 @@ class RLEPSO_Agent(Basic_Agent):
 
             # begin update        =======================
 
-            # ��¼��Ϣ��ת�����ݸ�ʽ
             # bs, ps, dim_f = state.size()
 
             old_actions = torch.stack(memory.actions)
-            old_states = torch.stack(memory.states).detach() #.view(t_time, bs, ps, dim_f)
+            old_states = torch.stack(memory.states).detach()  #.view(t_time, bs, ps, dim_f)
             # old_actions = all_actions.view(t_time, bs, ps, -1)
             # print('old_actions.shape:{}'.format(old_actions.shape))
             old_logprobs = torch.stack(memory.logprobs).detach().view(-1)
 
             # Optimize PPO policy for K mini-epochs:
-            # �൱�ڽ��ռ��������ݽ��ж������
             old_value = None
             for _k in range(K_epochs):
                 if _k == 0:
@@ -210,9 +214,9 @@ class RLEPSO_Agent(Basic_Agent):
 
                         # get new action_prob
                         _, log_p,  entro_p = self.__actor(old_states[tt],
-                                                        fixed_action = old_actions[tt],
-                                                        require_entropy = True,# take same action
-                                                        )
+                                                          fixed_action=old_actions[tt],
+                                                          require_entropy=True,  # take same action
+                                                          )
 
                         logprobs.append(log_p)
                         entropy.append(entro_p.detach().cpu())
@@ -227,14 +231,14 @@ class RLEPSO_Agent(Basic_Agent):
                 bl_val_detached = torch.stack(bl_val_detached).view(-1)
                 bl_val = torch.stack(bl_val).view(-1)
 
-                # get traget value for critic
+                # get target value for critic
                 Reward = []
                 reward_reversed = memory.rewards[::-1]
                 # get next value
                 R = self.__critic(state)[0]
 
                 # R = agent.critic(state)[0]
-                critic_output=R.clone()
+                critic_output = R.clone()
                 for r in range(len(reward_reversed)):
                     R = R * gamma + reward_reversed[r]
                     Reward.append(R)
@@ -287,8 +291,8 @@ class RLEPSO_Agent(Basic_Agent):
                 self.__learning_time += 1
 
                 if self.__learning_time >= (self.__config.save_interval * self.__cur_checkpoint):
-                    save_class(self.__config.agent_save_dir,'checkpoint'+str(self.__cur_checkpoint),self)
-                    self.__cur_checkpoint+=1
+                    save_class(self.__config.agent_save_dir, 'checkpoint'+str(self.__cur_checkpoint), self)
+                    self.__cur_checkpoint += 1
 
                 if self.__learning_time >= config.max_learning_step:
                     return self.__learning_time >= config.max_learning_step, {'normalizer': env.optimizer.cost[0],
@@ -297,20 +301,19 @@ class RLEPSO_Agent(Basic_Agent):
                                                                               'learn_steps': self.__learning_time}
                 
             memory.clear_memory()
-        return self.__learning_time>=config.max_learning_step, {'normalizer': env.optimizer.cost[0],
-                                                                'gbest': env.optimizer.cost[-1],
-                                                                'return': _R,
-                                                                'learn_steps': self.__learning_time}
-    
+        return self.__learning_time >= config.max_learning_step, {'normalizer': env.optimizer.cost[0],
+                                                                  'gbest': env.optimizer.cost[-1],
+                                                                  'return': _R,
+                                                                  'learn_steps': self.__learning_time}
+
     def rollout_episode(self, env):
-        is_done=False
-        state=env.reset()
-        R=0
+        is_done = False
+        state = env.reset()
+        R = 0
         while not is_done:
             state = torch.FloatTensor(state).to(self.__config.device)
-            action=self.__actor(state)[0].cpu().numpy()
-            state,reward,is_done=env.step(action)
-            R+=reward
-            # ���ﲻ���Ա������ݣ�
-        return {'cost': env.optimizer.cost, 'fes': env.optimizer.fes,'return':R}
+            action = self.__actor(state)[0].cpu().numpy()
+            state, reward, is_done = env.step(action)
+            R += reward
+        return {'cost': env.optimizer.cost, 'fes': env.optimizer.fes, 'return': R}
         

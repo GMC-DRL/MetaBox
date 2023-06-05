@@ -158,7 +158,6 @@ class SAHLPSO(Basic_Optimizer):
                 remain_index = np.argsort(pBest_cost)[:NP_]
                 NP = NP_
             G += 1
-            #print(gBest_cost)
 
         if len(cost) >= self.config.n_logpoint + 1:
             cost[-1] = gBest_cost

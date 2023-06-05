@@ -41,8 +41,8 @@ class ReplayBuffer:
         return len(self.buffer)
 
 
-def save_class(dir,file_name,saving_class):
+def save_class(dir, file_name, saving_class):
     if not os.path.exists(dir):
         os.makedirs(dir)
     with open(dir+file_name+'.pkl', 'wb') as f:
-        pickle.dump(saving_class, f, -1)    
+        pickle.dump(saving_class, f, -1)

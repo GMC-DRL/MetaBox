@@ -1,12 +1,12 @@
 import torch
-from trainer import Trainer,Trainer_l2l
+from trainer import Trainer, Trainer_l2l
 from tester import *
 from config import get_config
 from logger import *
 import shutil
-
 import warnings
 warnings.filterwarnings("ignore")
+
 if __name__ == '__main__':
     config = get_config()
     assert ((config.train is not None) +
@@ -17,8 +17,8 @@ if __name__ == '__main__':
     # train
     if config.train:
         torch.set_grad_enabled(True)
-        if config.train_agent=='L2L_Agent':
-            trainer=Trainer_l2l(config)
+        if config.train_agent == 'L2L_Agent':
+            trainer = Trainer_l2l(config)
         else:
             trainer = Trainer(config)
         trainer.train()
@@ -40,8 +40,8 @@ if __name__ == '__main__':
     if config.run_experiment:
         # train
         torch.set_grad_enabled(True)
-        if config.train_agent=='L2L_Agent':
-            trainer=Trainer_l2l(config)
+        if config.train_agent == 'L2L_Agent':
+            trainer = Trainer_l2l(config)
         else:
             trainer = Trainer(config)
         trainer.train()

@@ -77,7 +77,6 @@ def cal_t1(problem, dim, fes):
 
 class Tester(object):
     def __init__(self, config):
-        # ! 改成self.agent
         agent_name = config.agent
         agent_load_dir = config.agent_load_dir
         self.agent = None
@@ -114,7 +113,6 @@ class Tester(object):
 
         # prepare experimental optimizers and agents
         self.agent_for_cp = []
-        # ! 改了pickle load文件时的报错
         for agent in config.agent_for_cp:
             file_path = agent_load_dir + agent + '.pkl'
             with open(file_path, 'rb') as f:
@@ -126,13 +124,11 @@ class Tester(object):
         self.t_optimizer_for_cp = []
         for optimizer in config.t_optimizer_for_cp:
             self.t_optimizer_for_cp.append(eval(optimizer)(copy.deepcopy(config)))
-        # ! 改成了self.agent
         if self.agent is not None:
             self.agent_for_cp.append(self.agent)
             self.l_optimizer_for_cp.append(self.optimizer)
         elif config.optimizer is not None:
             self.t_optimizer_for_cp.append(self.optimizer)
-
 
         # logging
         if len(self.agent_for_cp) == 0:
@@ -158,11 +154,11 @@ class Tester(object):
             self.test_results['cost'][problem.__str__()] = {}
             self.test_results['fes'][problem.__str__()] = {}
             for agent in self.agent_for_cp:
-                self.test_results['cost'][problem.__str__()][type(agent).__name__] = []  # 51个np.array
-                self.test_results['fes'][problem.__str__()][type(agent).__name__] = []  # 51个数字
+                self.test_results['cost'][problem.__str__()][type(agent).__name__] = []  # 51 np.arrays
+                self.test_results['fes'][problem.__str__()][type(agent).__name__] = []  # 51 scalars
             for optimizer in self.t_optimizer_for_cp:
-                self.test_results['cost'][problem.__str__()][type(optimizer).__name__] = []  # 51个np.array
-                self.test_results['fes'][problem.__str__()][type(optimizer).__name__] = []  # 51个数字
+                self.test_results['cost'][problem.__str__()][type(optimizer).__name__] = []  # 51 np.arrays
+                self.test_results['fes'][problem.__str__()][type(optimizer).__name__] = []  # 51 scalars
 
     def test(self):
         print(f'start testing: {self.config.run_time}')
@@ -274,13 +270,13 @@ def rollout(config):
         train_rollout_results['fes'][problem.__str__()] = {}
         train_rollout_results['return'][problem.__str__()] = {}
         for agent_name in agent_for_rollout:
-            train_rollout_results['cost'][problem.__str__()][agent_name] = []  # n_checkpoint 个[np.array len=5]
-            train_rollout_results['fes'][problem.__str__()][agent_name] = []  # n_checkpoint 个数字
-            train_rollout_results['return'][problem.__str__()][agent_name]=[]
+            train_rollout_results['cost'][problem.__str__()][agent_name] = []
+            train_rollout_results['fes'][problem.__str__()][agent_name] = []
+            train_rollout_results['return'][problem.__str__()][agent_name] = []
             for checkpoint in range(0,n_checkpoint+1):
-                train_rollout_results['cost'][problem.__str__()][agent_name].append([])  # run 个array
-                train_rollout_results['fes'][problem.__str__()][agent_name].append([])  # run 个数字
-                train_rollout_results['return'][problem.__str__()][agent_name].append([]) # run个数字
+                train_rollout_results['cost'][problem.__str__()][agent_name].append([])
+                train_rollout_results['fes'][problem.__str__()][agent_name].append([])
+                train_rollout_results['return'][problem.__str__()][agent_name].append([])
 
     pbar_len = (len(agent_for_rollout)) * train_set.N * (n_checkpoint+1) * 5
     with tqdm(range(pbar_len), desc='Rollouting') as pbar:
