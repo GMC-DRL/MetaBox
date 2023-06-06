@@ -98,7 +98,7 @@ python main.py --train --problem bbob --difficulty difficult --train_agent MyAge
 
 | Name | Year |                        Related paper                         |
 | :--: | :--: | :----------------------------------------------------------: |
-| L2L  | 2017 | [Learning to learn without gradient descent by gradient descent](https://dl.acm.org/doi/10.5555/3305381.3305459) |
+| RNN-OI  | 2017 | [Learning to learn without gradient descent by gradient descent](https://dl.acm.org/doi/10.5555/3305381.3305459) |
 
 **Supported BBO optimizers**:
 
@@ -140,7 +140,7 @@ Note that `Random Search` performs uniformly random sampling to optimize the fit
 
     | Algorithm Name | Corresponding Agent Class | Corresponding Backbone Optimizer Class |
     | :------------: | :-----------------------: | :------------------------------------: |
-    |      L2L       |         L2L_Agent         |             L2L_Optimizer              |
+    |      RNN-OI       |         L2L_Agent         |             L2L_Optimizer              |
 
     `Corresponding Agent Class` name in the tables above is the signature used to identify them in the shell command, and `Corresponding Backbone Optimizer Class` name is to identify the corresponding optimizer.
 
