@@ -948,19 +948,23 @@ class BBOB_Dataset_torch(Dataset):
                      train_batch_size=1,
                      test_batch_size=1,
                      difficulty='easy',
-                     dataset_seed=1035,
                      instance_seed=3849):
         # get functions ID of indicated suit
         if suit == 'bbob-torch':
             func_id = [i for i in range(1, 25)]  # [1, 24]
+            small_set_func_id = [1, 5, 16, 18, 20, 24]
         elif suit == 'bbob-noisy-torch':
             func_id = [i for i in range(101, 131)]  # [101, 130]
+            small_set_func_id = [101, 105, 115, 116, 117, 119, 120, 125]
         else:
             raise ValueError(f'{suit} function suit is invalid or is not supported yet.')
+        if difficulty != 'easy' and difficulty != 'difficult':
+            raise ValueError(f'{difficulty} difficulty is invalid.')
         # get problem instances
         if instance_seed > 0:
             np.random.seed(instance_seed)
-        data = []
+        train_set = []
+        test_set = []
         assert upperbound >= 5, 'Argument upperbound must be at least 5.'
         ub = upperbound
         lb = -upperbound
@@ -977,21 +981,12 @@ class BBOB_Dataset_torch(Dataset):
                 bias = torch.tensor(np.random.randint(1, 26)) * 100
             else:
                 bias = 0
-            data.append(eval(f'F{id}')(dim=dim, shift=shift, rotate=H, bias=bias, lb=lb, ub=ub))
-        # apart train set and test set
-        if difficulty == 'easy':
-            train_set_ratio = 0.75
-        elif difficulty == 'difficult':
-            train_set_ratio = 0.25
-        else:
-            raise ValueError
-        if dataset_seed > 0:
-            np.random.seed(dataset_seed)
-        else:
-            np.random.seed(None)
-        np.random.shuffle(data)
-        n_train_func = int(len(data) * train_set_ratio)
-        return BBOB_Dataset_torch(data[:n_train_func], train_batch_size), BBOB_Dataset_torch(data[n_train_func:], test_batch_size)
+            instance = eval(f'F{id}')(dim=dim, shift=shift, rotate=H, bias=bias, lb=lb, ub=ub)
+            if (difficulty == 'easy' and id not in small_set_func_id) or (difficulty == 'difficult' and id in small_set_func_id):
+                train_set.append(instance)
+            else:
+                test_set.append(instance)
+        return BBOB_Dataset_torch(train_set, train_batch_size), BBOB_Dataset_torch(test_set, test_batch_size)
 
     def __getitem__(self, item):
         if self.batch_size < 2:
