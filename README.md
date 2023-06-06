@@ -122,9 +122,9 @@ Note that `Random Search` performs uniformly random sampling to optimize the fit
 
 0. Check out the [Requirements](#Requirements) above.
 
-1. if you want to run the built-in baseline MetaBBO-RL instead of your own agent, you can try `MetaBox` through:
+1. If you want to run the built-in `MetaBBO-RL` or `MetaBBO-SL` baselines instead of your own agent, you can try `MetaBox` through:
 
-    The built-in baseline MetaBBO-RL that we provide:
+    The built-in `MetaBBO-RL` baselines that we provide:
 
     | Algorithm Name | Corresponding Agent Class | Corresponding Backbone Optimizer Class |
     | :------------: | :-----------------------: | :------------------------------------: |
@@ -136,7 +136,13 @@ Note that `Random Search` performs uniformly random sampling to optimize the fit
     |     RLEPSO     |       RLEPSO_Agent        |            RLEPSO_Optimizer            |
     |    RL-HPSDE    |      RL_HPSDE_Agent       |           RL_HPSDE_Optimizer           |
 
-    `Corresponding Agent Class` name in the table above is the signature used to identify them in the shell command, `Corresponding Backbone Optimizer Class` name is to identify the corresponding optimizer.
+    The built-in `MetaBBO-SL` baseline that we provide:
+
+    | Algorithm Name | Corresponding Agent Class | Corresponding Backbone Optimizer Class |
+    | :------------: | :-----------------------: | :------------------------------------: |
+    |      L2L       |         L2L_Agent         |             L2L_Optimizer              |
+
+    `Corresponding Agent Class` name in the tables above is the signature used to identify them in the shell command, and `Corresponding Backbone Optimizer Class` name is to identify the corresponding optimizer.
 
     The file architecture should be liked this:
 
@@ -155,56 +161,69 @@ Note that `Random Search` performs uniformly random sampling to optimize the fit
         └─ rlepso_optimizer.py
     ```
 
-    Train DE_DDQN:
+    For running experiments, we provide 4 modes including: `run_experiment`, `train`, `rollout` and `test`. `run_experiment` mode implements fully automated workflow, which covers `train`, `rollout` and  `test`. You can use `--experiment` option to trigger the entire process, or use `--train`, `--rollout` and `--test` options to start the corresponding standalone process.
 
-    ```
-    python main.py --train --train_agent DE_DDQN_Agent --train_optimizer DE_DDQN_Optimizer --agent_save_dir YourAgentSaveDir --log_dir YourLogDir
-    ```
+    * `run_experiment` DE_DDQN:
 
-    Rollout DE_DDQN:
+      ```shell
+      python main.py --run_experiment --train_agent DE_DDQN_Agent --train_optimizer DE_DDQN_Optimizer --t_optimizer_for_cp DEAP_DE JDE21 DEAP_CMAES Random_search
+      ```
 
-    ```
-    python main.py --rollout --agent_load_dir YourAgentSaveDir --agent_for_rollout DE_DDQN_Agent --optimizer_for_rollout DE_DDQN_Optimizer --log_dir YourLogDir 
-    ```
+      After `run_experiment`, we will save the generated results of train, rollout, test in `src/output/` respectively. Check sections [Train Results](#Train-Results),  [Rollout Results](#Rollout-Results) and [Test Results](#Test-Results) for more details of the generated results.
 
-    Test DE_DDQN:
+      `--t_optimizer_for_cp` option is used to specify the traditional optimizers for comparing in test.
 
-    When testing, you can specify traditional optimizers for comparing in option `--t_optimizer_for_cp`.
+      Traditional optimizers that we provide:
 
-    Traditional optimizers that we provide:
+      |    Algorithm Name     | Corresponding Optimizer Class |
+      | :-------------------: | :---------------------------: |
+      |          PSO          |           DEAP_PSO            |
+      |          DE           |            DEAP_DE            |
+      |        CMA-ES         |          DEAP_CMAES           |
+      | Bayesian Optimization |       BayesianOptimizer       |
+      |        GL-PSO         |            GL_PSO             |
+      |       sDMS_PSO        |           sDMS_PSO            |
+      |          j21          |             JDE21             |
+      |         MadDE         |             MadDE             |
+      |        SAHLPSO        |            SAHLPSO            |
+      |     NL_SHADE_LBC      |         NL_SHADE_LBC          |
+      |     Random Search     |         Random_search         |
 
-    |    Algorithm Name     | Corresponding Optimizer Class |
-    | :-------------------: | :---------------------------: |
-    |          PSO          |           DEAP_PSO            |
-    |          DE           |            DEAP_DE            |
-    |        CMA-ES         |          DEAP_CMAES           |
-    | Bayesian Optimization |       BayesianOptimizer       |
-    |        GL-PSO         |            GL_PSO             |
-    |       sDMS_PSO        |           sDMS_PSO            |
-    |          j21          |             JDE21             |
-    |         MadDE         |             MadDE             |
-    |        SAHLPSO        |            SAHLPSO            |
-    |     NL_SHADE_LBC      |         NL_SHADE_LBC          |
-    |     Random Search     |         Random_search         |
+      As mentioned above, `Corresponding Optimizer Class` name is to identify the optimizer in shell command.
 
-    As mentioned above, `Corresponding Optimizer Class` name is to identify the optimizer in shell command.
+      See [Run Experiment](#Run-Experiment) for more details.
 
-    Run the following command to test DE-DDQN with DE, j21, CMA-ES and random search:
-    ```
-    python main.py --test --agent_load_dir YourAgentSaveDir --agent DE_DDQN_Agent --optimizer DE_DDQN_Optimizer --t_optimizer_for_cp DEAP_DE JDE21 DEAP_CMAES Random_search --log_dir YourLogDir
-    ```
+    * `train` DE_DDQN:
 
-    What's more, we provide a mode called `run_experiment` which can automate the train, rollout, test and log functions that means you don't need to control each training and testing step yourself, but have direct access to the final training model and testing results.
+      ```shell
+      python main.py --train --train_agent DE_DDQN_Agent --train_optimizer DE_DDQN_Optimizer --agent_save_dir YourAgentSaveDir
+      ```
 
-    `run_experiment` DE_DDQN:
+      Once you run the above command, the `runName` which is generated based on the run time and benchmark suite will appear at the command line. 
 
-    ```
-    python main.py --run_experiment --train_agent DE_DDQN_Agent --train_optimizer DE_DDQN_Optimizer --t_optimizer_for_cp DEAP_DE JDE21 DEAP_CMAES Random_search --log_dir YourLogDir
-    ```
+      See [Training](#Training) for more details.
 
-    Then you can get all results in directory `src/output/`
+    * `rollout` DE_DDQN:
 
-    
+      Fetch your 21 trained agent models named `checkpointN.pkl` in directory `src/agent_model/train/DE_DDQN_Agent/runName/` and move them to directory `src/agent_model/rollout/DE_DDQN_Agent/`. Rollout the models with train set using:
+
+      ```shell
+      python main.py --rollout --agent_load_dir agent_model/rollout/ --agent_for_rollout DE_DDQN_Agent --optimizer_for_rollout DE_DDQN_Optimizer
+      ```
+
+      When the rollout ends, check the result data in `src/output/rollout/runName/rollout.pkl` and pick the best model to test.
+
+      See [Rollout](#Rollout) for more details.
+
+    * `test` DE_DDQN:
+
+      Move the best `.pkl` model file to directory `src/agent_model/test/`, and rename the file to `DE_DDQN_Agent.pkl`. Now use the test set to test `DE_DDQN_Agent` with `DEAP_DE`, `JDE21	`, `DEAP_CMAES` and `Random_search`:
+      
+      ```shell
+      python main.py --test --agent_load_dir agent_model/test/ --agent DE_DDQN_Agent --optimizer DE_DDQN_Optimizer --t_optimizer_for_cp DEAP_DE JDE21 DEAP_CMAES Random_search
+      ```
+      
+      See [Testing](#Testing) for more details.
 
 2. If you want to develop your own MetaBBO-RL approach, to fit into `MetaBox` running logic, you should meet with the following protocol about the `Agent` and `Optimizer`. 
 
@@ -325,7 +344,7 @@ Note that `Random Search` performs uniformly random sampling to optimize the fit
              return {'cost': env.optimizer.cost, 'fes': env.optimizer.fes, 'return': R}
      ```
      
-   * Your optimizer should follow this template:
+   * Your backbone optimizer should follow this template:
 
      ```python
      from optimizer.learnable_optimizer import Learnable_Optimizer
@@ -412,7 +431,7 @@ Note that `Random Search` performs uniformly random sampling to optimize the fit
              return state, reward, is_done
      ```
 
-   After that, you should put your own declare file in directory `agent` and `optimizer`. Then the file structure should be like:
+   After that, you should put your own declaring files in directory `src/agent/` and `src/optimizer/` respectively. Then the file structure should be like:
 
    ```
    src
@@ -427,12 +446,12 @@ Note that `Random Search` performs uniformly random sampling to optimize the fit
        └─ my_optimizer.py
    ```
 
-   In addition, you should register you own agent in file `src/agent/__init__.py`. For example, to register the previous My_agent, you should add one line into the `src/agent/__init__.py` file as below.
+   In addition, you should register you own agent and backbone optimizer in files `src/agent/__init__.py` and `src/optimizer/__init__.py`. For example, to register the previous class *MyAgent*, you should add one line into the `src/agent/__init__.py` file as below:
    ```python
    from .my_agent import *
    ```
 
-   Meanwhile, you should also import your own agent and optimizer into `src/trainer.py` and `src/tester.py`. Take trainer as an example, you should add two lines into file `src/trainer.py` as follow.
+   Meanwhile, you should also import your own agent and backbone optimizer into `src/trainer.py` and `src/tester.py`. Take trainer as an example, you should add two lines into file `src/trainer.py` as follows:
    ```python
    ...
    # import your agent
@@ -448,49 +467,49 @@ Note that `Random Search` performs uniformly random sampling to optimize the fit
    ```
    The same action should be done also in `src/tester.py`.
 
-3. * `run_experiment` your MetaBBO optimizer.
+   As mentioned, 4 modes are available:
+
+   * `run_experiment` your MetaBBO-RL optimizer.
 
       `run_experiment` mode implements fully automated workflow. Assume that you've written an agent class named *MyAgent* and a backbone optimizer class named *MyOptimizer*, the entire processes of train, rollout and test can be triggered by running command:
 
       ```shell
-      python main.py --run_experiment --problem bbob --difficulty easy --train_agent MyAgent --train_optimizer MyOptimizer --agent_for_cp LDE_Agent --l_optimizer_for_cp LDE_Optimizer --t_optimizer_for_cp DEAP_DE JDE21 DEAP_CMAES Random_search --log_dir YourLogDir
+      python main.py --run_experiment --train_agent MyAgent --train_optimizer MyOptimizer --t_optimizer_for_cp DEAP_DE JDE21 DEAP_CMAES Random_search
       ```
 
       See [Run Experiment](#Run-Experiment) for more details.
 
-    * Instead of using `run_experiment` mode, you can manually start your standalone process of train, rollout or test.
+   * `train` your agent.
 
-      * Train your agent.
+     ```shell
+     python main.py --train --train_agent MyAgent --train_optimizer MyOptimizer
+     ```
 
-        ```shell
-        python main.py --train --problem bbob --difficulty easy --train_agent MyAgent --train_optimizer MyOptimizer
-        ```
+     Once you run the above command, the `runName` which is generated based on the run time and benchmark suite will appear at the command line. 
 
-        Once you run the above command, the `runName` which is generated based on the run time and benchmark suite will appear at the command line. 
+     See [Training](#Training) for more details.
 
-        See [Training](#Training) for more details.
+   * `rollout` your agent models.
 
-      * Rollout your agent models.
+     Fetch your 21 trained agent models named `checkpointN.pkl` in directory `src/agent_model/train/MyAgent/runName/` and move them to directory `src/agent_model/rollout/MyAgent/`. Rollout the models with train set using:
 
-        Fetch your trained agent models named `checkpointN.pkl` in directory `src/agent_model/train/MyAgent/runName/` and move them to directory `src/agent_model/rollout/MyAgent/`. Rollout the models with train set using:
+     ```shell
+     python main.py --rollout --agent_load_dir agent_model/rollout/ --agent_for_rollout MyAgent --optimizer_for_rollout MyOptimizer
+     ```
 
-        ```shell
-        python main.py --rollout --problem bbob --difficulty easy --agent_for_rollout MyAgent --optimizer_for_rollout MyOptimizer
-        ```
+     When the rollout ends, check the result data in `src/output/rollout/runName/rollout.pkl` and pick the best model to test.
 
-        When the rollout ends, check the result data in `src/output/rollout/runName/rollout.pkl` and pick the best model to test.
+     See [Rollout](#Rollout) for more details.
 
-        See [Rollout](#Rollout) for more details.
+   * `test` your MetaBBO-RL optimizer.
 
-      * Test your MetaBBO optimizer.
+     Move the best `.pkl` model file to directory `src/agent_model/test/`, and rename the file to `MyAgent.pkl`. Now use the test set to test `MyAgent` with `DEAP_DE`, `JDE21`, `DEAP_CMAES` and `Random_search`:
 
-        Move the best `.pkl` model file to directory `src/agent_model/test/`, and rename the file to `MyAgent.pkl`. Now use the test set to test `MyAgent` with `DEAP_CMAES` and `Random_search`:
+     ```shell
+     python main.py --test --agent_load_dir agent_model/test/ --agent MyAgent --optimizer MyOptimizer --t_optimizer_for_cp DEAP_DE JDE21 DEAP_CMAES Random_search
+     ```
 
-        ```shell
-        python main.py --test --problem bbob --difficulty easy --agent MyAgent --optimizer MyOptimizer --t_optimizer_for_cp DEAP_CMAES Random_search
-        ```
-
-        See [Testing](#Testing) for more details.
+     See [Testing](#Testing) for more details.
 
 ## Run Experiment
 
@@ -530,8 +549,6 @@ In addition, 2 types of data files will be generated in `MyLogDir/train/MyAgent/
 	* `draw_cost`: The cost change for the agent facing different runs for different problems and save it to `MyLogDir/train/MyAgent/runName/pic/problem_name_cost.png`.
 	* `draw_average_cost`: It will plot the average cost of the agent against all problems and save it to `MyLogDir/train/MyAgent/runName/pic/all_problem_cost.png`.
 	* `draw_return`: The return value from the agent training process will be plotted and saved to `MyLogDir/train/MyAgent/runName/pic/return.png`.
-
-__TODO__ make sure if need add examples pictures or not
 
 ## Rollout
 
