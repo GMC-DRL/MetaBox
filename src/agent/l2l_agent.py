@@ -39,7 +39,7 @@ class L2L_Agent(Basic_Agent):
         h=torch.zeros((self.proj_size),dtype=torch.float64)[None,None,:]
         c=torch.zeros((self.hidden_size),dtype=torch.float64)[None,None,:]
         exceed_max_ls=False
-        
+        env.reset()
         while t < T:
             out,(h,c)=self.net(input,(h,c))
             # get new x
@@ -86,12 +86,14 @@ class L2L_Agent(Basic_Agent):
                     exceed_max_ls=True
                     break
                 # loss.detach()
-        return exceed_max_ls
-        # return exceed_max_ls,{'normalizer': env.optimizer.cost[0],
-        #                        'gbest': env.optimizer.cost[-1],
-        #                        'return': R,
-        #                        'learn_steps': self.__learning_time}
+        # return exceed_max_ls
+        return exceed_max_ls,{'normalizer': env.optimizer.cost[0],
+                               'gbest': env.optimizer.cost[-1],
+                               'return': 0,         # set to 0 since for non-RL approach there is no return
+                               'learn_steps': self.__learning_step}
 
+
+    # rollout_episode need transform 
     def rollout_episode(self,env) :
         torch.set_grad_enabled(False)
         T=100
@@ -109,10 +111,11 @@ class L2L_Agent(Basic_Agent):
         
         h=torch.zeros((self.proj_size),dtype=torch.float64)[None,None,:]
         c=torch.zeros((self.hidden_size),dtype=torch.float64)[None,None,:]
+        env.reset()
         while t < T:
             out,(h,c)=self.net(input,(h,c))
             x=out[0,0]
-            y,_,is_done=env.step(x)
+            y,_,is_done=env.step(x.detach().numpy())
             # x=scale(x,problem.lb,problem.ub)
             # # print(x)
             # if problem.optimum is None:
@@ -125,12 +128,11 @@ class L2L_Agent(Basic_Agent):
                 best=y
             elif y<best:
                 best=y
-            cost.append(best.item())
+                
             input=torch.cat((x,torch.tensor([y]),torch.tensor([1])))[None,None,:]
             if is_done:
                 break
             t+=1
-        cost=cost[::2]
-        
+            
         torch.set_grad_enabled(True)
-        return {'cost':cost,'fes':fes}
+        return {'cost':env.optimizer.cost[::2],'fes':fes}
