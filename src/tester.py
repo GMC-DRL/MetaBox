@@ -319,3 +319,55 @@ def rollout(config):
         os.makedirs(log_dir)
     with open(log_dir + 'rollout.pkl', 'wb') as f:
         pickle.dump(train_rollout_results, f, -1)
+
+
+def test_for_random_search(config):
+    # get entire problem set
+    train_set, test_set = construct_problem_set(config)
+    entire_set = train_set + test_set
+    # get optimizer
+    optimizer = eval('Random_search')(copy.deepcopy(config))
+    # initialize the dataframe for logging
+    test_results = {'cost': {},
+                    'fes': {},
+                    'T0': 0.,
+                    'T1': 0.,
+                    'T2': {}}
+    # test_results['T1'][type(random_search).__name__] = 0.
+    test_results['T2'][type(optimizer).__name__] = 0.
+    for problem in entire_set:
+        test_results['cost'][problem.__str__()] = {}
+        test_results['fes'][problem.__str__()] = {}
+        test_results['cost'][problem.__str__()][type(optimizer).__name__] = []  # 51 np.arrays
+        test_results['fes'][problem.__str__()][type(optimizer).__name__] = []  # 51 scalars
+    # calculate T0
+    test_results['T0'] = cal_t0(config.dim, config.maxFEs)
+    # begin testing
+    seed = range(51)
+    pbar_len = len(entire_set) * 51
+    with tqdm(range(pbar_len), desc='test for random search') as pbar:
+        for i, problem in enumerate(entire_set):
+            T2 = 0
+            for run in range(51):
+                start = time.perf_counter()
+                np.random.seed(seed[run])
+                info = optimizer.run_episode(problem)
+                cost = info['cost']
+                while len(cost) < 51:
+                    cost.append(cost[-1])
+                fes = info['fes']
+                end = time.perf_counter()
+                if i == 0:
+                    T2 += (end - start) * 1000  # ms
+                test_results['cost'][problem.__str__()][type(optimizer).__name__].append(cost)
+                test_results['fes'][problem.__str__()][type(optimizer).__name__].append(fes)
+                pbar_info = {'problem': problem.__str__(),
+                             'optimizer': type(optimizer).__name__,
+                             'run': run,
+                             'cost': cost[-1],
+                             'fes': fes, }
+                pbar.set_postfix(pbar_info)
+                pbar.update(1)
+            if i == 0:
+                test_results['T2'][type(optimizer).__name__] = T2 / 51
+    return test_results
