@@ -9,7 +9,6 @@ class LDE_Optimizer(Learnable_Optimizer):
         self.__config = config
         self.__config.NP = 50
         self.__config.BINS = 5
-        self.__config.MEMO_SIZE = 5
         self.__config.P_INI = 1
         self.__config.P_NUM_MIN = 2
         self.__config.P_MIN = self.__config.P_NUM_MIN/self.__config.NP

@@ -106,7 +106,10 @@ def gen_algorithm_complexity_table(results: dict, out_dir: str) -> None:
     for key,value in t2s.items():
         indexs.append(key)
         t2_list.append(value)
-        ratios.append((value-t1)/t0)
+        if is_dict:
+            ratios.append((value-t1[key])/t0)
+        else:
+            ratios.append((value-t1)/t0)
     n=len(t2_list)
     data=np.zeros((n,4))
     data[:,0]=t0

@@ -43,7 +43,6 @@ class LDE_Agent(Basic_Agent):
         self.__config.lr_model = 0.005
         self.__config.lr_decay = 1
         self.__config.gamma = 0.99
-        self.__config.max_grad_norm = 0.1
         self.__config.output_dim_actor = self.__config.NP * 2
         self.__config.action_shape = (1, self.__BATCH_SIZE, self.__config.NP * 2,)
         self.__config.node_dim = self.__config.NP + 2 * self.__config.BINS
