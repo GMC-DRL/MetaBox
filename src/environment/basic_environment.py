@@ -5,7 +5,7 @@ from optimizer.learnable_optimizer import Learnable_Optimizer
 
 class PBO_Env:
     """
-    Env with problem and optimizer.
+    An environment with a problem and an optimizer.
     """
     def __init__(self,
                  problem: Basic_Problem,
@@ -15,6 +15,7 @@ class PBO_Env:
         self.optimizer = optimizer
 
     def reset(self):
+        self.problem.reset()
         return self.optimizer.init_population(self.problem)
 
     def step(self, action: Any):
