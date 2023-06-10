@@ -79,11 +79,13 @@ class Tester(object):
     def __init__(self, config):
         agent_name = config.agent
         agent_load_dir = config.agent_load_dir
+        self.agent_name_list=config.agent_for_cp
         self.agent = None
         if agent_name is not None:  # learnable optimizer
             file_path = agent_load_dir + agent_name + '.pkl'
             with open(file_path, 'rb') as f:
                 self.agent = pickle.load(f)
+            self.agent_name_list.append(agent_name)
             # self.agent = pickle.load(agent_load_dir + agent_name + '.pkl')
         if config.optimizer is not None:
             self.optimizer_name = config.optimizer
@@ -108,7 +110,7 @@ class Tester(object):
         self.test_results = {'cost': {},
                              'fes': {},
                              'T0': 0.,
-                             'T1': 0.,
+                             'T1': {},
                              'T2': {}}
 
         # prepare experimental optimizers and agents
@@ -135,8 +137,8 @@ class Tester(object):
             print('None of learnable agent')
         else:
             print(f'there are {len(self.agent_for_cp)} agent')
-            for a, l_optimizer in zip(self.agent_for_cp, self.l_optimizer_for_cp):
-                print(f'learnable_agent:{type(a).__name__},l_optimizer:{type(l_optimizer).__name__}')
+            for a, l_optimizer in zip(self.agent_name_list, self.l_optimizer_for_cp):
+                print(f'learnable_agent:{a},l_optimizer:{type(l_optimizer).__name__}')
 
         if len(self.t_optimizer_for_cp) == 0:
             print('None of traditional optimizer')
@@ -145,17 +147,19 @@ class Tester(object):
             for t_optmizer in self.t_optimizer_for_cp:
                 print(f't_optmizer:{type(t_optmizer).__name__}')
 
-        for agent in self.agent_for_cp:
-            self.test_results['T2'][type(agent).__name__] = 0.
+        for agent_name in self.agent_name_list:
+            self.test_results['T1'][agent_name] = 0.
+            self.test_results['T2'][agent_name] = 0.
         for optimizer in self.t_optimizer_for_cp:
+            self.test_results['T1'][type(optimizer).__name__] = 0.
             self.test_results['T2'][type(optimizer).__name__] = 0.
 
         for problem in self.test_set:
             self.test_results['cost'][problem.__str__()] = {}
             self.test_results['fes'][problem.__str__()] = {}
-            for agent in self.agent_for_cp:
-                self.test_results['cost'][problem.__str__()][type(agent).__name__] = []  # 51 np.arrays
-                self.test_results['fes'][problem.__str__()][type(agent).__name__] = []  # 51 scalars
+            for agent_name in self.agent_name_list:
+                self.test_results['cost'][problem.__str__()][agent_name] = []  # 51 np.arrays
+                self.test_results['fes'][problem.__str__()][agent_name] = []  # 51 scalars
             for optimizer in self.t_optimizer_for_cp:
                 self.test_results['cost'][problem.__str__()][type(optimizer).__name__] = []  # 51 np.arrays
                 self.test_results['fes'][problem.__str__()][type(optimizer).__name__] = []  # 51 scalars
@@ -166,19 +170,20 @@ class Tester(object):
         T0 = cal_t0(self.config.dim, self.config.maxFEs)
         self.test_results['T0'] = T0
         # calculate T1
-        T1 = cal_t1(self.test_set[0], self.config.dim, self.config.maxFEs)
-        self.test_results['T1'] = T1
+        # T1 = cal_t1(self.test_set[0], self.config.dim, self.config.maxFEs)
+        # self.test_results['T1'] = T1
         pbar_len = (len(self.t_optimizer_for_cp) + len(self.agent_for_cp)) * self.test_set.N * 51
         with tqdm(range(pbar_len), desc='Testing') as pbar:
             for i,problem in enumerate(self.test_set):
 
                 # run learnable optimizer
-                for agent,optimizer in zip(self.agent_for_cp,self.l_optimizer_for_cp):
-                    
+                for agent_id,(agent,optimizer) in enumerate(zip(self.agent_for_cp,self.l_optimizer_for_cp)):
+                    T1 = 0
                     T2 = 0
                     for run in range(51):
                         start = time.perf_counter()
                         np.random.seed(self.seed[run])
+                        problem.reset()
                         # construct an ENV for (problem,optimizer)
                         env = PBO_Env(problem,optimizer)
                         info = agent.rollout_episode(env)
@@ -189,23 +194,28 @@ class Tester(object):
                         end = time.perf_counter()
                         if i == 0:
                             T2 += (end - start) * 1000  # ms
-                        self.test_results['cost'][problem.__str__()][type(agent).__name__].append(cost)
-                        self.test_results['fes'][problem.__str__()][type(agent).__name__].append(fes)
+                            T1 += env.problem.T1
+                        self.test_results['cost'][problem.__str__()][self.agent_name_list[agent_id]].append(cost)
+                        self.test_results['fes'][problem.__str__()][self.agent_name_list[agent_id]].append(fes)
                         pbar_info = {'problem': problem.__str__(),
-                                     'optimizer': type(agent).__name__,
+                                     'optimizer': self.agent_name_list[agent_id],
                                      'run': run,
                                      'cost': cost[-1],
                                      'fes': fes}
                         pbar.set_postfix(pbar_info)
                         pbar.update(1)
                     if i == 0:
-                        self.test_results['T2'][type(agent).__name__] = T2/51
+                        self.test_results['T1'][self.agent_name_list[agent_id]] = T1/51
+                        self.test_results['T2'][self.agent_name_list[agent_id]] = T2/51
                 # run traditional optimizer
                 for optimizer in self.t_optimizer_for_cp:
+                    T1 = 0 
                     T2 = 0
                     for run in range(51):
                         start = time.perf_counter()
                         np.random.seed(self.seed[run])
+
+                        problem.reset()
                         info = optimizer.run_episode(problem)
                         cost = info['cost']
                         while len(cost) < 51:
@@ -213,6 +223,7 @@ class Tester(object):
                         fes = info['fes']
                         end = time.perf_counter()
                         if i == 0:
+                            T1 += problem.T1
                             T2 += (end - start) * 1000  # ms
                         self.test_results['cost'][problem.__str__()][type(optimizer).__name__].append(cost)
                         self.test_results['fes'][problem.__str__()][type(optimizer).__name__].append(fes)
@@ -224,6 +235,7 @@ class Tester(object):
                         pbar.set_postfix(pbar_info)
                         pbar.update(1)
                     if i == 0:
+                        self.test_results['T1'][type(optimizer).__name__] = T1/51
                         self.test_results['T2'][type(optimizer).__name__] = T2/51
         with open(self.log_dir + 'test.pkl', 'wb') as f:
             pickle.dump(self.test_results, f, -1)
