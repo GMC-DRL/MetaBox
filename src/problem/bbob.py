@@ -964,5 +964,8 @@ class BBOB_Dataset(Dataset):
     def __len__(self):
         return self.N
 
+    def __add__(self, other: 'BBOB_Dataset'):
+        return BBOB_Dataset(self.data + other.data, self.batch_size)
+
     def shuffle(self):
         self.index = np.random.permutation(self.N)

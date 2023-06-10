@@ -190,5 +190,8 @@ class Protein_Docking_Dataset(Dataset):
     def __len__(self):
         return self.N
 
+    def __add__(self, other: 'Protein_Docking_Dataset'):
+        return Protein_Docking_Dataset(self.data + other.data, self.batch_size)
+
     def shuffle(self):
         self.index = np.random.permutation(self.N)
