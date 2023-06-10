@@ -97,11 +97,11 @@ class Tester(object):
             self.config.problem=self.config.problem[:-6]
             
         _, self.test_set = construct_problem_set(self.config)
-        if 'L2L_Agent' in config.agent_for_cp or 'L2L_Agent' == config.agent:
-            pre_problem=config.problem
-            config.problem=pre_problem+'-torch'
-            _,self.torch_test_set = construct_problem_set(config)
-            config.problem=pre_problem
+        # if 'L2L_Agent' in config.agent_for_cp or 'L2L_Agent' == config.agent:
+        #     pre_problem=config.problem
+        #     config.problem=pre_problem+'-torch'
+        #     _,self.torch_test_set = construct_problem_set(config)
+        #     config.problem=pre_problem
         
         self.seed = range(51)
         # initialize the dataframe for logging
@@ -180,10 +180,7 @@ class Tester(object):
                         start = time.perf_counter()
                         np.random.seed(self.seed[run])
                         # construct an ENV for (problem,optimizer)
-                        if type(agent).__name__ == 'L2L_Agent':
-                            env = PBO_Env(self.torch_test_set[i],optimizer)
-                        else:
-                            env = PBO_Env(problem,optimizer)
+                        env = PBO_Env(problem,optimizer)
                         info = agent.rollout_episode(env)
                         cost = info['cost']
                         while len(cost) < 51:
@@ -239,11 +236,11 @@ def rollout(config):
         config.problem=config.problem[:-6]
 
     train_set,_=construct_problem_set(config)
-    if 'L2L_Agent' in config.agent_for_rollout:
-        pre_problem=config.problem
-        config.problem=pre_problem+'-torch'
-        torch_train_set,_ = construct_problem_set(config)
-        config.problem=pre_problem
+    # if 'L2L_Agent' in config.agent_for_rollout:
+    #     pre_problem=config.problem
+    #     config.problem=pre_problem+'-torch'
+    #     torch_train_set,_ = construct_problem_set(config)
+    #     config.problem=pre_problem
 
     agent_load_dir=config.agent_load_dir
     n_checkpoint=config.n_checkpoint
@@ -289,10 +286,10 @@ def rollout(config):
                 for i,problem in enumerate(train_set):
                     for run in range(5):
                         np.random.seed(run)
-                        if type(agent).__name__ == 'L2L_Agent':
-                            env = PBO_Env(torch_train_set[i],optimizer)
-                        else:
-                            env = PBO_Env(problem,optimizer)
+                        # if type(agent).__name__ == 'L2L_Agent':
+                        #     env = PBO_Env(torch_train_set[i],optimizer)
+                        # else:
+                        env = PBO_Env(problem,optimizer)
 
                         info = agent.rollout_episode(env)
                         cost=info['cost']

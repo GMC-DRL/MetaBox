@@ -176,48 +176,48 @@ class Trainer(object):
         self.draw_return()
 
 
-class Trainer_l2l(object):
-    def __init__(self, config):
-        self.config = config
+# class Trainer_l2l(object):
+#     def __init__(self, config):
+#         self.config = config
 
-        # two way 
-        self.agent = eval(config.train_agent)(config)
-        self.optimizer = eval(config.train_optimizer)(config)
-        # need to be torch version
-        self.train_set, self.test_set = construct_problem_set(config)
+#         # two way 
+#         self.agent = eval(config.train_agent)(config)
+#         self.optimizer = eval(config.train_optimizer)(config)
+#         # need to be torch version
+#         self.train_set, self.test_set = construct_problem_set(config)
 
 
-    def train(self):
-        print(f'start training: {self.config.run_time}')
-        agent_save_dir = self.config.agent_save_dir + self.agent.__class__.__name__ + '/' + self.config.run_time + '/'
-        exceed_max_ls = False
-        epoch = 0
-        cost_record = {}
-        normalizer_record = {}
-        return_record = []
-        learn_steps = []
-        epoch_steps = []
-        for problem in self.train_set:
-            cost_record[problem.__str__()] = []
-            normalizer_record[problem.__str__()] = []
-        while not exceed_max_ls:
-            learn_step = 0
-            self.train_set.shuffle()
-            with tqdm(range(self.train_set.N), desc=f'Training {self.agent.__class__.__name__} Epoch {epoch}') as pbar:
-                for problem_id, problem in enumerate(self.train_set):
+#     def train(self):
+#         print(f'start training: {self.config.run_time}')
+#         agent_save_dir = self.config.agent_save_dir + self.agent.__class__.__name__ + '/' + self.config.run_time + '/'
+#         exceed_max_ls = False
+#         epoch = 0
+#         cost_record = {}
+#         normalizer_record = {}
+#         return_record = []
+#         learn_steps = []
+#         epoch_steps = []
+#         for problem in self.train_set:
+#             cost_record[problem.__str__()] = []
+#             normalizer_record[problem.__str__()] = []
+#         while not exceed_max_ls:
+#             learn_step = 0
+#             self.train_set.shuffle()
+#             with tqdm(range(self.train_set.N), desc=f'Training {self.agent.__class__.__name__} Epoch {epoch}') as pbar:
+#                 for problem_id, problem in enumerate(self.train_set):
                     
-                    env=PBO_Env(problem,self.optimizer)
-                    exceed_max_ls= self.agent.train_episode(env)  # pbar_info -> dict
+#                     env=PBO_Env(problem,self.optimizer)
+#                     exceed_max_ls= self.agent.train_episode(env)  # pbar_info -> dict
                     
-                    pbar.update(1)
-                    name = problem.__str__()
+#                     pbar.update(1)
+#                     name = problem.__str__()
                     
-                    learn_steps.append(learn_step)
-                    if exceed_max_ls:
-                        break
-            epoch_steps.append(learn_step)
+#                     learn_steps.append(learn_step)
+#                     if exceed_max_ls:
+#                         break
+#             epoch_steps.append(learn_step)
             
                     
-            epoch += 1
+#             epoch += 1
             
         
