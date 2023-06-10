@@ -1012,5 +1012,8 @@ class BBOB_Dataset_torch(Dataset):
     def __len__(self):
         return self.N
 
+    def __add__(self, other: 'BBOB_Dataset_torch'):
+        return BBOB_Dataset_torch(self.data + other.data, self.batch_size)
+
     def shuffle(self):
         self.index = np.random.permutation(self.N)
