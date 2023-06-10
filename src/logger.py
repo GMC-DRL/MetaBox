@@ -95,6 +95,9 @@ def gen_algorithm_complexity_table(results: dict, out_dir: str) -> None:
     save_list=[]
     t0=results['T0']
     t1=results['T1']
+    is_dict=False
+    if type(t1) is dict:
+        is_dict=True
     t2s=results['T2']
     ratios=[]
     t2_list=[]
@@ -107,7 +110,12 @@ def gen_algorithm_complexity_table(results: dict, out_dir: str) -> None:
     n=len(t2_list)
     data=np.zeros((n,4))
     data[:,0]=t0
-    data[:,1]=t1
+    if is_dict:
+        for i,(key,value) in enumerate(t1.items()):
+            data[i,1]=value
+    else:
+        data[:,1]=t1
+    
     data[:,2]=t2_list
     data[:,3]=ratios
     table=pd.DataFrame(data=np.round(data,2),index=indexs,columns=columns)
