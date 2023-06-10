@@ -46,7 +46,7 @@ def get_config(args=None):
     parser.add_argument('--test_batch_size', type=int, default=1)
 
     # Rollout parameters
-    parser.add_argument('--agent_for_rollout', type=str, nargs='+', help='learnable optimizer for rollout')
+    parser.add_argument('--agent_for_rollout', type=str, nargs='+', help='learnable agent for rollout')
     parser.add_argument('--optimizer_for_rollout', type=str, nargs='+', help='learnabel optimizer for rollout')
     parser.add_argument('--plot_smooth', type=float, default=0.8, help='a float between 0 and 1')
 
