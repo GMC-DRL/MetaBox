@@ -35,6 +35,7 @@ class Random_search(Basic_Optimizer):
                 self.gbest=np.min(cost)
 
     def run_episode(self, problem):
+        problem.reset()
         self.__reset(problem)
         is_done = False
         while not is_done:

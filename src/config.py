@@ -52,17 +52,20 @@ def get_config(args=None):
     parser.add_argument('--plot_smooth', type=float, default=0.8, help='a float between 0 and 1')
 
     # mgd_test parameters
-    parser.add_argument('--problem_from', default='bbob', choices=['bbob', 'bbob-noisy', 'bbob-torch', 'bbob-noisy-torch', 'protein', 'protein-torch'])
-    parser.add_argument('--problem_to', default='bbob', choices=['bbob', 'bbob-noisy', 'bbob-torch', 'bbob-noisy-torch', 'protein', 'protein-torch'])
-    parser.add_argument('--difficulty_from', default='easy', choices=['easy', 'difficult'])
-    parser.add_argument('--difficulty_to', default='easy', choices=['easy', 'difficult'])
+    parser.add_argument('--problem_from', choices=['bbob', 'bbob-noisy', 'bbob-torch', 'bbob-noisy-torch', 'protein', 'protein-torch'])
+    parser.add_argument('--problem_to', choices=['bbob', 'bbob-noisy', 'bbob-torch', 'bbob-noisy-torch', 'protein', 'protein-torch'])
+    parser.add_argument('--difficulty_from', choices=['easy', 'difficult'])
+    parser.add_argument('--difficulty_to', choices=['easy', 'difficult'])
     parser.add_argument('--model_from', type=str)
     parser.add_argument('--model_to', type=str)
 
     config = parser.parse_args(args)
     config.maxFEs = 2000 * config.dim
-
     config.n_logpoint = 50
+
+    if config.mgd_test:
+        config.problem = config.problem_to
+        config.difficulty = config.difficulty_to
 
     if config.problem in ['protein', 'protein-torch']:
         config.dim = 12

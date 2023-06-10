@@ -335,7 +335,7 @@ def test_for_random_search(config):
     train_set, test_set = construct_problem_set(config)
     entire_set = train_set + test_set
     # get optimizer
-    optimizer = eval('Random_search')(copy.deepcopy(config))
+    optimizer = Random_search(copy.deepcopy(config))
     # initialize the dataframe for logging
     test_results = {'cost': {},
                     'fes': {},

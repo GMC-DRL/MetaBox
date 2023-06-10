@@ -4,8 +4,9 @@ import copy
 import time
 import numpy as np
 from tqdm import tqdm
+from typing import Optional, Union
 from utils import construct_problem_set
-from tester import cal_t0
+from tester import cal_t0, test_for_random_search
 from environment import PBO_Env
 from logger import Logger
 from agent import (
@@ -26,12 +27,40 @@ from optimizer import (
     QLPSO_Optimizer,
     RLEPSO_Optimizer,
     RL_PSO_Optimizer,
-    L2L_Optimizer,
-    Random_search
+    L2L_Optimizer
 )
 
 
-def aei_metric(self, data: dict, random: dict, maxFEs=20000):
+def get_random_baseline(random: dict, fes: Optional[Union[int, float]]):
+    baseline = {}
+    if isinstance(random['T1'], dict):
+        baseline['complexity_avg'] = np.log10(1 / (random['T2']['Random_search'] - random['T1']['Random_search']) / random['T0'])
+    else:
+        baseline['complexity_avg'] = np.log10(1 / (random['T2']['Random_search'] - random['T1']) / random['T0'])
+    baseline['complexity_std'] = 0.005
+
+    problems = random['cost'].keys()
+    avg = []
+    std = []
+    for problem in problems:
+        g = np.log10(fes/np.array(random['fes'][problem]['Random_search']))
+        avg.append(g.mean())
+        std.append(g.std())
+    baseline['fes_avg'] = np.mean(avg)
+    baseline['fes_std'] = np.mean(std)
+
+    avg = []
+    std = []
+    for problem in problems:
+        g = np.log10(1 / (np.array(random['cost'][problem]['Random_search'])[:, -1] + 1))
+        avg.append(g.mean())
+        std.append(g.std())
+    baseline['cost_avg'] = np.mean(avg)
+    baseline['cost_std'] = np.mean(std)
+    return baseline
+
+
+def aei_metric(data: dict, random: dict, maxFEs=20000):
     baseline = get_random_baseline(random, maxFEs)
     if 'complexity' not in data.keys():
         data['complexity'] = {}
@@ -44,7 +73,10 @@ def aei_metric(self, data: dict, random: dict, maxFEs=20000):
     for key in agents:
         if key not in data['complexity'].keys():
             t0 = data['T0']
-            t1 = data['T1']
+            if isinstance(data['T1'], dict):
+                t1 = data['T1'][key]
+            else:
+                t1 = data['T1']
             t2 = data['T2'][key]
             data['complexity'][key] = ((t2 - t1) / t0)
         results_complex[key] = np.exp((np.log10(1/data['complexity'][key]) - avg)/std/1000 * 1)
@@ -91,8 +123,6 @@ def aei_metric(self, data: dict, random: dict, maxFEs=20000):
 def mgd_test(config):
     print(f'start MGD_test: {config.run_time}')
     # get test set
-    config.problem = config.problem_to
-    config.difficulty = config.difficulty_to
     _, test_set = construct_problem_set(config)
     # get agents
     with open(config.model_from, 'rb') as f:
@@ -158,6 +188,8 @@ def mgd_test(config):
         os.makedirs(config.mgd_test_log_dir)
     with open(config.mgd_test_log_dir + 'test.pkl', 'wb') as f:
         pickle.dump(test_results, f, -1)
-    # logger = Logger(config)
-    # aei = logger.aei_metric(test_results)
-    # print(aei)
+    random_results = test_for_random_search(config)
+    aei = aei_metric(test_results, random_results, config.maxFEs)
+    print(f'AEI: {aei}')
+    print(f'MGD({config.problem_from}_{config.difficulty_from}, {config.problem_to}_{config.difficulty_to}) of {config.agent}: '
+          f'{100 * (1 - aei[config.agent+"_from"] / aei[config.agent+"_to"])}%')
