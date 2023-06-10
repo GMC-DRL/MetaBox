@@ -16,6 +16,7 @@ def get_config(args=None):
     parser.add_argument('--test', default=None, action='store_true', help='switch to inference mode')
     parser.add_argument('--rollout', default=None, action='store_true', help='switch to rollout mode')
     parser.add_argument('--run_experiment', default=None, action='store_true', help='switch to run_experiment mode')
+    parser.add_argument('--mgd_test', default=None, action='store_true', help='switch to mgd_test mode')
 
     # Training parameters
     parser.add_argument('--max_learning_step', type=int, default=1500000, help='the maximum learning step for training')
@@ -50,6 +51,14 @@ def get_config(args=None):
     parser.add_argument('--optimizer_for_rollout', type=str, nargs='+', help='learnabel optimizer for rollout')
     parser.add_argument('--plot_smooth', type=float, default=0.8, help='a float between 0 and 1')
 
+    # mgd_test parameters
+    parser.add_argument('--problem_from', default='bbob', choices=['bbob', 'bbob-noisy', 'bbob-torch', 'bbob-noisy-torch', 'protein', 'protein-torch'])
+    parser.add_argument('--problem_to', default='bbob', choices=['bbob', 'bbob-noisy', 'bbob-torch', 'bbob-noisy-torch', 'protein', 'protein-torch'])
+    parser.add_argument('--difficulty_from', default='easy', choices=['easy', 'difficult'])
+    parser.add_argument('--difficulty_to', default='easy', choices=['easy', 'difficult'])
+    parser.add_argument('--model_from', type=str)
+    parser.add_argument('--model_to', type=str)
+
     config = parser.parse_args(args)
     config.maxFEs = 2000 * config.dim
 
@@ -63,6 +72,7 @@ def get_config(args=None):
     config.run_time = f'{time.strftime("%Y%m%dT%H%M%S")}_{config.problem}_{config.difficulty}_{config.dim}D'
     config.test_log_dir = config.log_dir + '/test/' + config.run_time + '/'
     config.rollout_log_dir = config.log_dir + '/rollout/' + config.run_time + '/'
+    config.mgd_test_log_dir = config.log_dir + '/mgd_test/' + config.run_time + '/'
 
     if config.train or config.run_experiment:
         config.agent_save_dir = config.agent_save_dir + config.train_agent + '/' + config.run_time + '/'
