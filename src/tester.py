@@ -340,9 +340,9 @@ def test_for_random_search(config):
     test_results = {'cost': {},
                     'fes': {},
                     'T0': 0.,
-                    'T1': 0.,
+                    'T1': {},
                     'T2': {}}
-    # test_results['T1'][type(random_search).__name__] = 0.
+    test_results['T1'][type(optimizer).__name__] = 0.
     test_results['T2'][type(optimizer).__name__] = 0.
     for problem in entire_set:
         test_results['cost'][problem.__str__()] = {}
@@ -356,6 +356,7 @@ def test_for_random_search(config):
     pbar_len = len(entire_set) * 51
     with tqdm(range(pbar_len), desc='test for random search') as pbar:
         for i, problem in enumerate(entire_set):
+            T1 = 0
             T2 = 0
             for run in range(51):
                 start = time.perf_counter()
@@ -367,6 +368,7 @@ def test_for_random_search(config):
                 fes = info['fes']
                 end = time.perf_counter()
                 if i == 0:
+                    T1 += problem.T1
                     T2 += (end - start) * 1000  # ms
                 test_results['cost'][problem.__str__()][type(optimizer).__name__].append(cost)
                 test_results['fes'][problem.__str__()][type(optimizer).__name__].append(fes)
@@ -378,5 +380,6 @@ def test_for_random_search(config):
                 pbar.set_postfix(pbar_info)
                 pbar.update(1)
             if i == 0:
+                test_results['T1'][type(optimizer).__name__] = T1 / 51
                 test_results['T2'][type(optimizer).__name__] = T2 / 51
     return test_results

@@ -5,7 +5,7 @@ import time
 import numpy as np
 from tqdm import tqdm
 from utils import construct_problem_set
-from tester import cal_t0, cal_t1
+from tester import cal_t0
 from environment import PBO_Env
 from logger import Logger
 from agent import (
@@ -74,7 +74,7 @@ def aei_metric(self, data: dict, random: dict, maxFEs=20000):
     for agent in agents:
         costs_problem = []
         for problem in problems:
-            cost_ =np.log10(1/(np.array(cost_data[problem][agent])[:, -1]+1))
+            cost_ = np.log10(1/(np.array(cost_data[problem][agent])[:, -1]+1))
             costs_problem.append(cost_.mean())
         log_cost[agent] = np.mean(costs_problem)
         results_cost[agent] = np.exp((log_cost[agent] - avg) * 1)
@@ -105,10 +105,11 @@ def mgd_test(config):
     test_results = {'cost': {},
                     'fes': {},
                     'T0': 0.,
-                    'T1': 0.,
+                    'T1': {},
                     'T2': {}}
     agent_name_list = [f'{config.agent}_from', f'{config.agent}_to']
     for agent_name in agent_name_list:
+        test_results['T1'][agent_name] = 0.
         test_results['T2'][agent_name] = 0.
     for problem in test_set:
         test_results['cost'][problem.__str__()] = {}
@@ -116,9 +117,8 @@ def mgd_test(config):
         for agent_name in agent_name_list:
             test_results['cost'][problem.__str__()][agent_name] = []  # 51 np.arrays
             test_results['fes'][problem.__str__()][agent_name] = []  # 51 scalars
-    # calculate T0 & T1
+    # calculate T0
     test_results['T0'] = cal_t0(config.dim, config.maxFEs)
-    test_results['T1'] = cal_t1(test_set[0], config.dim, config.maxFEs)
     # begin mgd_test
     seed = range(51)
     pbar_len = len(agent_name_list) * len(test_set) * 51
@@ -126,6 +126,7 @@ def mgd_test(config):
         for i, problem in enumerate(test_set):
             # run model_from and model_to
             for agent_id, agent in enumerate([agent_from, agent_to]):
+                T1 = 0
                 T2 = 0
                 for run in range(51):
                     start = time.perf_counter()
@@ -139,6 +140,7 @@ def mgd_test(config):
                     fes = info['fes']
                     end = time.perf_counter()
                     if i == 0:
+                        T1 += env.problem.T1
                         T2 += (end - start) * 1000  # ms
                     test_results['cost'][problem.__str__()][agent_name_list[agent_id]].append(cost)
                     test_results['fes'][problem.__str__()][agent_name_list[agent_id]].append(fes)
@@ -150,6 +152,7 @@ def mgd_test(config):
                     pbar.set_postfix(pbar_info)
                     pbar.update(1)
                 if i == 0:
+                    test_results['T1'][agent_name_list[agent_id]] = T1 / 51
                     test_results['T2'][agent_name_list[agent_id]] = T2 / 51
     if not os.path.exists(config.mgd_test_log_dir):
         os.makedirs(config.mgd_test_log_dir)
