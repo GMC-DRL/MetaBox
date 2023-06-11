@@ -17,6 +17,7 @@ def get_config(args=None):
     parser.add_argument('--rollout', default=None, action='store_true', help='switch to rollout mode')
     parser.add_argument('--run_experiment', default=None, action='store_true', help='switch to run_experiment mode')
     parser.add_argument('--mgd_test', default=None, action='store_true', help='switch to mgd_test mode')
+    parser.add_argument('--mte_test', default=None, action='store_true', help='switch to mte_test mode')
 
     # Training parameters
     parser.add_argument('--max_learning_step', type=int, default=1500000, help='the maximum learning step for training')
@@ -51,13 +52,19 @@ def get_config(args=None):
     parser.add_argument('--optimizer_for_rollout', type=str, nargs='+', help='learnabel optimizer for rollout')
     parser.add_argument('--plot_smooth', type=float, default=0.8, help='a float between 0 and 1')
 
-    # mgd_test parameters
+    # parameters common to mgd_test & mte_test
     parser.add_argument('--problem_from', choices=['bbob', 'bbob-noisy', 'bbob-torch', 'bbob-noisy-torch', 'protein', 'protein-torch'])
     parser.add_argument('--problem_to', choices=['bbob', 'bbob-noisy', 'bbob-torch', 'bbob-noisy-torch', 'protein', 'protein-torch'])
-    parser.add_argument('--difficulty_from', choices=['easy', 'difficult'])
-    parser.add_argument('--difficulty_to', choices=['easy', 'difficult'])
+    parser.add_argument('--difficulty_from', default='easy', choices=['easy', 'difficult'])
+    parser.add_argument('--difficulty_to', default='easy', choices=['easy', 'difficult'])
+
+    # mgd_test parameters
     parser.add_argument('--model_from', type=str)
     parser.add_argument('--model_to', type=str)
+
+    # mte_test parameters
+    parser.add_argument('--pre_train_rollout', type=str, help='')
+    parser.add_argument('--scratch_rollout', type=str, help='')
 
     config = parser.parse_args(args)
     config.maxFEs = 2000 * config.dim
@@ -76,6 +83,7 @@ def get_config(args=None):
     config.test_log_dir = config.log_dir + '/test/' + config.run_time + '/'
     config.rollout_log_dir = config.log_dir + '/rollout/' + config.run_time + '/'
     config.mgd_test_log_dir = config.log_dir + '/mgd_test/' + config.run_time + '/'
+    config.mte_test_log_dir = config.log_dir + '/mte_test/' + config.run_time + '/'
 
     if config.train or config.run_experiment:
         config.agent_save_dir = config.agent_save_dir + config.train_agent + '/' + config.run_time + '/'

@@ -4,6 +4,8 @@ import copy
 import time
 import numpy as np
 from tqdm import tqdm
+import matplotlib.pyplot as plt
+from scipy.signal import savgol_filter
 from typing import Optional, Union
 from utils import construct_problem_set
 from tester import cal_t0, test_for_random_search
@@ -193,3 +195,151 @@ def mgd_test(config):
     print(f'AEI: {aei}')
     print(f'MGD({config.problem_from}_{config.difficulty_from}, {config.problem_to}_{config.difficulty_to}) of {config.agent}: '
           f'{100 * (1 - aei[config.agent+"_from"] / aei[config.agent+"_to"])}%')
+
+
+def mte_test(config):
+    print(f'start MTE_test: {config.run_time}')
+    pre_train_file = config.pre_train_rollout
+    scratch_file = config.scratch_rollout
+    agent = config.agent
+    # pre_train_file = 'rlepso_transfer_to_bbob/20230609T133345_bbob_easy_10D(noisy_to_bbob)/rollout.pkl'
+    # scratch_file = 'rlepso_transfer_to_bbob/20230604T190807_bbob_easy_10D(只在bbob上训练)/rollout.pkl'
+    # agent = 'RLEPSO_Agent'
+    min_max = False
+    other_pre_train_file = None
+
+    # preprocess data for agent
+    def preprocess(file, agent):
+        with open(file, 'rb') as f:
+            data = pickle.load(f)
+        # aggregate all problem's data together
+        returns = data['return']
+        results = None
+        i = 0
+        for problem in returns.keys():
+            if i == 0:
+                results = np.array(returns[problem][agent])
+            else:
+                results = np.concatenate([results, np.array(returns[problem][agent])], axis=1)
+            i += 1
+        return np.array(results)
+
+    bbob_data = preprocess(pre_train_file, agent)
+    noisy_data = preprocess(scratch_file, agent)
+    # calculate min_max avg
+    temp = np.concatenate([bbob_data, noisy_data], axis=1)
+    if min_max:
+        temp_ = (temp - temp.min(-1)[:, None]) / (temp.max(-1)[:, None] - temp.min(-1)[:, None])
+    else:
+        temp_ = temp
+    bd, nd = temp_[:, :90], temp_[:, 90:]
+    checkpoints = np.hsplit(bd, 18)
+    g = []
+    for i in range(18):
+        g.append(checkpoints[i].tolist())
+    checkpoints = np.array(g)
+    avg = bd.mean(-1)
+    avg = savgol_filter(avg, 13, 5)
+    std = np.mean(np.std(checkpoints, -1), 0) / np.sqrt(5)
+    checkpoints = np.hsplit(nd, 18)
+    g = []
+    for i in range(18):
+        g.append(checkpoints[i].tolist())
+    checkpoints = np.array(g)
+    std_ = np.mean(np.std(checkpoints, -1), 0) / np.sqrt(5)
+    avg_ = nd.mean(-1)
+    avg_ = savgol_filter(avg_, 13, 5)
+    plt.figure(figsize=(40, 15))
+    plt.subplot(1, 3, (2, 3))
+    x = np.arange(21)
+    x = (1.5e6 / x[-1]) * x
+    idx = np.argmax(avg_) + 1
+    idx = 21
+    smooth = 1
+    s = np.zeros(21)
+    a = s[0] = avg[0]
+    norm = smooth + 1
+    for i in range(1, 21):
+        a = a * smooth + avg[i]
+        s[i] = a / norm if norm > 0 else a
+        norm *= smooth
+        norm += 1
+
+    s_ = np.zeros(21)
+    a = s_[0] = avg_[0]
+    norm = smooth + 1
+    for i in range(1, 21):
+        a = a * smooth + avg_[i]
+        s_[i] = a / norm if norm > 0 else a
+        norm *= smooth
+        norm += 1
+    #     s = savgol_filter(s,13,5)
+    #     s_ = savgol_filter(s_,13,5)
+
+    #     plt.plot(x[:idx],avg[:idx], label='pre-train', marker='*', markersize=15, markevery=1, c='blue')
+    #     plt.fill_between(x[:idx], avg[:idx] - std[:idx], avg[:idx]+std[:idx], alpha=0.1, facecolor='blue')
+    #     plt.plot(x[:idx],avg_[:idx], label='scratch', marker='*', markersize=15, markevery=1, c='red')
+    #     plt.fill_between(x[:idx], avg_[:idx] - std_[:idx], avg_[:idx]+std_[:idx], alpha=0.1, facecolor='red')
+    plt.plot(x[:idx], s[:idx], label='pre-train', marker='*', markersize=30, markevery=1, c='blue', linewidth=5)
+    plt.fill_between(x[:idx], s[:idx] - std[:idx], s[:idx] + std[:idx], alpha=0.2, facecolor='blue')
+    plt.plot(x[:idx], s_[:idx], label='scratch', marker='*', markersize=30, markevery=1, c='red', linewidth=5)
+    plt.fill_between(x[:idx], s_[:idx] - std_[:idx], s_[:idx] + std_[:idx], alpha=0.2, facecolor='red')
+    # Search MTE
+    scratch = s_[:idx]
+    pretrain = s[:idx]
+    topx = np.argmax(scratch)
+    topy = scratch[topx]
+    T = topx / 21
+    t = 0
+    if pretrain[0] < topy:
+        for i in range(1, 21):
+            if pretrain[i - 1] < topy <= pretrain[i]:
+                t = ((topy - pretrain[i - 1]) / (pretrain[i] - pretrain[i - 1]) + i - 1) / 21
+                break
+    if np.max(pretrain[-1]) < topy:
+        t = 1
+    MTE = 1 - t / T
+
+    def name_translate(problem):
+        if problem in ['bbob', 'bbob-torch']:
+            return 'Synthetic'
+        elif problem in ['bbob-noisy', 'bbob-noisy-torch']:
+            return 'Noisy-Synthetic'
+        elif problem in ['protein', 'protein-torch']:
+            return 'Protein-Docking'
+        else:
+            raise ValueError(problem + ' is not defined!')
+
+    print(f'MTE({name_translate(config.problem_from)}_{config.difficulty_from}, {name_translate(config.problem_to)}_{config.difficulty_to}) of {config.agent}: '
+          f'{MTE}')
+
+    # plt.plot([x[4], x[4]], [s_[0]-0.2, s_[4]], lw=4, ls='--', c='r')
+    # d = 0.015
+    # plt.plot([x[3]+d, x[3]+d], [s_[0]-0.2, s_[3]], lw=4, ls='--', c='b')
+
+    # plt.text(x[3] - 0.12 * 1e6, 5.3, 't = 0.24', fontsize=50)
+    # plt.text(x[4] - 0.13 * 1e6, 5.1, 'T = 0.30', fontsize=50)
+    # plt.text(0.45 * 1e6, 5.7, 'MTE = (1 - t/T) = 0.2', fontsize=50)
+
+    # plt.plot([x[3]+0.01 * 1e6, 0.45 * 1e6], [5.3+0.05, 5.7], lw=4, c='b')
+    # plt.plot([x[4], 0.45 * 1e6], [5.1+0.05, 5.7], lw=4, c='r')
+    ax = plt.gca()
+    ax.xaxis.get_offset_text().set_fontsize(45)
+    plt.xticks(fontsize=45, )
+    plt.yticks(fontsize=45)
+    #     plt.xlim(0,1.5)
+    #     plt.ylim(3.2,4.5)
+    # plt.grid()
+    plt.legend(loc=0, fontsize=60)
+    plt.xlabel('Learning Steps', fontsize=55)
+    plt.ylabel('Avg Return', fontsize=55)
+    # plt.ylim(s_[0] - 0.2, 7.7)
+
+    plt.title(f'Fine-tuning ({name_translate(config.problem_from)} $\\rightarrow$ {name_translate(config.problem_to)})',
+              fontsize=60)
+    plt.tight_layout()
+    plt.grid()
+    plt.subplots_adjust(wspace=0.2)
+    if not os.path.exists(config.mte_test_log_dir):
+        os.makedirs(config.mte_test_log_dir)
+    plt.savefig(f'{config.mte_test_log_dir}/MTE_{agent}.png', bbox_inches='tight')

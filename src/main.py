@@ -1,7 +1,7 @@
 import torch
 from trainer import Trainer
 from tester import *
-from paper_experiment import *
+from paper_experiment import mgd_test, mte_test
 from config import get_config
 from logger import *
 import shutil
@@ -14,7 +14,9 @@ if __name__ == '__main__':
             (config.rollout is not None) +
             (config.test is not None) +
             (config.run_experiment is not None) +
-            (config.mgd_test is not None)) == 1, 'Among train, rollout, test & run_experiment, only one mode can be given at one time.'
+            (config.mgd_test is not None) +
+            (config.mte_test is not None)) == 1, \
+        'Among train, rollout, test, run_experiment, mgd_test & mte_test, only one mode can be given at one time.'
 
     # train
     if config.train:
@@ -82,3 +84,7 @@ if __name__ == '__main__':
     if config.mgd_test:
         torch.set_grad_enabled(False)
         mgd_test(config)
+
+    # mte_test
+    if config.mte_test:
+        mte_test(config)
