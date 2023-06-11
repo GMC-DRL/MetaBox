@@ -93,7 +93,10 @@ def cal_scores1(D: dict, maxf: float):
 
 def get_random_baseline(random: dict, fes: Optional[Union[int, float]]):
     baseline = {}
-    baseline['complexity_avg'] = np.log10(1/ (random['T2']['Random_search'] - random['T1']) / random['T0'])
+    if isinstance(random['T1'], dict):
+        baseline['complexity_avg'] = np.log10(1/ (random['T2']['Random_search'] - random['T1']['Random_search']) / random['T0'])
+    else:
+        baseline['complexity_avg'] = np.log10(1/ (random['T2']['Random_search'] - random['T1']) / random['T0'])
     baseline['complexity_std'] = 0.005
     
     problems = random['cost'].keys()
@@ -572,7 +575,7 @@ class Logger:
         results_complex = {}
 
         for key in agents:
-            if key in ignore:
+            if (ignore is not None) and (key in ignore):
                 continue
             if key not in data['complexity'].keys():
                 t0 = data['T0']
@@ -591,7 +594,7 @@ class Logger:
         results_fes = {}
         log_fes = {}
         for agent in agents:
-            if key in ignore:
+            if (ignore is not None) and (key in ignore):
                 continue
             fes_problem = []
             for problem in problems:
@@ -609,7 +612,7 @@ class Logger:
         results_cost = {}
         log_cost = {}
         for agent in agents:
-            if key in ignore:
+            if (ignore is not None) and (key in ignore):
                 continue
             costs_problem = []
             for problem in problems:
@@ -621,7 +624,7 @@ class Logger:
         results = {}
         for agent in agents:
             key = agent
-            if key in ignore:
+            if (ignore is not None) and (key in ignore):
                 continue
             if agent == 'Random_search':
                 continue

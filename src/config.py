@@ -72,7 +72,7 @@ def get_config(args=None):
     config.bo_maxFEs = 10 * config.dim
     config.n_logpoint = 50
 
-    if config.mgd_test:
+    if config.mgd_test or config.mte_test:
         config.problem = config.problem_to
         config.difficulty = config.difficulty_to
 

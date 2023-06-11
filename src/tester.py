@@ -2,10 +2,13 @@ import copy
 from utils import construct_problem_set
 import numpy as np
 import pickle
-from environment.basic_environment import PBO_Env
+import matplotlib.pyplot as plt
+from scipy.signal import savgol_filter
 import time
 from tqdm import tqdm
 import os
+from environment.basic_environment import PBO_Env
+from logger import Logger
 
 
 from agent import (
@@ -245,6 +248,9 @@ class Tester(object):
                             self.test_results['T2'][type(optimizer).__name__] *= (self.config.maxFEs/self.config.bo_maxFEs)
         with open(self.log_dir + 'test.pkl', 'wb') as f:
             pickle.dump(self.test_results, f, -1)
+        random_search_results = test_for_random_search(self.config)
+        with open(self.log_dir + 'random_search_baseline.pkl', 'wb') as f:
+            pickle.dump(random_search_results, f, -1)
 
 
 def rollout(config):
@@ -389,3 +395,203 @@ def test_for_random_search(config):
                 test_results['T1'][type(optimizer).__name__] = T1 / 51
                 test_results['T2'][type(optimizer).__name__] = T2 / 51
     return test_results
+
+
+def name_translate(problem):
+    if problem in ['bbob', 'bbob-torch']:
+        return 'Synthetic'
+    elif problem in ['bbob-noisy', 'bbob-noisy-torch']:
+        return 'Noisy-Synthetic'
+    elif problem in ['protein', 'protein-torch']:
+        return 'Protein-Docking'
+    else:
+        raise ValueError(problem + ' is not defined!')
+
+
+def mgd_test(config):
+    print(f'start MGD_test: {config.run_time}')
+    # get test set
+    _, test_set = construct_problem_set(config)
+    # get agents
+    with open(config.model_from, 'rb') as f:
+        agent_from = pickle.load(f)
+    with open(config.model_to, 'rb') as f:
+        agent_to = pickle.load(f)
+    # get optimizer
+    l_optimizer = eval(config.optimizer)(copy.deepcopy(config))
+    # initialize the dataframe for logging
+    test_results = {'cost': {},
+                    'fes': {},
+                    'T0': 0.,
+                    'T1': {},
+                    'T2': {}}
+    agent_name_list = [f'{config.agent}_from', f'{config.agent}_to']
+    for agent_name in agent_name_list:
+        test_results['T1'][agent_name] = 0.
+        test_results['T2'][agent_name] = 0.
+    for problem in test_set:
+        test_results['cost'][problem.__str__()] = {}
+        test_results['fes'][problem.__str__()] = {}
+        for agent_name in agent_name_list:
+            test_results['cost'][problem.__str__()][agent_name] = []  # 51 np.arrays
+            test_results['fes'][problem.__str__()][agent_name] = []  # 51 scalars
+    # calculate T0
+    test_results['T0'] = cal_t0(config.dim, config.maxFEs)
+    # begin mgd_test
+    seed = range(51)
+    pbar_len = len(agent_name_list) * len(test_set) * 51
+    with tqdm(range(pbar_len), desc='MGD_Test') as pbar:
+        for i, problem in enumerate(test_set):
+            # run model_from and model_to
+            for agent_id, agent in enumerate([agent_from, agent_to]):
+                T1 = 0
+                T2 = 0
+                for run in range(51):
+                    start = time.perf_counter()
+                    np.random.seed(seed[run])
+                    # construct an ENV for (problem,optimizer)
+                    env = PBO_Env(problem, l_optimizer)
+                    info = agent.rollout_episode(env)
+                    cost = info['cost']
+                    while len(cost) < 51:
+                        cost.append(cost[-1])
+                    fes = info['fes']
+                    end = time.perf_counter()
+                    if i == 0:
+                        T1 += env.problem.T1
+                        T2 += (end - start) * 1000  # ms
+                    test_results['cost'][problem.__str__()][agent_name_list[agent_id]].append(cost)
+                    test_results['fes'][problem.__str__()][agent_name_list[agent_id]].append(fes)
+                    pbar_info = {'problem': problem.__str__(),
+                                 'optimizer': agent_name_list[agent_id],
+                                 'run': run,
+                                 'cost': cost[-1],
+                                 'fes': fes}
+                    pbar.set_postfix(pbar_info)
+                    pbar.update(1)
+                if i == 0:
+                    test_results['T1'][agent_name_list[agent_id]] = T1 / 51
+                    test_results['T2'][agent_name_list[agent_id]] = T2 / 51
+    if not os.path.exists(config.mgd_test_log_dir):
+        os.makedirs(config.mgd_test_log_dir)
+    with open(config.mgd_test_log_dir + 'test.pkl', 'wb') as f:
+        pickle.dump(test_results, f, -1)
+    random_search_results = test_for_random_search(config)
+    with open(config.mgd_test_log_dir + 'random_search_baseline.pkl', 'wb') as f:
+        pickle.dump(random_search_results, f, -1)
+    logger = Logger(config)
+    aei = logger.aei_metric(test_results, random_search_results, config.maxFEs)
+    print(f'AEI: {aei}')
+    print(f'MGD({name_translate(config.problem_from)}_{config.difficulty_from}, {name_translate(config.problem_to)}_{config.difficulty_to}) of {config.agent}: '
+          f'{100 * (1 - aei[config.agent+"_from"] / aei[config.agent+"_to"])}%')
+
+
+def mte_test(config):
+    print(f'start MTE_test: {config.run_time}')
+    pre_train_file = config.pre_train_rollout
+    scratch_file = config.scratch_rollout
+    agent = config.agent
+    min_max = False
+
+    # preprocess data for agent
+    def preprocess(file, agent):
+        with open(file, 'rb') as f:
+            data = pickle.load(f)
+        # aggregate all problem's data together
+        returns = data['return']
+        results = None
+        i = 0
+        for problem in returns.keys():
+            if i == 0:
+                results = np.array(returns[problem][agent])
+            else:
+                results = np.concatenate([results, np.array(returns[problem][agent])], axis=1)
+            i += 1
+        return np.array(results)
+
+    bbob_data = preprocess(pre_train_file, agent)
+    noisy_data = preprocess(scratch_file, agent)
+    # calculate min_max avg
+    temp = np.concatenate([bbob_data, noisy_data], axis=1)
+    if min_max:
+        temp_ = (temp - temp.min(-1)[:, None]) / (temp.max(-1)[:, None] - temp.min(-1)[:, None])
+    else:
+        temp_ = temp
+    bd, nd = temp_[:, :90], temp_[:, 90:]
+    checkpoints = np.hsplit(bd, 18)
+    g = []
+    for i in range(18):
+        g.append(checkpoints[i].tolist())
+    checkpoints = np.array(g)
+    avg = bd.mean(-1)
+    avg = savgol_filter(avg, 13, 5)
+    std = np.mean(np.std(checkpoints, -1), 0) / np.sqrt(5)
+    checkpoints = np.hsplit(nd, 18)
+    g = []
+    for i in range(18):
+        g.append(checkpoints[i].tolist())
+    checkpoints = np.array(g)
+    std_ = np.mean(np.std(checkpoints, -1), 0) / np.sqrt(5)
+    avg_ = nd.mean(-1)
+    avg_ = savgol_filter(avg_, 13, 5)
+    plt.figure(figsize=(40, 15))
+    plt.subplot(1, 3, (2, 3))
+    x = np.arange(21)
+    x = (1.5e6 / x[-1]) * x
+    idx = 21
+    smooth = 1
+    s = np.zeros(21)
+    a = s[0] = avg[0]
+    norm = smooth + 1
+    for i in range(1, 21):
+        a = a * smooth + avg[i]
+        s[i] = a / norm if norm > 0 else a
+        norm *= smooth
+        norm += 1
+
+    s_ = np.zeros(21)
+    a = s_[0] = avg_[0]
+    norm = smooth + 1
+    for i in range(1, 21):
+        a = a * smooth + avg_[i]
+        s_[i] = a / norm if norm > 0 else a
+        norm *= smooth
+        norm += 1
+    plt.plot(x[:idx], s[:idx], label='pre-train', marker='*', markersize=30, markevery=1, c='blue', linewidth=5)
+    plt.fill_between(x[:idx], s[:idx] - std[:idx], s[:idx] + std[:idx], alpha=0.2, facecolor='blue')
+    plt.plot(x[:idx], s_[:idx], label='scratch', marker='*', markersize=30, markevery=1, c='red', linewidth=5)
+    plt.fill_between(x[:idx], s_[:idx] - std_[:idx], s_[:idx] + std_[:idx], alpha=0.2, facecolor='red')
+    # Search MTE
+    scratch = s_[:idx]
+    pretrain = s[:idx]
+    topx = np.argmax(scratch)
+    topy = scratch[topx]
+    T = topx / 21
+    t = 0
+    if pretrain[0] < topy:
+        for i in range(1, 21):
+            if pretrain[i - 1] < topy <= pretrain[i]:
+                t = ((topy - pretrain[i - 1]) / (pretrain[i] - pretrain[i - 1]) + i - 1) / 21
+                break
+    if np.max(pretrain[-1]) < topy:
+        t = 1
+    MTE = 1 - t / T
+
+    print(f'MTE({name_translate(config.problem_from)}_{config.difficulty_from}, {name_translate(config.problem_to)}_{config.difficulty_to}) of {config.agent}: '
+          f'{MTE}')
+
+    ax = plt.gca()
+    ax.xaxis.get_offset_text().set_fontsize(45)
+    plt.xticks(fontsize=45, )
+    plt.yticks(fontsize=45)
+    plt.legend(loc=0, fontsize=60)
+    plt.xlabel('Learning Steps', fontsize=55)
+    plt.ylabel('Avg Return', fontsize=55)
+    plt.title(f'Fine-tuning ({name_translate(config.problem_from)} $\\rightarrow$ {name_translate(config.problem_to)})',
+              fontsize=60)
+    plt.tight_layout()
+    plt.grid()
+    plt.subplots_adjust(wspace=0.2)
+    if not os.path.exists(config.mte_test_log_dir):
+        os.makedirs(config.mte_test_log_dir)
+    plt.savefig(f'{config.mte_test_log_dir}/MTE_{agent}.png', bbox_inches='tight')
