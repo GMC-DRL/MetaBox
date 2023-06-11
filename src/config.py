@@ -68,6 +68,8 @@ def get_config(args=None):
 
     config = parser.parse_args(args)
     config.maxFEs = 2000 * config.dim
+    # for bo, maxFEs is relatively smaller due to time limit
+    config.bo_maxFEs = 10 * config.dim
     config.n_logpoint = 50
 
     if config.mgd_test:
@@ -77,6 +79,7 @@ def get_config(args=None):
     if config.problem in ['protein', 'protein-torch']:
         config.dim = 12
         config.maxFEs = 1000
+        config.bo_maxFEs = 10
         config.n_logpoint = 5
 
     config.run_time = f'{time.strftime("%Y%m%dT%H%M%S")}_{config.problem}_{config.difficulty}_{config.dim}D'

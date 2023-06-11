@@ -26,8 +26,8 @@ class BayesianOptimizer(Basic_Optimizer):
         res = gp_minimize(black_box_function,                  # the function to minimize
                           bounds,      # the bounds on each dimension of x
                           acq_func="EI",      # the acquisition function
-                          # n_calls=self.__config.maxFEs,         # the number of evaluations of f
-                          n_calls=100,
+                          n_calls=self.__config.bo_maxFEs,         # the number of evaluations of f
+                        #   n_calls=100,
                           n_random_starts=5,  # the number of random initialization points
                           )   # the random seed
         for i in range(len(res.func_vals)):

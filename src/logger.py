@@ -129,6 +129,8 @@ def gen_algorithm_complexity_table(results: dict, out_dir: str) -> None:
     t2_list=[]
     indexs=[]
     columns=['T0','T1','T2','(T2-T1)/T0']
+
+    
     for key,value in t2s.items():
         indexs.append(key)
         t2_list.append(value)
