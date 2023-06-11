@@ -76,7 +76,7 @@ class RLEPSO_Agent(Basic_Agent):
         config.max_sigma=0.7
         config.min_sigma=0.01
         config.lr=1e-5
-        config.lr_decay=0.99
+        # config.lr_decay=0.99
         self.__config = config
 
         self.__device = self.__config.device
@@ -93,8 +93,8 @@ class RLEPSO_Agent(Basic_Agent):
             [{'params': self.__critic.parameters(), 'lr': config.lr}])
         
         # figure out the lr schedule
-        self.__lr_scheduler_critic = torch.optim.lr_scheduler.ExponentialLR(self.__optimizer_critic, config.lr_decay, last_epoch=-1, )
-        self.__lr_scheduler_actor = torch.optim.lr_scheduler.ExponentialLR(self.__optimizer_actor, config.lr_decay, last_epoch=-1, )
+        # self.__lr_scheduler_critic = torch.optim.lr_scheduler.ExponentialLR(self.__optimizer_critic, config.lr_decay, last_epoch=-1, )
+        # self.__lr_scheduler_actor = torch.optim.lr_scheduler.ExponentialLR(self.__optimizer_actor, config.lr_decay, last_epoch=-1, )
 
         # init learning time
         self.__learning_time=0
@@ -121,7 +121,6 @@ class RLEPSO_Agent(Basic_Agent):
         state = env.reset()
         state = torch.FloatTensor(state).to(self.__device)
 
-        # obj = problem.particles['pbest'].min(1)[0][:, None].repeat(1,2)
 
         # params for training
         gamma = config.gamma
@@ -145,9 +144,8 @@ class RLEPSO_Agent(Basic_Agent):
                 # encoding the state
 
                 memory.states.append(state.clone())
-                # memory.problems.append(copy.deepcopy(problem))
+                
                 # get model output
-                # action shape : bs,pop_size,1 | log_prob : bs  |
                 action, log_lh,  entro_p = self.__actor(state,
                                                         require_entropy=True,
                                                         )
@@ -177,10 +175,6 @@ class RLEPSO_Agent(Basic_Agent):
                 state=torch.FloatTensor(state).to(config.device)
                 if is_done:
                     
-                    # if config.onepro:
-                        # best_cost=gbest_val
-                        # print(best_cost)
-                        # tb_logger.add_scalar('train_performance',best_cost.item(),epoch)
                     break
 
             # store info
@@ -192,9 +186,8 @@ class RLEPSO_Agent(Basic_Agent):
             # bs, ps, dim_f = state.size()
 
             old_actions = torch.stack(memory.actions)
-            old_states = torch.stack(memory.states).detach()  #.view(t_time, bs, ps, dim_f)
-            # old_actions = all_actions.view(t_time, bs, ps, -1)
-            # print('old_actions.shape:{}'.format(old_actions.shape))
+            old_states = torch.stack(memory.states).detach() 
+            
             old_logprobs = torch.stack(memory.logprobs).detach().view(-1)
 
             # Optimize PPO policy for K mini-epochs:
@@ -279,11 +272,6 @@ class RLEPSO_Agent(Basic_Agent):
                 reinforce_loss.backward()
                 # loss.backward()
 
-                # Clip gradient norm and get (clipped) gradient norms for logging
-                # current_step = int(pre_step + t//n_step * K_epochs  + _k)
-                # grad_norms_actor = clip_grad_norms(agent.optimizer_actor.param_groups)
-                # grad_norms_critic = clip_grad_norms(agent.optimizer_critic.param_groups)
-                # grad_norms = clip_grad_norms(agent.optimizer.param_groups, config.max_grad_norm)
 
                 # perform gradient descent
                 self.__optimizer_actor.step()

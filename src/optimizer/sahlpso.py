@@ -145,12 +145,7 @@ class SAHLPSO(Basic_Optimizer):
                     P_ls = np.ones(H_ls) / H_ls
                 else:
                     P_ls = S_ls / np.sum(S_ls)
-                #P_cr = np.ones(H_cr) / H_cr
-                # nf_cr = np.zeros(H_cr)
-                # ns_cr = np.zeros(H_cr)
-                # #P_ls = np.ones(H_ls) / H_ls
-                # nf_ls = np.zeros(H_ls)
-                # ns_ls = np.zeros(H_ls)
+                
 
             # population size reduction
             NP_ = round((4 - self.NP) * fes / self.maxFEs + self.NP)

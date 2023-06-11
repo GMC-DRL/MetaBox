@@ -78,13 +78,7 @@ class RLEPSO_Optimizer(Learnable_Optimizer):
         rand = np.random.rand(self.__NP, self.__dim)
         filter = rand > self.__pci[:, None]
         # tournament selection 2
-        # rand_index1=np.random.randint(low=0,high=self.__NP,size=(self.__NP,))
-        # rand_index2=np.random.randint(low=0,high=self.__NP,size=(self.__NP,))
-        # rand_position1=self.__particles['pbest_position'][rand_index1]
-        # rand_cost1=self.__particles['pbest'][rand_index1]
-        # rand_position2=self.__particles['pbest_position'][rand_index2]
-        # rand_cost2=self.__particles['pbest'][rand_index2]
-        # target_pos=np.where(rand_cost1[:,None]<rand_cost2[:,None],rand_position1,rand_position2)
+        
         target_pos = self.__tournament_selection()
         pbest_clpso = np.where(filter, self.__particles['pbest_position'], target_pos)
         v_clpso = rand*(pbest_clpso-self.__particles['current_position'])

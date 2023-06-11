@@ -59,7 +59,7 @@ class RL_PSO_Agent(Basic_Agent):
         config.max_sigma = 0.7
         config.min_sigma = 0.01
         config.lr = 1e-5
-        config.lr_decay = 0.99
+        # config.lr_decay = 0.99
         self.__config = config
 
         self.__device = config.device
@@ -68,7 +68,7 @@ class RL_PSO_Agent(Basic_Agent):
         # optimizer
         self.__optimizer = torch.optim.Adam([{'params': self.__nets.parameters(), 'lr': config.lr}])
         # figure out the lr schedule
-        self.__lr_scheduler = torch.optim.lr_scheduler.ExponentialLR(self.__optimizer, config.lr_decay, last_epoch=-1, )
+        # self.__lr_scheduler = torch.optim.lr_scheduler.ExponentialLR(self.__optimizer, config.lr_decay, last_epoch=-1, )
         self.__learning_time = 0
         
         self.__cur_checkpoint=0
