@@ -91,6 +91,32 @@ def cal_scores1(D: dict, maxf: float):
     return score1
 
 
+def get_random_baseline(random: dict, fes: Optional[Union[int, float]]):
+    baseline = {}
+    baseline['complexity_avg'] = np.log10(1/ (random['T2']['Random_search'] - random['T1']) / random['T0'])
+    baseline['complexity_std'] = 0.005
+    
+    problems = random['cost'].keys()
+    avg = []
+    std = []
+    for problem in problems:
+        g = np.log10(fes/np.array(random['fes'][problem]['Random_search']))
+        avg.append(g.mean())
+        std.append(g.std())
+    baseline['fes_avg'] = np.mean(avg)
+    baseline['fes_std'] = np.mean(std)
+    
+    avg = []
+    std = []
+    for problem in problems:
+        g = np.log10(1/(np.array(random['cost'][problem]['Random_search'])[:, -1]+1))
+        avg.append(g.mean())
+        std.append(g.std()) 
+    baseline['cost_avg'] = np.mean(avg)
+    baseline['cost_std'] = np.mean(std)
+    return baseline
+
+
 def gen_algorithm_complexity_table(results: dict, out_dir: str) -> None:
     save_list=[]
     t0=results['T0']
@@ -513,90 +539,93 @@ class Logger:
         plt.savefig(output_dir + f'overall_boxplot.png', bbox_inches='tight')
         plt.close()
 
-    def draw_rank_hist(self, data: dict, output_dir: str, mode: str='AEI', ignore: Optional[list]=None) -> None:
-        plt.figure(figsize=(30,15))
-        # plt.title('rank histgram')
-        if mode == 'AEI':
-            with_optimum = (self.config.problem == 'bbob' or self.config.problem == 'bbob-noisy')
-            metric = self.aei_metric(data, with_optimum=with_optimum, ignore=ignore)
-        elif mode == 'CEC':
-            metric = self.cec_metric(data, ignore=ignore)
-        X, Y = metric.keys(), metric.values()
+    def draw_rank_hist(self, data: dict, random: dict, output_dir: str, ignore: Optional[list]=None) -> None:
+        metric = self.aei_metric(data, random, maxFEs=self.config.maxFEs, ignore=ignore)
+        X, Y = list(metric.keys()), list(metric.values())
+        n_agents = len(X)
+        for i in range(n_agents):
+            X[i] = to_label(X[i])
+
+        plt.figure(figsize=(4*n_agents,15))
         plt.bar(X, Y)
         for a,b in zip(X, Y):
-            plt.text(a, b+0.05, '%.2f' % b, ha='center', fontsize=16)
-        plt.xticks(rotation=30, fontsize=15)
-        plt.xlabel('Agents')
-        plt.ylabel('Metric')
+            plt.text(a, b+0.05, '%.2f' % b, ha='center', fontsize=55)
+        plt.xticks(rotation=45, fontsize=60)
+        plt.yticks(fontsize=60)
+        plt.ylim(0, np.max(Y) * 1.1)
+        plt.title(f'The AEI for {self.config.dim}D {self.config.problem}-{self.config.difficulty}', fontsize=70)
+        plt.ylabel('AEI', fontsize=60)
         plt.savefig(output_dir + f'rank_hist.png', bbox_inches='tight')
 
-    def aei_metric(self, data: dict, with_optimum: bool=True, ignore: Optional[list]=None):
-        problems=[]
-        agents=[]
-        cost_metric = {}
-        fes_metric = {}
-        complexity = {}
-        metric = {}
-        for problem in data['cost'].keys():
-            problems.append(problem)
-        for agent in data['cost'][problems[0]].keys():
-            if ignore is not None and agent in ignore:
-                continue
-            if agent == 'DEAP_CMAES' or agent == 'Random_search':
-                continue
-            agents.append(agent)
-            key = to_label(agent)
-            cost_metric[key] = []
-            fes_metric[key] = []
-            complexity[key] = 0
-            metric[key] = 0
+    def aei_metric(self, data: dict, random: dict, maxFEs: Optional[Union[int, float]]=20000, ignore: Optional[list]=None):
+        baseline = get_random_baseline(random, maxFEs)
+        problems = data['fes'].keys()
+        if 'complexity' not in data.keys():
+            data['complexity'] = {}
+            agents = data['fes'][list(problems)[0]].keys()
+        else:
+            agents = data['complexity'].keys()
+        avg = baseline['complexity_avg']
+        std = baseline['complexity_std']
+        results_complex = {}
 
-        # baseline: CMAES, Random
-        cmaes = []
-        random = []
-        for problem in problems:
-            agent = 'DEAP_CMAES'
-            values = np.array(data['cost'][problem][agent])[:, -1]
-            cost = np.mean(values)
-            cmaes.append(cost)
+        for key in agents:
+            if key in ignore:
+                continue
+            if key not in data['complexity'].keys():
+                t0 = data['T0']
+                if isinstance(data['T1'], dict):
+                    t1 = data['T1'][key]
+                else:
+                    t1 = data['T1']
+                t2 = data['T2'][key]
+                data['complexity'][key] = ((t2 - t1) / t0)
+            results_complex[key] = np.exp((np.log10(1/data['complexity'][key]) - avg)/std/1000 * 1)
 
-            agent = 'Random_search'
-            values = np.array(data['cost'][problem][agent])[:, -1]
-            cost = np.mean(values)
-            random.append(cost)
-        cmaes = np.array(cmaes)
-        random = np.array(random)
-        
+        fes_data = data['fes']
+
+        avg = baseline['fes_avg']
+        std = baseline['fes_std']
+        results_fes = {}
+        log_fes = {}
         for agent in agents:
-            if agent == 'DEAP_CMAES' or agent == 'Random_search':
+            if key in ignore:
                 continue
-            if ignore is not None and agent in ignore:
-                continue
-            key = to_label(agent)
+            fes_problem = []
             for problem in problems:
-                # cost item
-                values = np.array(data['cost'][problem][agent])[:, -1]
-                cost = np.mean(values)
-                if with_optimum:
-                    cost_metric[key].append(10 - np.log10(np.maximum(cost, 1e-8) / random))
+                if agent in ['L2L_Agent','BayesianOptimizer']:
+                    fes_ =np.log10(100/np.array(fes_data[problem][agent]))
                 else:
-                    cost_metric[key].append(10 - np.log10((random - cmaes) / np.maximum(random - cost, 1e-8)))
+                    fes_ =np.log10(maxFEs/np.array(fes_data[problem][agent]))
+                fes_problem.append(fes_.mean())
+            log_fes[agent] = np.mean(fes_problem)
+            results_fes[agent] = np.exp((log_fes[agent] - avg) * 1)
 
-                # fes item
-                fes = np.mean(data['fes'][problem][agent])
-                if agent == 'L2L_Agent' or agent == 'BayesianOptimizer':
-                    fes_metric[key].append(np.exp(-fes / 100))
-                else:
-                    fes_metric[key].append(np.exp(-fes / self.config.maxFEs))
-            # complexity item
-            t0=data['T0']
-            t1=data['T1']
-            t2=data['T2'][agent]
-            t = (t2 - t1) / t0
-            complexity[key] = (5 - np.log10(t)) / 5
-            metric[key] = np.mean(np.array(cost_metric[key]) * np.array(fes_metric[key]) * complexity[key])
-        return metric
+        cost_data = data['cost']
+        avg = baseline['cost_avg'] 
+        std = baseline['cost_std'] 
+        results_cost = {}
+        log_cost = {}
+        for agent in agents:
+            if key in ignore:
+                continue
+            costs_problem = []
+            for problem in problems:
+                cost_ =np.log10(1/(np.array(cost_data[problem][agent])[:, -1]+1))
+                costs_problem.append(cost_.mean())
+            log_cost[agent] = np.mean(costs_problem)
+            results_cost[agent] = np.exp((log_cost[agent] - avg) * 1)
 
+        results = {}
+        for agent in agents:
+            key = agent
+            if key in ignore:
+                continue
+            if agent == 'Random_search':
+                continue
+            results[key] = results_complex[agent] * results_cost[agent] * results_fes[agent]
+        return results    
+    
     def cec_metric(self, data: dict, ignore: Optional[list]=None):
         score = {}
         M = []
@@ -636,7 +665,8 @@ class Logger:
 def post_processing_test_statics(log_dir: str, logger: Logger) -> None:
     with open(log_dir+'test.pkl', 'rb') as f:
         results = pickle.load(f)
-    
+    with open(log_dir+'random_search_baseline.pkl', 'rb') as f:
+        random = pickle.load(f)
     # Generate excel tables
     if not os.path.exists(log_dir + 'tables/'):
         os.makedirs(log_dir + 'tables/')
@@ -652,7 +682,7 @@ def post_processing_test_statics(log_dir: str, logger: Logger) -> None:
                                         {'RLs': ['DE_DDQN_Agent', 'RL_HPSDE_Agent', 'LDE_Agent', 'QLPSO_Agent', 'RLEPSO_Agent', 'RL_PSO_Agent', 'DEDQN_Agent'], 
                                          'RL+Tra': ['RL_HPSDE_Agent',  'LDE_Agent', 'RLEPSO_Agent', 'RL_PSO_Agent', 'DEAP_DE', 'DEAP_CMAES', 'DEAP_PSO']},
                                         logged=False)
-    logger.draw_rank_hist(results,log_dir + 'pics/')
+    logger.draw_rank_hist(results, random, log_dir + 'pics/')
     logger.draw_boxplot(results['cost'],log_dir + 'pics/')
     logger.draw_overall_boxplot(results['cost'],log_dir + 'pics/')
     logger.draw_concrete_performance_hist(results['cost'],log_dir + 'pics/')
