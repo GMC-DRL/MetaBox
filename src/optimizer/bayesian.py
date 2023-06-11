@@ -21,7 +21,7 @@ class BayesianOptimizer(Basic_Optimizer):
             else:
                 return problem.eval(x)-problem.optimum
 
-        bounds = [(-5.0, 5.0) for index in range(self.__config.dim)]
+        bounds = [(problem.lb, problem.ub) for _ in range(self.__config.dim)]
         # res = gp_minimize(problem, [(-2.0, 2.0)])
         res = gp_minimize(black_box_function,                  # the function to minimize
                           bounds,      # the bounds on each dimension of x
