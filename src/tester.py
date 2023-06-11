@@ -207,6 +207,9 @@ class Tester(object):
                     if i == 0:
                         self.test_results['T1'][self.agent_name_list[agent_id]] = T1/51
                         self.test_results['T2'][self.agent_name_list[agent_id]] = T2/51
+                        if type(agent).__name__ == 'L2L_Agent':
+                            self.test_results['T1'][self.agent_name_list[agent_id]] *= self.config.maxFEs/100
+                            self.test_results['T2'][self.agent_name_list[agent_id]] *= self.config.maxFEs/100
                 # run traditional optimizer
                 for optimizer in self.t_optimizer_for_cp:
                     T1 = 0 
@@ -237,6 +240,9 @@ class Tester(object):
                     if i == 0:
                         self.test_results['T1'][type(optimizer).__name__] = T1/51
                         self.test_results['T2'][type(optimizer).__name__] = T2/51
+                        if type(optimizer).__name__ == 'BayesianOptimizer':
+                            self.test_results['T1'][type(optimizer).__name__] *= (self.config.maxFEs/self.config.bo_maxFEs)
+                            self.test_results['T2'][type(optimizer).__name__] *= (self.config.maxFEs/self.config.bo_maxFEs)
         with open(self.log_dir + 'test.pkl', 'wb') as f:
             pickle.dump(self.test_results, f, -1)
 
