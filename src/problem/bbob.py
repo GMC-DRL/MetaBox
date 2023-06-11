@@ -915,7 +915,7 @@ class BBOB_Dataset(Dataset):
         # get functions ID of indicated suit
         if suit == 'bbob':
             func_id = [i for i in range(1, 25)]     # [1, 24]
-            small_set_func_id = [1, 5, 16, 18, 20, 24]
+            small_set_func_id = [1, 5, 6, 10, 15, 20]
         elif suit == 'bbob-noisy':
             func_id = [i for i in range(101, 131)]  # [101, 130]
             small_set_func_id = [101, 105, 115, 116, 117, 119, 120, 125]
