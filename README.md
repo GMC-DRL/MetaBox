@@ -51,12 +51,19 @@ This is a **reinforcement learning benchmark platform** for benchmarking and Met
 * To obtain the figures in our paper, run the following commands: 
 
   ```shell
-  cd src/for_review
-  python paper_experiment.py
+  python for_review/paper_experiment.py
   ```
-
-  Take `DE_DDQN` as an example, we list the usage of four main running interfaces as follows: 
-
+  then corresponding figures will be output to `for_revivew/pics`.
+  
+  ---
+  
+  The quick usage of four main running interfaces are listed as follows, in the following command we specifically take `DE_DDQN` as example.
+  
+  Firstly, get into main code folder src:
+  ```shell
+  cd src
+  ```
+  
 * To trigger the entire workflow including **train, rollout and test**, run the following command:
 
   ```shell
