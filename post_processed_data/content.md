@@ -3,7 +3,7 @@
 
 [overall performance table](overall_tables/synthetic-easy.md)
 
-[wall-time table](wall_time/bbob-easy.md)
+[wall-time table](wall_time/synthetic-easy.md)
 
 [cost curves](pics/Synthetic_easy/pic.md)
 
@@ -11,7 +11,7 @@
 
 [overall performance table](overall_tables/synthetic-diff.md)
 
-[wall-time table](wall_time/bbob-diff.md)
+[wall-time table](wall_time/synthetic-diff.md)
 
 [cost curves](pics/Synthetic_difficult/pic.md)
 
@@ -35,7 +35,7 @@
 
 [overall performance table](overall_tables/protein-easy.md)
 
-[wall-time table](wall_time/Pro-easy.md)
+[wall-time table](wall_time/protein-easy.md)
 
 [cost curves](pics/Protein_easy/pic.md)
 
@@ -43,7 +43,7 @@
 
 [overall performance table](overall_tables/protein-diff.md)
 
-[wall-time table](wall_time/Pro-diff.md)
+[wall-time table](wall_time/protein-diff.md)
 
 [cost curves](pics/Protein_difficult/pic.md)
 
