@@ -38,7 +38,7 @@ For each configuration we list the overall performance table, run-time table and
 
 [run-time table]()
 
-[cost curves](pics/Protein-Docking_easy)
+[cost curves](pics/Protein_easy)
 
 ### Protein-Docking-difficult
 
@@ -46,5 +46,5 @@ For each configuration we list the overall performance table, run-time table and
 
 [run-time table]()
 
-[cost curves](pics/Protein-Docking_difficult)
+[cost curves](pics/Protein_difficult)
 
