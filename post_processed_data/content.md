@@ -35,7 +35,7 @@
 
 [overall performance table](overall_tables/protein-easy.md)
 
-[run-time table](Pro-easy.md)
+[run-time table](run_time/Pro-easy.md)
 
 [cost curves](pics/Protein_easy/pic.md)
 
@@ -43,7 +43,7 @@
 
 [overall performance table](overall_tables/protein-diff.md)
 
-[run-time table](Pro-diff.md)
+[run-time table](run_time/Pro-diff.md)
 
 [cost curves](pics/Protein_difficult/pic.md)
 
