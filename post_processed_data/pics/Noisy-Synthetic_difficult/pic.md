@@ -3,7 +3,7 @@
     <img src="all_problem_cost_curve_logX.png"/>
 </div>
 <div align="center">
-    caption
+    all problem cost curves
 </div>
 
 <table>
