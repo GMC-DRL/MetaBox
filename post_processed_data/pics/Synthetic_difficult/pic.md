@@ -1,12 +1,14 @@
+<div align="center">
+		Average cost curve over all problems
+	</div>
 <div>
 	<img src="all_problem_cost_curve_logX.png"/>
 	</div>
-	<div align="center">
-		All problem cost curves
-	</div>
 
 
+	
 <table>
+	<caption align="center">Cost curve for each problem</caption> 
 ​	<tr>
 		<td>
 			<div>
