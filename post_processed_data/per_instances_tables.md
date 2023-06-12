@@ -1,22 +1,5 @@
-bbob-easy
+For each configuration we list the overall performance table, run-time table and cost curve of each problem and each baseline.
 
+Synthetic-easy
 
-table
-一横行table
-run_time z-score
-
-T2 
-pics
-
-6*2 cost curve
-
-
-test.pkl
-
-
-bbob-diff
-18*2 
-
-
-post-test
-all_problem
+[overall performance table](overall_tables/synthetic-easy.md)
