@@ -20,7 +20,7 @@ For each configuration we list the overall performance table, run-time table and
 
 [overall performance table](overall_tables/noisy-easy.md)
 
-[run-time table](run_time/noisy-easy)
+[run-time table](run_time/noisy-easy.md)
 
 [cost curves](pics/Noisy-Synthetic_easy)
 
@@ -28,7 +28,7 @@ For each configuration we list the overall performance table, run-time table and
 
 [overall performance table](overall_tables/noisy-diff.md)
 
-[run-time table]()
+[run-time table](run_time/noisy-diff.md)
 
 [cost curves](pics/Noisy-Synthetic_difficult)
 
@@ -36,7 +36,7 @@ For each configuration we list the overall performance table, run-time table and
 
 [overall performance table](overall_tables/protein-easy.md)
 
-[run-time table]()
+[run-time table](Pro-easy.md)
 
 [cost curves](pics/Protein_easy)
 
@@ -44,7 +44,7 @@ For each configuration we list the overall performance table, run-time table and
 
 [overall performance table](overall_tables/protein-diff.md)
 
-[run-time table]()
+[run-time table](Pro-diff.md)
 
 [cost curves](pics/Protein_difficult)
 
