@@ -1,4 +1,3 @@
-For each configuration we list the overall performance table, run-time table and cost curve of each problem and each baseline.
 
 ### Synthetic-easy
 
@@ -6,7 +5,7 @@ For each configuration we list the overall performance table, run-time table and
 
 [run-time table](run_time/bbob-easy.md)
 
-[cost curves](pics/Synthetic_easy)
+[cost curves](pics/Synthetic_easy/pic.md)
 
 ### Synthetic-difficult
 
@@ -14,7 +13,7 @@ For each configuration we list the overall performance table, run-time table and
 
 [run-time table](run_time/bbob-diff.md)
 
-[cost curves](pics/Synthetic_difficult)
+[cost curves](pics/Synthetic_difficult/pic.md)
 
 ### Noisy-Synthetic-easy
 
@@ -22,7 +21,7 @@ For each configuration we list the overall performance table, run-time table and
 
 [run-time table](run_time/noisy-easy.md)
 
-[cost curves](pics/Noisy-Synthetic_easy)
+[cost curves](pics/Noisy-Synthetic_easy/pic.md)
 
 ### Noisy-Synthetic-difficult
 
@@ -30,7 +29,7 @@ For each configuration we list the overall performance table, run-time table and
 
 [run-time table](run_time/noisy-diff.md)
 
-[cost curves](pics/Noisy-Synthetic_difficult)
+[cost curves](pics/Noisy-Synthetic_difficult/pic.md)
 
 ### Protein-Docking-easy
 
@@ -38,7 +37,7 @@ For each configuration we list the overall performance table, run-time table and
 
 [run-time table](Pro-easy.md)
 
-[cost curves](pics/Protein_easy)
+[cost curves](pics/Protein_easy/pic.md)
 
 ### Protein-Docking-difficult
 
@@ -46,5 +45,5 @@ For each configuration we list the overall performance table, run-time table and
 
 [run-time table](Pro-diff.md)
 
-[cost curves](pics/Protein_difficult)
+[cost curves](pics/Protein_difficult/pic.md)
 
