@@ -6,8 +6,7 @@
 	</div>
 
 
-For space limit, we just show the first 6 problem here and the rest can be found in this folder.
-
+Too many instances, the former 6 are presented here.
 
 <table>
   <caption align="center">Cost curve for each problem</caption> 
