@@ -635,7 +635,7 @@ After testing, 3 types of data files will be generated in `MyLogDir/test/runName
   * `algorithm_name_concrete_performance_hist.png`, such as *RLEPSO_Agent_concrete_performance_hist.png* and *GL_PSO_concrete_performance_hist.png*, draws the performance histogram of the specific algorithm on each problem.
   * `problem_name_cost_curve.png` such as *Schwefel_cost_curve.png*, draws the cost curve of each algorithm's optimization process on the specific problem.
   * `all_problem_cost_curve.png` draws each algorithm's average cost curve on all problems in test set.
-  * `rank_hist.png` plots a histogram of each algorithm's score.
+  * `rank_hist.png` plots a histogram of each algorithm's AEI score, which take the best objective value, the budget to achieve a predefined accuracy (convergence rate), and the runtime complexity into account to assign a comprehensive score to measure BBO performance.
 
 ### MGD Test
 
