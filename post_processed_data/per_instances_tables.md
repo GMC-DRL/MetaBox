@@ -8,7 +8,7 @@ For each configuration we list the overall performance table, run-time table and
 
 [cost curves](pics/Synthetic_easy)
 
-### Synthetic-diffcult
+### Synthetic-difficult
 
 [overall performance table](overall_tables/synthetic-diff.md)
 
