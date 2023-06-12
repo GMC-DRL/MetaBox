@@ -1,16 +1,4 @@
 
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <title>www.lingdaima.com（零代码excel转HTML）</title>
-    <style>
-table{border-top:1px solid #333;border-left:1px solid #333;border-spacing:0;background-color:#fff;width:100%}
-table td{border-bottom:1px solid #333;border-right:1px solid #333;font-size:13px;padding:5px}
-.font5{color:windowtext;}
-.xl63{color:windowtext;text-align:center;}
-</style>
-</head>
 <body>
     <table style="width:34074pt"> <!--StartFragment--> 
  <colgroup>
@@ -13526,4 +13514,3 @@ table td{border-bottom:1px solid #333;border-right:1px solid #333;font-size:13px
  </tbody>
 </table>
 </body>
-</html>
