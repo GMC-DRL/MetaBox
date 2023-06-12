@@ -6,10 +6,10 @@
 	</div>
 
 
-Too many instances, the former 6 are presented here.
+
 
 <table>
-  <caption align="center">Cost curve for each problem</caption> 
+  <caption align="center">Cost curve for each problem (too many instances, the former 6 are presented here)</caption> 
 ​	<tr>
 		<td>
 			<div>
