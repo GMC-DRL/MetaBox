@@ -1,3 +1,4 @@
+The overall comparison on optimization performance among all baselines in our Repo. For each problem in \textbf{bbob easy} suites, we test each algorithms for $51$ independent runs and average the test results for presentation. ``Obj'' (smaller is better) indicates the final global best value. ``Gap'' (smaller is better) is the optimization gap away from the \textbf{SOTA} optimizer, which is CMA-ES algorithm in this paper. ``FEs'' indicates how many function evaluations an optimizer takes to get the ``Obj''. Under the consideration of runtime, we assign BayesianOptimizer 100 FEs. For RNN-OI, we also set the maxFEs to 100 respecting the original paper. Therefore, their ``FEs'' and ``Gap'' are not comparable.
 <body>
     <table style="width:1026pt"> <!--StartFragment--> 
  <colgroup>
