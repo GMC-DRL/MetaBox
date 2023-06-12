@@ -344,10 +344,10 @@ class Logger:
                 plt.legend()
                 if logged:
                     plt.ylabel('log Costs')
-                    plt.savefig(output_dir + f'traditional_{name}_log_cost_curve.png', bbox_inches='tight')
+                    plt.savefig(output_dir + f'classic_{name}_log_cost_curve.png', bbox_inches='tight')
                 else:
                     plt.ylabel('Costs')
-                    plt.savefig(output_dir + f'traditional_{name}_cost_curve.png', bbox_inches='tight')
+                    plt.savefig(output_dir + f'classic_{name}_cost_curve.png', bbox_inches='tight')
                 plt.close()
     
     def draw_named_average_test_costs(self, data: dict, output_dir: str, named_agents: dict, logged: bool=False) -> None:
@@ -384,13 +384,14 @@ class Logger:
                 X = np.arange(mean.shape[-1])
                 X = np.array(X, dtype=np.float64)
                 X *= (self.config.maxFEs / X[-1])
-                X = np.log10(X)
-                X[0] = 2
+                # X = np.log10(X)
+                # X[0] = 0
 
                 ax.plot(X, mean, label=to_label(agent), marker='*', markevery=8, markersize=13, c=self.color_arrangement[agent])
                 ax.fill_between(X, (mean - std), (mean + std), alpha=0.2, facecolor=self.color_arrangement[agent])
             plt.grid()
-            plt.xlabel('log10 FEs')
+            # plt.xlabel('log10 FEs')
+            plt.xlabel('FEs')
             plt.ylabel('Normalized Costs')
             plt.legend()
         # lines, labels = fig.axes[-1].get_legend_handles_labels()
@@ -684,8 +685,8 @@ def post_processing_test_statics(log_dir: str, logger: Logger) -> None:
         os.makedirs(log_dir + 'pics/')
     logger.draw_test_cost(results['cost'],log_dir + 'pics/', logged=True, categorized=True)
     logger.draw_named_average_test_costs(results['cost'], log_dir + 'pics/', 
-                                        {'RLs': ['DE_DDQN_Agent', 'RL_HPSDE_Agent', 'LDE_Agent', 'QLPSO_Agent', 'RLEPSO_Agent', 'RL_PSO_Agent', 'DEDQN_Agent'], 
-                                         'RL+Tra': ['RL_HPSDE_Agent',  'LDE_Agent', 'RLEPSO_Agent', 'RL_PSO_Agent', 'DEAP_DE', 'DEAP_CMAES', 'DEAP_PSO']},
+                                        {'MetaBBO-RL': ['DE_DDQN_Agent', 'RL_HPSDE_Agent', 'LDE_Agent', 'QLPSO_Agent', 'RLEPSO_Agent', 'RL_PSO_Agent', 'DEDQN_Agent'],
+                                         'Classic Optimizer': ['DEAP_DE', 'DEAP_CMAES', 'DEAP_PSO', 'JDE21', 'NL_SHADE_LBC', 'GL_PSO', 'sDMS_PSO', 'MadDE', 'SAHLPSO', 'Random_search']},
                                         logged=False)
     logger.draw_rank_hist(results, random, log_dir + 'pics/')
     logger.draw_boxplot(results['cost'],log_dir + 'pics/')
