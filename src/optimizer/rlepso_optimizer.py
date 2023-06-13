@@ -40,7 +40,6 @@ class RLEPSO_Optimizer(Learnable_Optimizer):
         rand_pos=np.random.uniform(low=problem.lb, high=problem.ub, size=(self.__NP, self.__dim))
         self.__max_velocity=0.1*(problem.ub-problem.lb)
         rand_vel = np.random.uniform(low=-self.__max_velocity, high=self.__max_velocity, size=(self.__NP,self.__dim))
-        # rand_vel = torch.zeros(size=(self.__batch_size, self.__NP, self.__dim),dtype=torch.float32).to(self.__cuda)
         self.fes = 0
 
         c_cost = self.__get_costs(problem, rand_pos)  # ps
@@ -91,10 +90,8 @@ class RLEPSO_Optimizer(Learnable_Optimizer):
         candidate = self.__particles['pbest_position'][rand_index, np.arange(self.__dim)[None, :, None]]       # ps, dim, nsel
         candidate_cost = self.__particles['pbest'][rand_index]                      #ps, dim, nsel
         target_pos_index = np.argmin(candidate_cost, axis=-1)                      # shape?
-        # print(f'target_pos_index.shape{target_pos_index.shape}')
         ps_index = np.arange(self.__NP)[:, None]
         target_pos = candidate[ps_index, np.arange(self.__dim)[None, :], target_pos_index]
-        # print(f'target_pos.shape:{target_pos.shape}')
         return target_pos
 
     def __get_v_fdr(self):
@@ -102,12 +99,10 @@ class RLEPSO_Optimizer(Learnable_Optimizer):
         distance_per_dim = np.abs(pos[None, :, :].repeat(self.__NP, axis=0)-pos[:, None, :].repeat(self.__NP, axis=1))
         fitness = self.__particles['pbest']
         fitness_delta = fitness[None, :].repeat(self.__NP, axis=0)-fitness[:, None].repeat(self.__NP, axis=1)
-        # print(f'fitness_delta.shape{fitness_delta.shape}')
         fdr = (fitness_delta[:, :, None])/(distance_per_dim+1e-5)
         target_index = np.argmin(fdr, axis=1)
         
         dim_index = np.arange(self.__dim)[None, :]
-        # print(target_index[0])
         target_pos = pos[target_index, dim_index]
         
         v_fdr = np.random.rand(self.__NP, self.__dim)*(target_pos-pos)
@@ -122,7 +117,6 @@ class RLEPSO_Optimizer(Learnable_Optimizer):
         per_group_num = self.__NP//self.__n_group
         for i in range(self.__n_group):
             a = actions[i*self.__n_group:i*self.__n_group+7]
-            # print(f'a.shape{a.shape}')
             c_mutations[i*per_group_num:(i+1)*per_group_num] = a[0]*0.01*self.__per_no_improve[i*per_group_num:(i+1)*per_group_num]
             ws[i*per_group_num:(i+1)*per_group_num] = a[1]*0.8+0.1
             scale = 1./(a[3]+a[4]+a[5]+a[6]+1e-5)*a[2]*8
@@ -149,7 +143,6 @@ class RLEPSO_Optimizer(Learnable_Optimizer):
         self.fes = pre_fes + np.sum(filter)
         
         filters = new_cost < self.__particles['pbest']
-        # new_cbest_val,new_cbest_index=torch.min(new_cost,dim=1)
         new_cbest_val = np.min(new_cost)
         new_cbest_index = np.argmin(new_cost)
 
@@ -179,8 +172,6 @@ class RLEPSO_Optimizer(Learnable_Optimizer):
     
     def update(self, action, problem):
         is_end = False
-        # if not self.__origin and action.device is not 'cpu':
-        #     action=action.cpu().numpy()
 
         pre_gbest = self.__particles['gbest_val']
         # input action_dim should be : bs, ps
@@ -197,11 +188,9 @@ class RLEPSO_Optimizer(Learnable_Optimizer):
         
         new_velocity = coes['w']*self.__particles['velocity']+coes['c1']*v_clpso+coes['c2']*v_fdr+coes['c3']*v_gbest+coes['c4']*v_pbest
     
-        # self.__total_vel_board+=(torch.abs(new_velocity)>self.__max_velocity).sum()/self.__batch_size
         new_velocity = np.clip(new_velocity, -self.__max_velocity, self.__max_velocity)
 
         # update position
-        # print("velocity.shape = ",new_velocity.shape)
         new_position = self.__particles['current_position'] + new_velocity
         new_position = np.clip(new_position, problem.lb, problem.ub)
 
@@ -209,7 +198,6 @@ class RLEPSO_Optimizer(Learnable_Optimizer):
         new_cost = self.__get_costs(problem, new_position)
 
         filters = new_cost < self.__particles['pbest']
-        # new_cbest_val,new_cbest_index=torch.min(new_cost,dim=1)
         new_cbest_val = np.min(new_cost)
         new_cbest_index = np.argmin(new_cost)
 

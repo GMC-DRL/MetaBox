@@ -19,7 +19,6 @@ class PolicyNetwork(nn.Module):
 
         self.__max_sigma = config.max_sigma
         self.__min_sigma = config.min_sigma
-        # self.__optimizer = torch.optim.Adam(self.__model.parameters(), lr)
 
     def forward(self, x_in, require_entropy=False, require_musigma=False):
         mu = self.__mu_net(x_in)
@@ -32,7 +31,6 @@ class PolicyNetwork(nn.Module):
         action = policy.sample()
 
         filter = torch.abs(action - 0.5) >= 0.5
-        # action=torch.where(filter,action*(1./(6*sigma)),action)
         action = torch.where(filter, (action + 3 * sigma.detach() - mu.detach()) * (1. / 6 * sigma.detach()), action)
         log_prob = policy.log_prob(action)
 
@@ -59,7 +57,6 @@ class RL_PSO_Agent(Basic_Agent):
         config.max_sigma = 0.7
         config.min_sigma = 0.01
         config.lr = 1e-5
-        # config.lr_decay = 0.99
         self.__config = config
 
         self.__device = config.device
@@ -67,8 +64,6 @@ class RL_PSO_Agent(Basic_Agent):
 
         # optimizer
         self.__optimizer = torch.optim.Adam([{'params': self.__nets.parameters(), 'lr': config.lr}])
-        # figure out the lr schedule
-        # self.__lr_scheduler = torch.optim.lr_scheduler.ExponentialLR(self.__optimizer, config.lr_decay, last_epoch=-1, )
         self.__learning_time = 0
         
         self.__cur_checkpoint=0

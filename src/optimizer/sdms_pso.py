@@ -46,7 +46,6 @@ class sDMS_PSO(Basic_Optimizer):
         rand_pos=np.random.uniform(low=problem.lb,high=problem.ub,size=(self.__NP,self.__dim))
         self.__max_velocity=0.1*(problem.ub-problem.lb)
         rand_vel = np.random.uniform(low=-self.__max_velocity,high=self.__max_velocity,size=(self.__NP,self.__dim))
-        # rand_vel = torch.zeros(size=(self.__batch_size, self.__ps, self.__dim),dtype=torch.float32).to(self.__cuda)
 
         c_cost = self.__get_costs(problem,rand_pos) # ps
 
@@ -54,7 +53,6 @@ class sDMS_PSO(Basic_Optimizer):
         gbest_index = np.argmin(c_cost)
         gbest_position=rand_pos[gbest_index]
         self.__max_cost=np.min(c_cost)
-        # print("rand_pos.shape:{}".format(rand_pos.shape))
 
         self.__particles={'current_position': rand_pos.copy(), #  ps, dim
                           'c_cost': c_cost.copy(), #  ps
@@ -101,26 +99,19 @@ class sDMS_PSO(Basic_Optimizer):
         if init:
             grouped_pbest=self.__particles['pbest'].reshape(self.__n_swarm,self.__m)
             grouped_pbest_pos=self.__particles['pbest_position'].reshape(self.__n_swarm,self.__m,self.__dim)
-            # print(f'pbest_feature.shape:{self.__pbest_feature.shape}')
-            
+
             self.__particles['lbest_cost']=np.min(grouped_pbest,axis=-1)
             index=np.argmin(grouped_pbest,axis=-1)
             self.__lbest_index=index+np.arange(self.__n_swarm)*self.__m   # n_swarm,
             self.__particles['lbest_position']=grouped_pbest_pos[range(self.__n_swarm),index]
             
         else:
-            # self.__lbest_feature[:,:,4]+=1./self.__max_step
-            # self.__lbest_feature[:,:,3]=((self.__max_fes-self.fes)/self.__max_fes).unsqueeze(dim=1)
-            # self.__lbest_no_improve+=1
             grouped_pbest=self.__particles['pbest'].reshape(self.__n_swarm,self.__m)
             grouped_pbest_pos=self.__particles['pbest_position'].reshape(self.__n_swarm,self.__m,self.__dim)
             lbest_cur=np.min(grouped_pbest,axis=-1)
             index=np.argmin(grouped_pbest,axis=-1)
             
             lbest_pos_cur=grouped_pbest_pos[range(self.__n_swarm),index]
-            # grouped_pbest_fea=self.__pbest_feature.reshape(self.__batch_size,self.__n_swarm,self.__m,self.__node_dim)
-            # cur_lbest_feature=grouped_pbest_fea[batch_index,swarm_index,index]
-
             filter_lbest=lbest_cur<self.__particles['lbest_cost']
             self.__lbest_index=np.where(filter_lbest,index+np.arange(self.__n_swarm)*self.__m,self.__lbest_index)
 
@@ -136,7 +127,6 @@ class sDMS_PSO(Basic_Optimizer):
 
     def __get_iwt(self):
         if len(self.__parameter_set)<self.__LA or np.sum(self.__success_num)<=self.__LP:
-            # iwt=0.5*np.random.uniform(low=1,high=self.__n_swarm)+0.4
             self.__iwt=0.5*np.random.rand(self.__n_swarm)+0.4
 
         else:
@@ -160,7 +150,6 @@ class sDMS_PSO(Basic_Optimizer):
         new_position = np.clip(raw_position,problem.lb,problem.ub)
         new_cost=self.__get_costs(problem,new_position)
         filters = new_cost < self.__particles['pbest']
-        # new_cbest_val,new_cbest_index=torch.min(new_cost,dim=1)
         new_cbest_val = np.min(new_cost)
         new_cbest_index = np.argmin(new_cost)
 
@@ -202,17 +191,13 @@ class sDMS_PSO(Basic_Optimizer):
             self.__parameter_set.append(self.__iwt[max_success_index])
 
     def __quasi_Newton(self):
-        # print('enter quasi newton')
         sorted_index=np.argsort(self.__particles['lbest_cost'])
         refine_index=sorted_index[:int(self.__n_swarm//4)]
-        # print(f'refine_index.shape:{refine_index.shape}')
         refine_pos=self.__particles['lbest_position'][refine_index]
         for i in range(refine_pos.shape[0]):
             res=minimize(self.__problem.eval,refine_pos[i],method='BFGS',options={'maxiter':9})
             self.__fes+=res.nfev
-            # print('lbest_cost.shape:{}'.format(self.__particles['lbest_cost'].shape))
             if self.__particles['lbest_cost'][refine_index[i]]>res.fun:
-                # print('success')
                 self.__particles['lbest_position'][refine_index[i]]=res.x
                 self.__particles['lbest_cost'][refine_index[i]]=res.fun
                 # uodate pbest

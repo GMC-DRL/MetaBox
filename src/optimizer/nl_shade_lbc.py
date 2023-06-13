@@ -39,7 +39,6 @@ class NL_SHADE_LBC(Basic_Optimizer):
             cost = problem.eval(u)
         else:
             cost = problem.eval(u) - problem.optimum
-        # cost[cost < 1e-8] = 0.0
         return cost
 
     # Binomial crossover

@@ -6,7 +6,6 @@ class BayesianOptimizer(Basic_Optimizer):
     def __init__(self, config):
         super().__init__(config)
         self.__config = config
-        # self.log_interval = config.log_interval
         self.log_interval = 2
 
     def run_episode(self, problem):
@@ -22,7 +21,6 @@ class BayesianOptimizer(Basic_Optimizer):
                 return problem.eval(x)-problem.optimum
 
         bounds = [(problem.lb, problem.ub) for _ in range(self.__config.dim)]
-        # res = gp_minimize(problem, [(-2.0, 2.0)])
         res = gp_minimize(black_box_function,                  # the function to minimize
                           bounds,      # the bounds on each dimension of x
                           acq_func="EI",      # the acquisition function

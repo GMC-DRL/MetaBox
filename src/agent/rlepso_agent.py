@@ -91,10 +91,6 @@ class RLEPSO_Agent(Basic_Agent):
             [{'params': self.__actor.parameters(), 'lr': config.lr}])
         self.__optimizer_critic = torch.optim.Adam(
             [{'params': self.__critic.parameters(), 'lr': config.lr}])
-        
-        # figure out the lr schedule
-        # self.__lr_scheduler_critic = torch.optim.lr_scheduler.ExponentialLR(self.__optimizer_critic, config.lr_decay, last_epoch=-1, )
-        # self.__lr_scheduler_actor = torch.optim.lr_scheduler.ExponentialLR(self.__optimizer_actor, config.lr_decay, last_epoch=-1, )
 
         # init learning time
         self.__learning_time=0

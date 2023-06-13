@@ -34,7 +34,6 @@ class RL_PSO_Optimizer(Learnable_Optimizer):
         self.fes = 0
         self.__max_velocity=0.1*(problem.ub-problem.lb)
         rand_vel = np.random.uniform(low=-self.__max_velocity, high=self.__max_velocity, size=(self.__NP, self.__dim))
-        # rand_vel = torch.zeros(size=(self.__batch_size, self.__NP, self.__dim),dtype=torch.float32).to(self.__cuda)
 
         c_cost = self.__get_costs(problem,rand_pos) # ps
 
