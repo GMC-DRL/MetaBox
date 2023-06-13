@@ -1,40 +1,36 @@
-# RELOPS: Reinforcement Learning Benchmark Platform for Black Box Optimizer Search
+# MetaBox: A Benchmark Platform for Meta-Black-Box Optimization with Reinforcement Learning
 
-This is a **reinforcement learning benchmark platform** that supports benchmarking and exploration of black box optimizers. You can **train** your own optimizer and **compare** it with several popular RL-based optimizers and traditional optimizers.
+This is a **reinforcement learning benchmark platform** for benchmarking and MetaBBO-RL methods. You can develop your own MetaBBO-RL approach and complare it with baseline approaches built-in following the **Train-Test-Log** philosophy automated by MetaBox.
 
 ## Contents
 
-* [Overview](#Overview)
 * [Requirements](#Requirements)
-* [Datasets](#Datasets)
-* [Baselines](#Baselines)
+
 * [Quick Start](#Quick-Start)
+
+* [Overview](#Overview)
+
+* [Datasets](#Datasets)
+
+* [Baseline Library](#Baseline-Library)
+
+* [Fit your own MetaBBO-RL into MetaBox](#Fit-your-own-MetaBBO-RL-into-MetaBox)
+
+* [Run Experiment](#run-experiment)
+
 * [Training](#Training)
   * [How to Train](#How-to-Train)
   * [Train Results](#Train-Results)
+  
 * [Rollout](#Rollout)
   * [How to Rollout](#How-to-Rollout)
   * [Rollout Results](#Rollout-Results)
+  
 * [Testing](#Testing)
   * [How to Test](#How-to-Test)
   * [Test Results](#Test-Results)
-
-## Overview
-
-![overview](docs/overview.png)
-
-`RELOPS` can be divided into six modules: **MetaBBO-RL, Test suites, Baselines, Trainer, Tester and Logger.**
-
-* `MetaBBO-RL` is used for **optimizing** black box problems and consists of a reinforcement agent and a backbone optimizer.
-
-* `Test suites` are used for generating training and testing sets, including **bbob**, **bbob-noisy**, and **protein docking**.
-* `Baselines` are proposed algorithms including **BBO**, **MetaBBO-RL**, **MetaBBO-SL** optimizers that we implemented for comparison study.
-
-* `Trainer` **manages the entire learning process** of the agent by building environments consisting of a backbone optimizer and a problem sampled from train set and letting the agent interact with environments sequentially.
-
-* `Tester` is used to **evaluate** the optimization performance of the MetaBBO-RL. By using the test set to test the baselines and the trained MetaBBO agent, it produces test log for logger to generate statistic test results.
-
-* `Logger` implements multiple functions for **displaying** the logs of the training process and the results of the testing process, which facilitates the improvement of the training process and the observation of MetaBBO-RL's performance.
+  * [MGD Test](#MGD-Test)
+  * [MTE Test](#MTE-Test)
 
 ## Requirements
 
@@ -45,19 +41,80 @@ This is a **reinforcement learning benchmark platform** that supports benchmarki
 * `matplotlib`==3.4.3  
 * `pandas`==1.3.3  
 * `scipy`==1.7.1
-* `bayesian_optimization`==1.4.3  
+* `scikit_optimize`==0.9.0  
 * `deap`==1.3.3  
 * `tqdm`==4.62.3  
 * `openpyxl`==3.1.2
+
+## Quick Start
+
+* To obtain the figures in our paper, run the following commands: 
+
+  ```shell
+  cd for_review
+  python paper_experiment.py
+  ```
+  then corresponding figures will be output to `for_revivew/pics`.
+  
+  ---
+  
+  The quick usage of four main running interfaces are listed as follows, in the following command we specifically take `RLEPSO` as example.
+  
+  Firstly, get into main code folder src:
+  ```shell
+  cd ../src
+  ```
+  
+* To trigger the entire workflow including **train, rollout and test**, run the following command:
+
+  ```shell
+  python main.py --run_experiment --problem bbob --difficulty easy --train_agent RLEPSO_Agent --train_optimizer RLEPSO_Optimizer
+  ```
+
+* To trigger the standalone process of **training**:
+
+  ```shell
+  python main.py --train --problem bbob --difficulty easy --train_agent RLEPSO_Agent --train_optimizer RLEPSO_Optimizer 
+  ```
+
+* To trigger the standalone process of **rollout**:
+
+  ```shell
+  python main.py --rollout --problem bbob --difficulty easy --agent_load_dir agent_model/rollout/bbob_easy/ --agent_for_rollout RLEPSO_Agent --optimizer_for_rollout RLEPSO_Optimizer
+  ```
+
+* To trigger the standalone process of **testing**:
+
+  ```shell
+  python main.py --test --problem bbob --difficulty easy --agent_load_dir agent_model/test/bbob_easy/ --agent_for_cp RLEPSO_Agent --l_optimizer_for_cp RLEPSO_Optimizer --t_optimizer_for_cp CMAES Random_search
+  ```
+
+## Overview
+
+![overview](docs/overview.png)
+
+`MetaBox` can be divided into six modules: **Template, Test suites, Baseline Library, Trainer, Tester and Logger.**
+
+* `Template` comprises two main components: the **meta-level RL agent** and the **lower-level optimizer**, which provides a unified interface protocol for users to develop their own MetaBBO-RL with ease. 
+* `Test suites` are used for generating training and testing sets, including **Synthetic**, **Noisy-Synthetic**, and **Protein-Docking**.
+* `Baseline Library` comprises proposed algorithms including **MetaBBO-RL**, **MetaBBO-SL** and **classic** optimizers that we implemented for comparison study.
+* `Trainer` **manages the entire learning process** of the agent by building environments consisting of a backbone optimizer and a problem sampled from train set and letting the agent interact with environments sequentially.
+* `Tester` is used to **evaluate** the optimization performance of the MetaBBO-RL. By using the test set to test the baselines and the trained MetaBBO agent, it produces test log for logger to generate statistic test results.
+* `Logger` implements multiple interfaces for **displaying** the logs of the training process and the results of the testing process, which facilitates the improvement of the training process and the observation of MetaBBO-RL's performance.
+
+**Data Stream**
+![datastream](docs/datastream.png)
+
+When using MetaBox, after the training interface `Trainer.train()` called, 21 pickle files of training agent in different training process and pictures of training process will be output to `src/agent_model/train` and `src/output/train` respectively. If you want to compare performance among baselines built-in or your own approach, `Tester.test` is needed to be called. For those learnable agent in your comparing list, you need to first collect these agent model pickle files (one agent one file) to a specific folder, where the agent model file may have been outputed by `Trainer.train()` and you can find that and then copy it to the right place. When `Tester.test()` finished, tables containing per-instance result and algorithm complexity, pictures depicting comparison results or singal approach performance, original testing result will be output to `src/output/test`. In addition, for `Rollout` interface, before that you need to collect all of checkpoints of all of learning agents which can be copy from output of `Trainer.train()`. When `Rollout` finished, pictures containing average return process and optimization cost process will be output to `src/output/rollout` and the original data file will also be saved.
 
 ## Datasets
 
 
 Currently, three benchmark suites are included:  
 
-* `bbob` containing 24 noiseless functions, comes from [COCO](https://github.com/numbbo/coco) with [original paper](https://www.tandfonline.com/eprint/DQPF7YXFJVMTQBH8NKR8/pdf?target=10.1080/10556788.2020.1808977).
-* `bbob-noisy` containing 30 noisy functions, comes from [COCO](https://github.com/numbbo/coco) with [original paper](https://www.tandfonline.com/eprint/DQPF7YXFJVMTQBH8NKR8/pdf?target=10.1080/10556788.2020.1808977).
-* `protein docking` containing 280 problem instances, which simulate the application of protein docking as a 12-dimensional optimization problem, comes from [LOIS](https://github.com/Shen-Lab/LOIS) with [original paper](http://papers.nips.cc/paper/9641-learning-to-optimize-in-swarms).
+* `Synthetic` containing 24 noiseless functions, borrowed from [coco](https://github.com/numbbo/coco):bbob with [original paper](https://www.tandfonline.com/eprint/DQPF7YXFJVMTQBH8NKR8/pdf?target=10.1080/10556788.2020.1808977).
+* `Noisy-Synthetic` containing 30 noisy functions, borrowed from [coco](https://github.com/numbbo/coco):bbob-noisy with [original paper](https://www.tandfonline.com/eprint/DQPF7YXFJVMTQBH8NKR8/pdf?target=10.1080/10556788.2020.1808977).
+* `Protein-Docking` containing 280 problem instances, which simulate the application of protein docking as a 12-dimensional optimization problem, borrowed from [LOIS](https://github.com/Shen-Lab/LOIS) with [original paper](http://papers.nips.cc/paper/9641-learning-to-optimize-in-swarms).
 
 By setting the argument `--problem` to `bbob`, `bbob-noisy` or `protein` in command line to use the corresponding suite, for example:
 
@@ -67,7 +124,7 @@ python main.py --train --problem protein --train_agent MyAgent --train_optimizer
 
 For the usage of  `--train`  `--train_agent`  `--train_optimizer`, see [Training](#Training) for more details.
 
-The data set is split into training set and test set in different proportions with respect to two difficulty levels:  
+Each test suites are regarded as a dataset, which is split into training set and test set in different proportions with respect to two difficulty levels:  
 
 * `easy` training set accounts for 75% and test set accounts for 25%.
 * `difficult` training set accounts for 25% and test set accounts for 75%.
@@ -78,9 +135,9 @@ By setting the argument `--difficulty` to `easy` or `difficult` in command line 
 python main.py --train --problem bbob --difficulty difficult --train_agent MyAgent --train_optimizer MyOptimizer
 ```
 
-## Baselines
+## Baseline Library
 
-**7 MetaBBO-RL optimizers, 1 MetaBBO-SL optimizer and 11 BBO optimizers have been integrated into this platform.** Choose one or more of them to be the baseline(s) to test the performance of your own optimizer.
+**7 MetaBBO-RL optimizers, 1 MetaBBO-SL optimizer and 11 classic optimizers have been integrated into this platform.** Choose one or more of them to be the baseline(s) to test the performance of your own optimizer.
 
 **Supported MetaBBO-RL optimizers**:
 
@@ -98,9 +155,9 @@ python main.py --train --problem bbob --difficulty difficult --train_agent MyAge
 
 | Name | Year |                        Related paper                         |
 | :--: | :--: | :----------------------------------------------------------: |
-| L2L  | 2017 | [Learning to learn without gradient descent by gradient descent](https://dl.acm.org/doi/10.5555/3305381.3305459) |
+| RNN-OI  | 2017 | [Learning to learn without gradient descent by gradient descent](https://dl.acm.org/doi/10.5555/3305381.3305459) |
 
-**Supported BBO optimizers**:
+**Supported classic optimizers**:
 
 |         Name          | Year |                        Related paper                         |
 | :-------------------: | :--: | :----------------------------------------------------------: |
@@ -118,95 +175,356 @@ python main.py --train --problem bbob --difficulty difficult --train_agent MyAge
 
 Note that `Random Search` performs uniformly random sampling to optimize the fitness.
 
-## Quick Start
+For running commands, use the **corresponding agent class name** and **corresponding optimizer class name** to specify the algorithms:
 
-0. Check out the [Requirements](#Requirements) above.
+`MetaBBO-RL` baselines:
 
-1. Prepare your backbone optimizer and agent.
+| Algorithm Name | Corresponding Agent Class | Corresponding Backbone Optimizer Class |
+| :------------: | :-----------------------: | :------------------------------------: |
+|    DE-DDQN     |       DE_DDQN_Agent       |           DE_DDQN_Optimizer            |
+|     QLPSO      |        QLPSO_Agent        |            QLPSO_Optimizer             |
+|     DEDQN      |        DEDQN_Agent        |            DEDQN_Optimizer             |
+|      LDE       |         LDE_Agent         |             LDE_Optimizer              |
+|     RL-PSO     |       RL_PSO_Agent        |            RL_PSO_Optimizer            |
+|     RLEPSO     |       RLEPSO_Agent        |            RLEPSO_Optimizer            |
+|    RL-HPSDE    |      RL_HPSDE_Agent       |           RL_HPSDE_Optimizer           |
 
-   Define a class of your backbone optimizer derived from class `Learnable_Optimizer` in [learnable_optimizer.py](RELOPS/optimizer/learnable_optimizer.py). In this class, 2 methods need to be implemented:
+`MetaBBO-SL` baseline:
 
-     * ```python
-       init_population(self,
-                       problem: Basic_Problem) -> Any
-       ```
-      
-       Method `init_population` is used to initialize the population in backbone optimizer, calculate costs using method `problem.eval` and record some information such as pbest and gbest if needed. It's expected to return a `state` for agent to make decisions.
-       
-     * ```python
-       update(self,
-              action: Any,
-              problem: Basic_Problem) -> Tuple[Any]
-       ```
-      
-       Method `update` is used to update the population or one individual in population as you wish using the `action` given by agent, calculate new costs using method `problem.eval` and update some records if needed. It's expected to return a tuple of `[next_state, reward, is_done]` for agent to learn.
+| Algorithm Name | Corresponding Agent Class | Corresponding Backbone Optimizer Class |
+| :------------: | :-----------------------: | :------------------------------------: |
+|      RNN-OI       |         L2L_Agent         |             L2L_Optimizer              |
 
-   Define a class of your agent derived from class `Basic_Agent` in [basic_agent.py](RELOPS/agent/basic_agent.py). In this class, 2 methods need to be implemented:
+`classic` baselines:
 
-   * ```python
-     train_episode(self,
-                   env: PBO_Env,
-                   epoch_id: int = None,
-                   logger: Logger = None) -> Tuple[bool, dict]
-     ```
-     
-     Method `train_episode` is used to train the agent for an episode by using methods `env.reset` and `env.step` to interact with `env`. It's expected to return a `Tuple[bool, dict]` whose first element indicates whether the learned step has exceeded the max_learning_step and second element is a dictionary that contains:  
-       { `normalizer`: the best cost in initial population.  
-         `gbest`: the best cost found in this episode.  
-         `return`: total reward in this episode.  
-         `learn_steps`: the number of accumulated learned steps of the agent. }
-     
-   * ```python
-     rollout_episode(self,
-                     env: PBO_Env,
-                     epoch_id: int = None,
-                     logger: Logger = None) -> dict
-     ```
-     Method `rollout_episode` is used to rollout the agent for an episode by using methods `env.reset` and `env.step` to interact with `env`. It's expected to return a `dict` that contains:  
-       { `cost`: a list of costs that need to be maintained in backbone optimizer.  
-         `fes`: times of function evaluations used by optimizer.  
-         `return`: total reward in this episode. }
+|    Algorithm Name     | Corresponding Optimizer Class |
+| :-------------------: | :---------------------------: |
+|          PSO          |           DEAP_PSO            |
+|          DE           |            DEAP_DE            |
+|        CMA-ES         |          DEAP_CMAES           |
+| Bayesian Optimization |       BayesianOptimizer       |
+|        GL-PSO         |            GL_PSO             |
+|       sDMS_PSO        |           sDMS_PSO            |
+|          j21          |             JDE21             |
+|         MadDE         |             MadDE             |
+|        SAHLPSO        |            SAHLPSO            |
+|     NL_SHADE_LBC      |         NL_SHADE_LBC          |
+|     Random Search     |         Random_search         |
 
-   See [example agent](RELOPS/agent/qlpso_agent.py) and [example backbone optimizer](RELOPS/optimizer/qlpso_optimizer.py) for more details.
 
-2. Train your agent.
+## Fit your own MetaBBO-RL into MetaBox
 
-    Assume that you've written an agent class named *MyAgent* and a backbone optimizer class named *MyOptimizer*, and now you can train your agent using:
+If you want to develop your own MetaBBO-RL approach, to fit into `MetaBox` running logic, you should meet with the following protocol about the `Agent` and `Optimizer`. 
 
-    ```shell
-    python main.py --train --problem bbob --difficulty easy --train_agent MyAgent --train_optimizer MyOptimizer
-    ```
+`Agent` is the same definition in RL area, taking the state from `env` as input and `action` as output. But to fit into MetaBox pre-defined `Trainer` and `Tester` calling logic, `Agent` should has `train_episode` interface which will be called in `Trainer` and `rollout_episode` interface which will be called in `Tester`. 
 
-    Once you run the above command, the `runName` which is generated based on the run time and benchmark suite will appear at the command line. 
+`Optimizer` is a component of `env` in MetaBBO task. It's controlled by `Agent` and take `action` from `Agent` to perfrom corresponding change like hyper-parameters adjusting or operators selection. But to fit into `env` calling logic. Interfaces namely `init_population` and `update` is needed.
 
-    See [Training](#Training) for more details.
+* Your agent should follow this template:
 
-3. Rollout your agent models.
+  ```python
+  from agent.basic_agent import Basic_Agent
+  from agent.utils import save_class
+  
+  class MyAgent(Basic_Agent):
+      def __init__(self, config):
+          """
+          Parameter
+          ----------
+          config: An argparse. Namespace object for passing some core configurations such as max_learning_step.
+  
+          Must To Do
+          ----------
+          1. Save the model of initialized agent, which will be used in "rollout" to study the training process.
+          2. Initialize a counter to record the number of accumulated learned steps
+          3. Initialize a counter to record the current checkpoint of saving agent
+          """
+          super().__init__(config)
+          self.config = config
+          save_class(self.config.agent_save_dir, 'checkpoint0', self)  # save the model of initialized agent.
+          self.learned_steps = 0   # record the number of accumulated learned steps
+          self.cur_checkpoint = 1  # record the current checkpoint of saving agent
+          """
+          Do whatever other setup is needed
+          """
+          
+  	def get_action(self, state):
+          """
+          Parameter
+          ----------
+          state: state features defined by developer.
+          
+          Return
+          ----------
+          action: the action inferenced by using state.
+          """
+          
+      def train_episode(self, env):
+          """ Called by Trainer.
+              Optimize a problem instance in training set until reaching max_learning_step or satisfy the convergence condition.
+              During every train_episode,you need to train your own network.
+  
+          Parameter
+          ----------
+          env: an environment consisting of a backbone optimizer and a problem sampled from train set.
+  
+          Must To Do
+          ----------
+          1. record total reward
+          2. record current learning steps and check if reach max_learning_step
+          3. save agent model if checkpoint arrives
+  
+          Return
+          ----------
+          A boolean that is true when fes reaches max_learning_step otherwise false
+          A dict: {'normalizer': float,
+                   'gbest': float,
+                   'return': float,
+                   'learn_steps': int
+                   }
+          """
+          state = env.reset()
+          R = 0  # total reward
+          """
+          begin loop：
+          """
+              action = self.get_action(state)
+              next_state, reward, is_done = env.step(action) # feed the action to environment
+              R += reward  # accumulate reward
+              """
+              perform update strategy of agent, which is defined by you. Every time update your agent, please increase self.learned_step accordingly
+              """
+  
+              # save agent model if checkpoint arrives
+              if self.learned_steps >= (self.config.save_interval * self.cur_checkpoint):
+                  save_class(self.config.agent_save_dir, 'checkpoint'+str(self.cur_checkpoint), self)
+                  self.cur_checkpoint += 1
+  
+              state = next_state
+  
+              """
+              check if finish loop
+              """
+          return self.learned_steps >= self.config.max_learning_step, {'normalizer': env.optimizer.cost[0],
+                                                                       'gbest': env.optimizer.cost[-1],
+                                                                       'return': R,
+                                                                       'learn_steps': self.learned_steps}
+  
+      def rollout_episode(self, env):
+          """ Called by method rollout and Tester.test
+  
+          Parameter
+          ----------
+          env: an environment consisting of a backbone optimizer and a problem sampled from test set
+  
+          Return
+          ----------
+          A dict: {'cost': list, 
+                   'fes': int, 
+                   'return': float
+                   }
+          """
+          state = env.reset()
+          is_done = False
+          R = 0  # total reward
+          while not is_done:
+              action = self.get_action(state)
+              next_state, reward, is_done = env.step(action) # feed the action to environment
+              R += reward  # accumulate reward
+              state = next_state
+  
+          return {'cost': env.optimizer.cost, 'fes': env.optimizer.fes, 'return': R}
+  ```
+  
+* Your backbone optimizer should follow this template:
 
-    Fetch your trained agent models named `checkpointN.pkl` in directory `RELOPS/agent_model/train/MyAgent/runName/` and move them to directory `RELOPS/agent_model/rollout/MyAgent/`. Rollout the models with train set using:
+  ```python
+  from optimizer.learnable_optimizer import Learnable_Optimizer
+  
+  class MyOptimizer(Learnable_Optimizer):
+      def __init__(self, config):
+          """
+          Parameter
+          ----------
+          config: An argparse.Namespace object for passing some core configurations such as maxFEs.
+          """
+          super().__init__(config)
+          self.config = config
+          """
+          Do whatever other setup is needed
+          """
+  
+      def init_population(self, problem):
+          """ Called by method PBOEnv.reset.
+              Init the population for optimization.
+  
+          Parameter
+          ----------
+          problem: a problem instance, you can call `problem.eval` to evaluate one solution.
+  
+          Must To Do
+          ----------
+          1. Initialize a counter named "fes" to record the number of function evaluations used.
+          2. Initialize a list named "cost" to record the best cost at logpoints.
+          3. Initialize a counter to record the current logpoint.
+  
+          Return
+          ----------
+          state: state features defined by developer.
+          """
+  
+          """
+          Initialize the population, calculate the cost using method problem.eval and renew everything (such as some records) that related to the current population.
+          """
+          self.fes = self.population_size  # record the number of function evaluations used
+          self.cost = [self.best_cost]     # record the best cost of first generation
+          self.cur_logpoint = 1            # record the current logpoint
+          """
+          calculate the state
+          """
+          return state
+  
+      def update(self, action, problem):
+          """ update the population using action and problem.
+              Used in Environment's step
+  
+          Parameter
+          ----------
+          action: the action inferenced by agent.
+          problem: a problem instance.
+  
+          Must To Do
+          ----------
+          1. Update the counter "fes".
+          2. Update the list "cost" if logpoint arrives.
+  
+          Return
+          ----------
+          state: represents the observation of current population.
+          reward: the reward obtained for taking the given action.
+          is_done: whether the termination conditions are met.
+          """
+  
+          """
+          update population using the given action and update self.fes
+          """
+          # append the best cost if logpoint arrives
+          if self.fes >= self.cur_logpoint * self.config.log_interval:
+              self.cur_logpoint += 1
+              self.cost.append(self.best_cost)
+          """
+          get state, reward and check if it is done
+          """
+          if is_done:
+              if len(self.cost) >= self.config.n_logpoint + 1:
+                  self.cost[-1] = self.best_cost
+              else:
+                  self.cost.append(self.best_cost)
+          return state, reward, is_done
+  ```
 
-    ```shell
-    python main.py --rollout --problem bbob --difficulty easy --agent_for_rollout MyAgent --optimizer_for_rollout MyOptimizer
-    ```
+By the way, if you are developing classic optimizer, please refer to [example classic optimizer](src/optimizer/deap_de.py).
 
-    When the rollout ends, check the result data in `RELOPS/output/rollout/runName/rollout.pkl` and pick the best model to test.
+After that, you should put your own declaring files in directory `src/agent/` and `src/optimizer/` respectively. Then the file structure should be like:
 
-    See [Rollout](#Rollout) for more details.
+```
+src
+│        
+├─ agent
+│   │
+│   ├─ de_ddqn_agent.py
+│   ├─ ...
+│   ├─ rlepso_agent.py
+│   └─ my_agent.py
+└─ optimizer
+    │
+    ├─ dq_ddqn_optimizer.py
+    ├─ ...
+    ├─ rlepso_optimizer.py
+    └─ my_optimizer.py
+```
 
-4. Test your MetaBBO optimizer.
+In addition, you should register you own agent and backbone optimizer in files `src/agent/__init__.py` and `src/optimizer/__init__.py`. For example, to register the previous class *MyAgent*, you should add one line into the `src/agent/__init__.py` file as below:
+```python
+from .my_agent import *
+```
 
-    Move the best `.pkl` model file to directory `RELOPS/agent_model/test/`, and rename the file to `MyAgent.pkl`. Now use the test set to test `MyAgent` with `DEAP_CMAES` and `Random_search`:
+Meanwhile, you should also import your own agent and backbone optimizer into `src/trainer.py` and `src/tester.py`. Take trainer as an example, you should add two lines into file `src/trainer.py` as follows:
+```python
+...
+# import your agent
+from agent import{
+     ...
+     MyAgent
+}
+# import your optimizer
+from optimizer import{
+     ...
+     MyOptimizer
+}
+```
+The same action should be done also in `src/tester.py`.
 
-    ```shell
-    python main.py --test --problem bbob --difficulty easy --agent MyAgent --optimizer MyOptimizer --t_optimizer_for_cp DEAP_CMAES Random_search
-    ```
+As mentioned, four modes are available:
 
-    See [Testing](#Testing) for more details.
+* `run_experiment` your MetaBBO-RL optimizer.
+
+   `run_experiment` mode implements fully automated workflow. Assume that you've written an agent class named *MyAgent* and a backbone optimizer class named *MyOptimizer*, the entire processes of train, rollout and test can be triggered by running command:
+
+   ```shell
+   python main.py --run_experiment --train_agent MyAgent --train_optimizer MyOptimizer --t_optimizer_for_cp DEAP_DE JDE21 DEAP_CMAES Random_search
+   ```
+
+   See [Run Experiment](#Run-Experiment) for more details.
+
+* `train` your agent.
+
+  ```shell
+  python main.py --train --train_agent MyAgent --train_optimizer MyOptimizer
+  ```
+
+  Once you run the above command, the `runName` which is generated based on the run time and benchmark suite will appear at the command line. 
+
+  See [Training](#Training) for more details.
+
+* `rollout` your agent models.
+
+  Fetch your 21 trained agent models named `checkpointN.pkl` in directory `src/agent_model/train/MyAgent/runName/` and move them to directory `src/agent_model/rollout/MyAgent/`. Rollout the models with train set using:
+
+  ```shell
+  python main.py --rollout --agent_load_dir agent_model/rollout/ --agent_for_rollout MyAgent --optimizer_for_rollout MyOptimizer
+  ```
+
+  When the rollout ends, check the result data in `src/output/rollout/runName/rollout.pkl` and pick the best model to test.
+
+  See [Rollout](#Rollout) for more details.
+
+* `test` your MetaBBO-RL optimizer.
+
+  Move the best `.pkl` model file to directory `src/agent_model/test/`, and rename the file to `MyAgent.pkl`. Now use the test set to test `MyAgent` with `DEAP_DE`, `JDE21`, `DEAP_CMAES` and `Random_search`:
+
+  ```shell
+  python main.py --test --agent_load_dir agent_model/test/ --agent_for_cp MyAgent --l_optimizer_for_cp MyOptimizer --t_optimizer_for_cp DEAP_DE JDE21 DEAP_CMAES Random_search
+  ```
+
+  See [Testing](#Testing) for more details.
+
+## Run Experiment
+
+In `MetaBox`, you can select the run_experiment mode by using the `--run_experiment` option. We will help you automatically organize the four functions including `train`, `rollout`, `test`, and log, and help you automatically plan the file directory to save the model, load the model, and save the test results during the process of train, test and etc. Note that you need to initialize your defined agent and optimizer and select the learning-based and traditional optimizers you need to compare before starting the `run_experiment` mode.
+
+```shell
+python main.py --run_experiment --problem bbob --difficulty easy --train_agent MyAgent --train_optimizer MyOptimizer --agent_for_cp LDE_Agent --l_optimizer_for_cp LDE_Optimizer --t_optimizer_for_cp DEAP_DE JDE21 DEAP_CMAES Random_search --log_dir YourLogDir
+```
+
+Notice that during `test` function in `run_experiment`, although we rollout the 21 models generated in the train and save the results, we will choose the last checkpoint i.e. checkpoint20.pkl for the comparison of the test.
+
+After `run_experiment`, we will save the generated results of train, rollout, test in `src/output/` respectively. Check sections [Train Results](#Train-Results),  [Rollout Results](#Rollout-Results) and [Test Results](#Test-Results) for more details of the generated results.
 
 ## Training
 
 ### How to Train
-In `RELOPS`, to facilitate training with our dataset and observing logs during training, we suggest that you put your own MetaBBO Agent declaration file in the folder [agent](RELOPS/agent) and **import** it in [trainer.py](RELOPS/trainer.py). Additionally, if you are using your own optimizer instead of the one provided by `RELOPS`, you need to put your own backbone optimizer declaration file in the folder [optimizer](RELOPS/optimizer) and **import** it in [trainer.py](RELOPS/trainer.py).
+In `MetaBox`, to facilitate training with our dataset and observing logs during training, we suggest that you put your own MetaBBO Agent declaration file in the folder [agent](src/agent) and **import** it in [trainer.py](src/trainer.py). Additionally, if you are using your own optimizer instead of the one provided by `MetaBox`, you need to put your own backbone optimizer declaration file in the folder [optimizer](src/optimizer) and **import** it in [trainer.py](src/trainer.py).
 
 You will then be able to train your agent using the following command line:
 
@@ -214,9 +532,9 @@ You will then be able to train your agent using the following command line:
 python main.py --train --train_agent MyAgent --train_optimizer MyOptimizer --agent_save_dir MyAgentSaveDir --log_dir MyLogDir
 ```
 
-For the above commands, `--train` is to specify the training mode. `--train_agent MyAgent` `--train_optimizer MyOptimizer` is to use your agent class named *MyAgent* and your optimizer class named *MyOptimizer*  for training. `--agent_save_dir MyAgentSaveDir` specifies the save directory of the agent models obtained from training or they will be saved in directory `RELOPS/agent_model/train` by default.  `--log_dir MyLogDir` specifies the save directory of the log files during training or directory `RELOPS/output/train` by default.
+For the above commands, `--train` is to specify the training mode. `--train_agent MyAgent` `--train_optimizer MyOptimizer` is to use your agent class named *MyAgent* and your optimizer class named *MyOptimizer*  for training. `--agent_save_dir MyAgentSaveDir` specifies the save directory of the agent models obtained from training or they will be saved in directory `src/agent_model/train` by default.  `--log_dir MyLogDir` specifies the save directory of the log files during training or directory `src/output/train` by default.
 
-Once you run the above command, `RELOPS` will initialize a `Trainer` object and use your configuration to build the agent and optimizer, as well as generate the training and test sets. After that, the `Trainer` will control the entire training process, optimize the problems in the train set one by one using the declared agent and optimizer, and record the corresponding information.
+Once you run the above command, `MetaBox` will initialize a `Trainer` object and use your configuration to build the agent and optimizer, as well as generate the training and test sets. After that, the `Trainer` will control the entire training process, optimize the problems in the train set one by one using the declared agent and optimizer, and record the corresponding information.
 
 ### Train Results
 
@@ -229,8 +547,6 @@ In addition, 2 types of data files will be generated in `MyLogDir/train/MyAgent/
 	* `draw_cost`: The cost change for the agent facing different runs for different problems and save it to `MyLogDir/train/MyAgent/runName/pic/problem_name_cost.png`.
 	* `draw_average_cost`: It will plot the average cost of the agent against all problems and save it to `MyLogDir/train/MyAgent/runName/pic/all_problem_cost.png`.
 	* `draw_return`: The return value from the agent training process will be plotted and saved to `MyLogDir/train/MyAgent/runName/pic/return.png`.
-
-__TODO__ make sure if need add examples pictures or not
 
 ## Rollout
 
@@ -257,7 +573,7 @@ MyAgentLoadDir
 
 ### Rollout Results
 
-After rollout, in `MyLogDir/rollout/runName` or `output/rollout/runName` by default, `RELOPS` will generate a file named `rollout.pkl` which is a dictionary containing:
+After rollout, in `MyLogDir/rollout/runName` or `output/rollout/runName` by default, `MetaBox` will generate a file named `rollout.pkl` which is a dictionary containing:
 
 * `cost` is the best costs sampled every 400 function evaluations along the rollout process of each checkpoint model running on each problem in train set.
 * `fes` is the function evaluation times used by each checkpoint model running on each problem in train set.
@@ -267,19 +583,19 @@ After rollout, in `MyLogDir/rollout/runName` or `output/rollout/runName` by defa
 
 ### How to Test
 
-In `RELOPS`, you can select the test mode by using the `--test` option. When conducting evaluations, we first instantiate a `Tester` object and load all agents and optimizers. Then, we build the test sets and, for each problem in the test set, we call each instantiated optimizer to test the problem and obtain a solution, recording 51 runs of optimization performance.
+In `MetaBox`, you can select the test mode by using the `--test` option. When conducting evaluations, we first instantiate a `Tester` object and load all agents and optimizers. Then, we build the test sets and, for each problem in the test set, we call each instantiated optimizer to test the problem and obtain a solution, recording 51 runs of optimization performance.
 
-Currently, we have implemented 7 MetaBBO-RL learnable optimizers, 1 MetaBBO-SL optimizer and 11 BBO optimizers, which are listed in [Baselines](#Baselines). You can also find their implementations in [RELOPS/agent](RELOPS/agent) and [RELOPS/optimizer](RELOPS/optimizer). **We have imported all of these agents and optimizers in [tester.py](RELOPS/tester.py) for you to compare, and you are supposed to import your own agent and optimizer in it**.
+Currently, we have implemented 7 MetaBBO-RL optimizers, 1 MetaBBO-SL optimizer and 11 classic optimizers, which are listed in [Baselines](#Baselines). You can also find their implementations in [src/agent](src/agent) and [src/optimizer](src/optimizer). **We have imported all of these agents and optimizers in [tester.py](src/tester.py) for you to compare, and you are supposed to import your own agent and optimizer in it**.
 
 You can use the `--agent_for_cp xxx` option to select the agent(s) for comparison and `--l_optimizer_for_cp xxx` option to select the learnable optimizer(s) for comparison. Please note that the agent needs to support the corresponding learnable optimizer. Additionally, you can use `--t_optimizer_for_cp xxx` to select the traditional optimizer(s) for comparison.  **`--agent_load_dir` option specifies the directory that contains the `.pkl` model files of your own agent and all comparing agents, and make sure that the model files are named after the class name of corresponding agent**, for example, `DE_DDQN_Agent.pkl`. `--log_dir` option specifies the directory where log files will be saved. 
 
 You can test your own agent *MyAgent* and optimizer *MyOptimizer* with DE_DDQN, LDE, DEAP_DE, JDE21, DEAP_CMAES, Random_search using the following command:
 
 ```shell
-python main.py --test --agent_load_dir MyAgentLoadDir --agent MyAgent --optimizer MyOptimizer --agent_for_cp DE_DDQN_Agent LDE_Agent --l_optimizer_for_cp DE_DDQN_Optimizer LDE_Optimizer --t_optimizer_for_cp DEAP_DE JDE21 DEAP_CMAES Random_search --log_dir MyLogDir
+python main.py --test --agent_load_dir MyAgentLoadDir --agent_for_cp MyAgent DE_DDQN_Agent LDE_Agent --l_optimizer_for_cp MyOptimizer DE_DDQN_Optimizer LDE_Optimizer --t_optimizer_for_cp DEAP_DE JDE21 DEAP_CMAES Random_search --log_dir MyLogDir
 ```
 
-For the above command, `RELOPS` will first load the trained model from *MyAgentLoadDir*, then initialize the agents and optimizers of yours, DE_DDQN and LDE and the selected traditional optimizers, and use the generated test set to optimize all the selected problems for testing. 
+For the above command, `MetaBox` will first load the trained model from *MyAgentLoadDir*, then initialize the agents and optimizers of yours, DE_DDQN and LDE and the selected traditional optimizers, and use the generated test set to optimize all the selected problems for testing. 
 
 ### Test Results
 
@@ -299,7 +615,7 @@ After testing, 3 types of data files will be generated in `MyLogDir/test/runName
     np.exp(x)
     ```
 
-  * `T1` is the evaluation time of the first problem in test set and is consistent for all algorithms.
+  * `T1` is the evaluation time of the first problem in test set.
 
   * `T2` is the test time of a specific algorithm running on the first problem in test set.
 
@@ -308,6 +624,7 @@ After testing, 3 types of data files will be generated in `MyLogDir/test/runName
   * `fes` is the function evaluation times used by each algorithm running on each problem for 51 times.
 
 * `.xlsx` files in `MyLogDir/test/runName/tables/`, contains 3 types of excel tables:
+
   * `algorithm_complexity.xlsx` contains time complexity calculated by `T0`, `T1` and `T2` for each comparing algorithms.
   * `algorithm_name_concrete_performance_table.xlsx` such as *RLEPSO_Agent_concrete_performance_table.xlsx* and *GL_PSO_concrete_performance_table.xlsx*, contains the specific algorithm's performance , i.e., the worst, best, median, mean, std of the costs the optimizer obtained on each problem in test set.
   * `overall_table.xlsx` contains optimization performance of all comparing algorithms on each problem of test set.
@@ -315,4 +632,29 @@ After testing, 3 types of data files will be generated in `MyLogDir/test/runName
   * `algorithm_name_concrete_performance_hist.png`, such as *RLEPSO_Agent_concrete_performance_hist.png* and *GL_PSO_concrete_performance_hist.png*, draws the performance histogram of the specific algorithm on each problem.
   * `problem_name_cost_curve.png` such as *Schwefel_cost_curve.png*, draws the cost curve of each algorithm's optimization process on the specific problem.
   * `all_problem_cost_curve.png` draws each algorithm's average cost curve on all problems in test set.
-  * `rank_hist.png` plots a histogram of each algorithm's score.
+  * `rank_hist.png` plots a histogram of each algorithm's AEI score, which take the best objective value, the budget to achieve a predefined accuracy (convergence rate), and the runtime complexity into account to assign a comprehensive score to measure BBO performance.
+
+### MGD Test
+
+Meta Generalization Decay (MGD) metric is to assess the generalization performance of MetaBBO-RL for unseen tasks. Before running MGD test, you should prepare two agent models that have trained on two different problem sets respectively.
+
+Run the following command to execute MGD test:
+
+```shell
+python main.py --mgd_test --problem_from bbob-noisy --difficulty_from easy --problem_to bbob --difficulty_to easy --agent MyAgent --optimizer MyOptimizer --model_from path_of_model_trained_on_problem_from --model_to path_of_model_trained_on_problem_to
+```
+
+Then, the program will print the MGD score when it ends.
+
+### MTE Test
+
+Meta Transfer Efficiency (MTE) metric is to evaluate the transfer learning capacity of a MetaBBO-RL approach. Before running MTE test, two agent models need to be prepared. One is trained on *--problem_to*, and another one is pre-trained on *--problem_from* then is transferred to continue training on *--problem_to*. After that, rollout these two models on *--problem_to* respectively to obtain two `rollout.pkl` files.
+
+Run the following command to execute MTE test:
+
+```shell
+python main.py --mte_test --problem_from bbob-noisy --difficulty_from easy --problem_to bbob --difficulty_to easy --agent MyAgent --pre_train_rollout path_of_pkl_result_file_of_pretrain_rollout --scratch_rollout path_of_pkl_result_file_of_scratch_rollout
+```
+
+When the test ends, it will print the MTE score and save a figure at directory `src/output/mte_test/runName/`.
+
