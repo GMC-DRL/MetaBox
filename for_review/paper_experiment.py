@@ -295,13 +295,13 @@ def draw_grid_search(agent_name, labels=None):
 
 def draw_MGD_MTE(agent_name):
     values = np.zeros((3, 3))
-    with open('MGD_data/noisy-random.pkl', 'rb') as f:
+    with open(f'MGD_data/{agent_name}/noisy-random.pkl', 'rb') as f:
         random_n = pickle.load(f)
 
-    with open('MGD_data/bbob-random.pkl', 'rb') as f:
+    with open(f'MGD_data/{agent_name}/bbob-random.pkl', 'rb') as f:
         random = pickle.load(f)
 
-    with open('MGD_data/protein-random.pkl', 'rb') as f:
+    with open(f'MGD_data/{agent_name}/protein-random.pkl', 'rb') as f:
         random_p = pickle.load(f)
 
     with open(f'MGD_data/{agent_name}/Synthetic_to_Synthetic/test.pkl', 'rb') as f:
