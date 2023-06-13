@@ -2,6 +2,8 @@
 
 This is a **reinforcement learning benchmark platform** for benchmarking and MetaBBO-RL methods. You can develop your own MetaBBO-RL approach and complare it with baseline approaches built-in following the **Train-Test-Log** philosophy automated by MetaBox.
 
+Post-processed data are provided in [content.md](post_processed_data/content.md).
+
 ## Contents
 
 * [Requirements](#Requirements)
