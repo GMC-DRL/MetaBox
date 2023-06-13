@@ -288,7 +288,7 @@ If you want to develop your own MetaBBO-RL approach, to fit into `MetaBox` runni
           begin loop：
           """
               action = self.get_action(state)
-              next_state, reward, done = env.step(action) # feed the action to environment
+              next_state, reward, is_done = env.step(action) # feed the action to environment
               R += reward  # accumulate reward
               """
               perform update strategy of agent, which is defined by you. Every time update your agent, please increase self.learned_step accordingly
@@ -324,17 +324,13 @@ If you want to develop your own MetaBBO-RL approach, to fit into `MetaBox` runni
                    }
           """
           state = env.reset()
+          is_done = False
           R = 0  # total reward
-          """
-          begin loop：
-          """
+          while not is_done:
               action = self.get_action(state)
-              next_state, reward, done = env.step(action) # feed the action to environment
+              next_state, reward, is_done = env.step(action) # feed the action to environment
               R += reward  # accumulate reward
               state = next_state
-              """
-              check if finish loop
-              """
   
           return {'cost': env.optimizer.cost, 'fes': env.optimizer.fes, 'return': R}
   ```
@@ -405,7 +401,7 @@ If you want to develop your own MetaBBO-RL approach, to fit into `MetaBox` runni
           ----------
           state: represents the observation of current population.
           reward: the reward obtained for taking the given action.
-          done: whether the termination conditions are met.
+          is_done: whether the termination conditions are met.
           """
   
           """
