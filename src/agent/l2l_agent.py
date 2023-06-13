@@ -46,17 +46,7 @@ class L2L_Agent(Basic_Agent):
             x=out[0,0]
             # print(x)
             y,_,_=env.step(x)
-            # x=scale(x,problem.lb,problem.ub)
-            # # evaluate x
-            # if problem.optimum is None:
-            #     y=problem.eval(x)
-            # else:
-            #     y=problem.eval(x)-problem.optimum
-            # y=y.to(torch.float32)
-            # print(f'x.dtype:{x.dtype}')
-            # print(f'y.dtype:{y.dtype}')
-
-            # print(y)
+            
             y_sum+=y
 
             # update input
@@ -70,9 +60,6 @@ class L2L_Agent(Basic_Agent):
                 self.optimizer.zero_grad()
                 loss.mean().backward()
 
-                # for name, parms in self.net.named_parameters():	
-                #     print('-->name:', name)
-                #     print('-->grad_value:',parms.grad)
                 self.optimizer.step()
                 y_sum=y_sum.detach()
                 h=h.detach()
@@ -116,12 +103,7 @@ class L2L_Agent(Basic_Agent):
             out,(h,c)=self.net(input,(h,c))
             x=out[0,0]
             y,_,is_done=env.step(x.detach().numpy())
-            # x=scale(x,problem.lb,problem.ub)
-            # # print(x)
-            # if problem.optimum is None:
-            #     y=problem.eval(x)
-            # else:
-            #     y=problem.eval(x)-problem.optimum
+            
             fes+=1
             # print(y)
             if best is None:
