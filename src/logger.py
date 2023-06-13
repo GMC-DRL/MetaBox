@@ -694,9 +694,9 @@ def post_processing_test_statics(log_dir: str, logger: Logger) -> None:
                                          'Classic Optimizer': ['DEAP_DE', 'DEAP_CMAES', 'DEAP_PSO', 'JDE21', 'NL_SHADE_LBC', 'GL_PSO', 'sDMS_PSO', 'MadDE', 'SAHLPSO', 'Random_search']},
                                         logged=False)
     logger.draw_rank_hist(results, random, log_dir + 'pics/')
-    logger.draw_boxplot(results['cost'],log_dir + 'pics/')
-    logger.draw_overall_boxplot(results['cost'],log_dir + 'pics/')
-    logger.draw_concrete_performance_hist(results['cost'],log_dir + 'pics/')
+    # logger.draw_boxplot(results['cost'],log_dir + 'pics/')
+    # logger.draw_overall_boxplot(results['cost'],log_dir + 'pics/')
+    # logger.draw_concrete_performance_hist(results['cost'],log_dir + 'pics/')
 
 
 def post_processing_rollout_statics(log_dir: str, logger: Logger) -> None:
