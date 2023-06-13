@@ -1,0 +1,1 @@
+![noisy-diff-aei](pics/noisy-diff.png)

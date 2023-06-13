@@ -546,12 +546,15 @@ class Logger:
         plt.close()
 
     def draw_rank_hist(self, data: dict, random: dict, output_dir: str, ignore: Optional[list]=None) -> None:
-        metric = self.aei_metric(data, random, maxFEs=self.config.maxFEs, ignore=ignore)
+        metric = self.aei_metric(data, random, ignore=ignore)
         X, Y = list(metric.keys()), list(metric.values())
         n_agents = len(X)
         for i in range(n_agents):
             X[i] = to_label(X[i])
-
+            if X[i] == 'BayesianOptimizer':
+                X[i] = 'BO'
+            if X[i] == 'L2L':
+                X[i] = 'RNN-OI'
         plt.figure(figsize=(4*n_agents,15))
         plt.bar(X, Y)
         for a,b in zip(X, Y):
@@ -568,9 +571,11 @@ class Logger:
         problems = data['fes'].keys()
         if 'complexity' not in data.keys():
             data['complexity'] = {}
-            agents = data['fes'][list(problems)[0]].keys()
+            agents = list(data['fes'][list(problems)[0]].keys())
         else:
-            agents = data['complexity'].keys()
+            agents = list(data['complexity'].keys())
+        if 'Random_search' in agents:
+            agents.remove('Random_search')
         avg = baseline['complexity_avg']
         std = baseline['complexity_std']
         results_complex = {}
@@ -684,7 +689,7 @@ def post_processing_test_statics(log_dir: str, logger: Logger) -> None:
     if not os.path.exists(log_dir + 'pics/'):
         os.makedirs(log_dir + 'pics/')
     logger.draw_test_cost(results['cost'],log_dir + 'pics/', logged=True, categorized=True)
-    logger.draw_named_average_test_costs(results['cost'], log_dir + 'pics/', 
+    logger.draw_named_average_test_costs(results['cost'], log_dir + 'pics/',
                                         {'MetaBBO-RL': ['DE_DDQN_Agent', 'RL_HPSDE_Agent', 'LDE_Agent', 'QLPSO_Agent', 'RLEPSO_Agent', 'RL_PSO_Agent', 'DEDQN_Agent'],
                                          'Classic Optimizer': ['DEAP_DE', 'DEAP_CMAES', 'DEAP_PSO', 'JDE21', 'NL_SHADE_LBC', 'GL_PSO', 'sDMS_PSO', 'MadDE', 'SAHLPSO', 'Random_search']},
                                         logged=False)
