@@ -58,7 +58,7 @@ This is a **reinforcement learning benchmark platform** for benchmarking and Met
   
   ---
   
-  The quick usage of four main running interfaces are listed as follows, in the following command we specifically take `DE_DDQN` as example.
+  The quick usage of four main running interfaces are listed as follows, in the following command we specifically take `RLEPSO` as example.
   
   Firstly, get into main code folder src:
   ```shell
@@ -68,25 +68,25 @@ This is a **reinforcement learning benchmark platform** for benchmarking and Met
 * To trigger the entire workflow including **train, rollout and test**, run the following command:
 
   ```shell
-  python main.py --run_experiment --train_agent DE_DDQN_Agent --train_optimizer DE_DDQN_Optimizer
+  python main.py --run_experiment --train_agent RLEPSO_Agent --train_optimizer RLEPSO_Optimizer
   ```
 
 * To trigger the standalone process of **training**:
 
   ```shell
-  python main.py --train --train_agent DE_DDQN_Agent --train_optimizer DE_DDQN_Optimizer 
+  python main.py --train --train_agent RLEPSO_Agent --train_optimizer RLEPSO_Optimizer 
   ```
 
 * To trigger the standalone process of **rollout**:
 
   ```shell
-  python main.py --rollout --agent_load_dir agent_model/rollout/ --agent_for_rollout DE_DDQN_Agent --optimizer_for_rollout DE_DDQN_Optimizer
+  python main.py --rollout --agent_load_dir agent_model/rollout/bbob_easy/ --agent_for_rollout RLEPSO_Agent --optimizer_for_rollout RLEPSO_Optimizer
   ```
 
 * To trigger the standalone process of **testing**:
 
   ```shell
-  python main.py --test --agent_load_dir agent_model/test/ --agent_for_cp DE_DDQN_Agent --l_optimizer_for_cp DE_DDQN_Optimizer
+  python main.py --test --agent_load_dir agent_model/test/bbob_easy/ --agent_for_cp RLEPSO_Agent --l_optimizer_for_cp RLEPSO_Optimizer
   ```
 
 ## Overview
