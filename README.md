@@ -405,7 +405,7 @@ If you want to develop your own MetaBBO-RL approach, to fit into `MetaBox` runni
           """
   
           """
-          update population using given action and "fes"
+          update population using the given action and update self.fes
           """
           # append the best cost if logpoint arrives
           if self.fes >= self.cur_logpoint * self.config.log_interval:
