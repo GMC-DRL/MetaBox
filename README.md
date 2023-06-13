@@ -592,7 +592,7 @@ You can use the `--agent_for_cp xxx` option to select the agent(s) for compariso
 You can test your own agent *MyAgent* and optimizer *MyOptimizer* with DE_DDQN, LDE, DEAP_DE, JDE21, DEAP_CMAES, Random_search using the following command:
 
 ```shell
-python main.py --test --agent_load_dir MyAgentLoadDir --agent MyAgent --optimizer MyOptimizer --agent_for_cp DE_DDQN_Agent LDE_Agent --l_optimizer_for_cp DE_DDQN_Optimizer LDE_Optimizer --t_optimizer_for_cp DEAP_DE JDE21 DEAP_CMAES Random_search --log_dir MyLogDir
+python main.py --test --agent_load_dir MyAgentLoadDir --agent_for_cp MyAgent DE_DDQN_Agent LDE_Agent --l_optimizer_for_cp MyOptimizer DE_DDQN_Optimizer LDE_Optimizer --t_optimizer_for_cp DEAP_DE JDE21 DEAP_CMAES Random_search --log_dir MyLogDir
 ```
 
 For the above command, `MetaBox` will first load the trained model from *MyAgentLoadDir*, then initialize the agents and optimizers of yours, DE_DDQN and LDE and the selected traditional optimizers, and use the generated test set to optimize all the selected problems for testing. 
