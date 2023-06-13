@@ -51,7 +51,8 @@ This is a **reinforcement learning benchmark platform** for benchmarking and Met
 * To obtain the figures in our paper, run the following commands: 
 
   ```shell
-  python for_review/paper_experiment.py
+  cd for_review
+  python paper_experiment.py
   ```
   then corresponding figures will be output to `for_revivew/pics`.
   
@@ -61,7 +62,7 @@ This is a **reinforcement learning benchmark platform** for benchmarking and Met
   
   Firstly, get into main code folder src:
   ```shell
-  cd src
+  cd ../src
   ```
   
 * To trigger the entire workflow including **train, rollout and test**, run the following command:
