@@ -1,7 +1,7 @@
 
 ### Synthetic-easy
 
-[AEI score hist](post_processed_data\pics\Synthetic_easy\all_problem_cost_curve_logX.png)
+[AEI score hist](aei/synthetic-easy.md)
 
 [overall performance table](overall_tables/synthetic-easy.md)
 
@@ -11,7 +11,7 @@
 
 ### Synthetic-difficult
 
-[AEI score hist]()
+[AEI score hist](aei/synthetic-diff.md)
 
 [overall performance table](overall_tables/synthetic-diff.md)
 
@@ -21,7 +21,7 @@
 
 ### Noisy-Synthetic-easy
 
-[AEI score hist]()
+[AEI score hist](aei/noisy-easy.md)
 
 [overall performance table](overall_tables/noisy-easy.md)
 
@@ -31,7 +31,7 @@
 
 ### Noisy-Synthetic-difficult
 
-[AEI score hist]()
+[AEI score hist](aei/noisy-diff.md)
 
 [overall performance table](overall_tables/noisy-diff.md)
 
@@ -41,7 +41,7 @@
 
 ### Protein-Docking-easy
 
-[AEI score hist]()
+[AEI score hist](aei/protein-easy.md)
 
 [overall performance table](overall_tables/protein-easy.md)
 
@@ -51,7 +51,7 @@
 
 ### Protein-Docking-difficult
 
-[AEI score hist]()
+[AEI score hist](aei/protein.diff.md)
 
 [overall performance table](overall_tables/protein-diff.md)
 
