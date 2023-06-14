@@ -72,11 +72,6 @@ def get_config(args=None):
     config.bo_maxFEs = 10 * config.dim
     config.n_logpoint = 50
 
-    if config.run_experiment:
-        assert (config.agent is None) and (config.optimizer is None) and \
-               (len(config.agent_for_cp) == 0) and (len(config.l_optimizer_for_cp) == 0), \
-               "In run_experiment mode, options --agent, --optimizer, --agent_for_cp and --l_optimizer_for_cp cannot be provided."
-
     if config.mgd_test or config.mte_test:
         config.problem = config.problem_to
         config.difficulty = config.difficulty_to
