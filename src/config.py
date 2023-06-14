@@ -72,6 +72,9 @@ def get_config(args=None):
     config.bo_maxFEs = 10 * config.dim
     config.n_logpoint = 50
 
+    if config.run_experiment and len(config.agent_for_cp) >= 1:
+        assert config.agent_load_dir is not None, "Option --agent_load_dir must be given since you specified option --agent_for_cp."
+
     if config.mgd_test or config.mte_test:
         config.problem = config.problem_to
         config.difficulty = config.difficulty_to
