@@ -88,7 +88,7 @@ Post-processed data are provided in [content.md](post_processed_data/content.md)
 * To trigger the standalone process of **testing**:
 
   ```shell
-  python main.py --test --problem bbob --difficulty easy --agent_load_dir agent_model/test/bbob_easy/ --agent_for_cp RLEPSO_Agent --l_optimizer_for_cp RLEPSO_Optimizer --t_optimizer_for_cp CMAES Random_search
+  python main.py --test --problem bbob --difficulty easy --agent_load_dir agent_model/test/bbob_easy/ --agent_for_cp RLEPSO_Agent --l_optimizer_for_cp RLEPSO_Optimizer --t_optimizer_for_cp DEAP_CMAES Random_search
   ```
 
 ## Overview
