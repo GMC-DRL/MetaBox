@@ -63,10 +63,8 @@ if __name__ == '__main__':
         # test
         test_model_file = agent_save_dir + config.train_agent + '.pkl'
         shutil.copy(os.path.join(agent_save_dir, 'checkpoint20.pkl'), test_model_file)  # copy checkpoint20.pkl to agent_name.pkl
-        if (config.train_agent != config.agent) and (config.train_agent not in config.agent_for_cp):
-            config.agent_for_cp.append(config.train_agent)
-        if (config.train_optimizer != config.optimizer) and (config.train_optimizer not in config.l_optimizer_for_cp):
-            config.l_optimizer_for_cp.append(config.train_optimizer)
+        config.agent_for_cp.append(config.train_agent)
+        config.l_optimizer_for_cp.append(config.train_optimizer)
         torch.set_grad_enabled(False)
         tester = Tester(config)
         tester.test()
