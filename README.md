@@ -6,33 +6,26 @@ Post-processed data are provided in [content.md](post_processed_data/content.md)
 
 ## Contents
 
-* [Requirements](#Requirements)
-
-* [Quick Start](#Quick-Start)
-
-* [Overview](#Overview)
-
-* [Datasets](#Datasets)
-
-* [Baseline Library](#Baseline-Library)
-
-* [Fit your own MetaBBO-RL into MetaBox](#Fit-your-own-MetaBBO-RL-into-MetaBox)
-
-* [Run Experiment](#run-experiment)
-
-* [Training](#Training)
-  * [How to Train](#How-to-Train)
-  * [Train Results](#Train-Results)
-  
-* [Rollout](#Rollout)
-  * [How to Rollout](#How-to-Rollout)
-  * [Rollout Results](#Rollout-Results)
-  
-* [Testing](#Testing)
-  * [How to Test](#How-to-Test)
-  * [Test Results](#Test-Results)
-  * [MGD Test](#MGD-Test)
-  * [MTE Test](#MTE-Test)
+- [MetaBox: A Benchmark Platform for Meta-Black-Box Optimization with Reinforcement Learning](#metabox-a-benchmark-platform-for-meta-black-box-optimization-with-reinforcement-learning)
+  - [Contents](#contents)
+  - [Requirements](#requirements)
+  - [Quick Start](#quick-start)
+  - [Overview](#overview)
+  - [Datasets](#datasets)
+  - [Baseline Library](#baseline-library)
+  - [Fit your own MetaBBO-RL into MetaBox](#fit-your-own-metabbo-rl-into-metabox)
+  - [Run Experiment](#run-experiment)
+  - [Training](#training)
+    - [How to Train](#how-to-train)
+    - [Train Results](#train-results)
+  - [Rollout](#rollout)
+    - [How to Rollout](#how-to-rollout)
+    - [Rollout Results](#rollout-results)
+  - [Testing](#testing)
+    - [How to Test](#how-to-test)
+    - [Test Results](#test-results)
+    - [MGD Test](#mgd-test)
+    - [MTE Test](#mte-test)
 
 ## Requirements
 
@@ -516,8 +509,10 @@ As mentioned, four modes are available:
 In `MetaBox`, you can select the run_experiment mode by using the `--run_experiment` option. We will help you automatically organize the four functions including `train`, `rollout`, `test`, and log, and help you automatically plan the file directory to save the model, load the model, and save the test results during the process of train, test and etc. Note that you need to initialize your defined agent and optimizer and select the learning-based and traditional optimizers you need to compare before starting the `run_experiment` mode.
 
 ```shell
-python main.py --run_experiment --problem bbob --difficulty easy --train_agent MyAgent --train_optimizer MyOptimizer --agent_for_cp LDE_Agent --l_optimizer_for_cp LDE_Optimizer --t_optimizer_for_cp DEAP_DE JDE21 DEAP_CMAES Random_search --log_dir YourLogDir
+python main.py --run_experiment --problem bbob --difficulty easy --train_agent MyAgent --train_optimizer MyOptimizer --agent_load_dir agent_model/test/bbob_easy/ --agent_for_cp LDE_Agent --l_optimizer_for_cp LDE_Optimizer --t_optimizer_for_cp DEAP_DE JDE21 DEAP_CMAES Random_search --log_dir YourLogDir 
 ```
+
+`--train_agent MyAgent` `--train_optimizer MyOptimizer` is to use your agent class named *MyAgent* and your optimizer class named *MyOptimizer*  for training. In `run_experiment` mode, you can also select built-in baselines in MetaBox to compare via `--t_optimizer_for_cp` to specify classic baselines and `--agent_for_cp` `--l_optimizer_for_cp` to specify learnable baselines. Noting that when you specify `--agent_for_cp`, you must provide `--agent_load_dir` to specify the directory saving trained baselines models, in the example above, `agent_load_dir` is provided as `agent_model/test/bbob_easy/` in which trained model on 10D easy Synthetic we provide is located.
 
 Notice that during `test` function in `run_experiment`, although we rollout the 21 models generated in the train and save the results, we will choose the last checkpoint i.e. checkpoint20.pkl for the comparison of the test.
 
