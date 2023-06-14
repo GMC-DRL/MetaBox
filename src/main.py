@@ -52,6 +52,9 @@ if __name__ == '__main__':
         for filename in os.listdir(agent_save_dir):
             if os.path.isfile(os.path.join(agent_save_dir, filename)):
                 shutil.copy(os.path.join(agent_save_dir, filename), rollout_save_dir)
+        test_agent_load_dir = None
+        if config.agent_load_dir is not None:
+            test_agent_load_dir = config.agent_load_dir
         config.agent_load_dir = agent_save_dir  # let config.agent_load_dir = config.agent_save_dir to load model
         config.agent_for_rollout = [config.train_agent]
         config.optimizer_for_rollout = [config.train_optimizer]
@@ -61,7 +64,9 @@ if __name__ == '__main__':
         post_processing_rollout_statics(config.rollout_log_dir, Logger(config))
 
         # test
-        test_model_file = agent_save_dir + config.train_agent + '.pkl'
+        if test_agent_load_dir is not None:
+            config.agent_load_dir = test_agent_load_dir
+        test_model_file = os.path.join(config.agent_load_dir, f'{config.train_agent}.pkl')
         shutil.copy(os.path.join(agent_save_dir, 'checkpoint20.pkl'), test_model_file)  # copy checkpoint20.pkl to agent_name.pkl
         if (config.train_agent != config.agent) and (config.train_agent not in config.agent_for_cp):
             config.agent_for_cp.append(config.train_agent)
@@ -70,7 +75,8 @@ if __name__ == '__main__':
         torch.set_grad_enabled(False)
         tester = Tester(config)
         tester.test()
-        os.remove(test_model_file)  # remove test model files after test
+        if test_agent_load_dir is None:
+            os.remove(test_model_file)  # remove test model files after test
         post_processing_test_statics(config.test_log_dir, Logger(config))
 
     # mgd_test
