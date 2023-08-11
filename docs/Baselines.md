@@ -76,7 +76,7 @@ For running commands, use the **corresponding agent class name** and **correspon
 
 For all baselines, we display their control parameter settings in:
 
-Classic: [control_parameters_classic](src/control_parameters_classic.md)
+Classic: [control_parameters_classic](../src/control_parameters_classic.md)
 
 Metabbo: [control_parameters_metabbo](../src/control_parameters_metabbo.md)
 
