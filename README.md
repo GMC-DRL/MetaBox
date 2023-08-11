@@ -2,6 +2,15 @@
 
 This is a **reinforcement learning benchmark platform** for benchmarking and MetaBBO-RL methods. You can develop your own MetaBBO-RL approach and complare it with baseline approaches built-in following the **Train-Test-Log** philosophy automated by MetaBox.
 
+## Installations
+
+You can access all MetaBox files with command:
+
+```shell
+git clone git@github.com:GMC-DRL/MetaBox.git
+cd MetaBox
+```
+
 ## Requirements
 
 `Python` >=3.7.1 with following packages installed:  
@@ -49,39 +58,16 @@ This is a **reinforcement learning benchmark platform** for benchmarking and Met
   python main.py --train --problem bbob --difficulty easy --train_agent RLEPSO_Agent --train_optimizer RLEPSO_Optimizer 
   ```
 
-* To trigger the standalone process of **rollout**:
-
-  ```shell
-  python main.py --rollout --problem bbob --difficulty easy --agent_load_dir agent_model/rollout/bbob_easy/ --agent_for_rollout RLEPSO_Agent --optimizer_for_rollout RLEPSO_Optimizer
-  ```
-
 * To trigger the standalone process of **testing**:
 
   ```shell
   python main.py --test --problem bbob --difficulty easy --agent_load_dir agent_model/test/bbob_easy/ --agent_for_cp RLEPSO_Agent --l_optimizer_for_cp RLEPSO_Optimizer --t_optimizer_for_cp DEAP_CMAES Random_search
   ```
 
-## Overview
-
-![overview](docs/overview.png)
-
-`MetaBox` can be divided into six modules: **Template, Test suites, Baseline Library, Trainer, Tester and Logger.**
-
-* `Template` comprises two main components: the **meta-level RL agent** and the **lower-level optimizer**, which provides a unified interface protocol for users to develop their own MetaBBO-RL with ease. 
-* `Test suites` are used for generating training and testing sets, including **Synthetic**, **Noisy-Synthetic**, and **Protein-Docking**.
-* `Baseline Library` comprises proposed algorithms including **MetaBBO-RL**, **MetaBBO-SL** and **classic** optimizers that we implemented for comparison study.
-* `Trainer` **manages the entire learning process** of the agent by building environments consisting of a backbone optimizer and a problem sampled from train set and letting the agent interact with environments sequentially.
-* `Tester` is used to **evaluate** the optimization performance of the MetaBBO-RL. By using the test set to test the baselines and the trained MetaBBO agent, it produces test log for logger to generate statistic test results.
-* `Logger` implements multiple interfaces for **displaying** the logs of the training process and the results of the testing process, which facilitates the improvement of the training process and the observation of MetaBBO-RL's performance.
-
-**Data Stream**
-![datastream](docs/datastream.png)
-
-When using MetaBox, after the training interface `Trainer.train()` called, 21 pickle files of training agent in different training process and pictures of training process will be output to `src/agent_model/train` and `src/output/train` respectively. If you want to compare performance among baselines built-in or your own approach, `Tester.test` is needed to be called. For those learnable agent in your comparing list, you need to first collect these agent model pickle files (one agent one file) to a specific folder, where the agent model file may have been outputed by `Trainer.train()` and you can find that and then copy it to the right place. When `Tester.test()` finished, tables containing per-instance result and algorithm complexity, pictures depicting comparison results or singal approach performance, original testing result will be output to `src/output/test`. In addition, for `Rollout` interface, before that you need to collect all of checkpoints of all of learning agents which can be copy from output of `Trainer.train()`. When `Rollout` finished, pictures containing average return process and optimization cost process will be output to `src/output/rollout` and the original data file will also be saved.
 
 ## Documentation
 
-See the [MetaBox User's Guide](https://pgj-0419.github.io/PGJ-0419/) for Metabox documentation.
+See the [MetaBox User's Guide](https://gmc-drl.github.io/MetaBox/) for Metabox documentation.
 
 ## Datasets
 
@@ -132,3 +118,6 @@ Currently, three benchmark suites are included:
 
 Note that `Random Search` performs uniformly random sampling to optimize the fitness.
 
+## Post-processing
+
+To facilitate the observation of our baselines and related metrics, we tested our baselines on two levels of difficulty on three datasets. Post-processed data are provided in [content.md](post_processed_data/content.md).

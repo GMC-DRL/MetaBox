@@ -74,3 +74,12 @@ For running commands, use the **corresponding agent class name** and **correspon
 |     NL_SHADE_LBC      |         NL_SHADE_LBC          |
 |     Random Search     |         Random_search         |
 
+For all baselines, we display their control parameter settings in:
+
+Classic: [control_parameters_classic](src/control_parameters_classic.md)
+
+Metabbo: [control_parameters_metabbo](../src/control_parameters_metabbo.md)
+
+## Baselines' performance
+
+To facilitate the observation of our baselines and related metrics, we tested our baselines on two levels of difficulty on three datasets. All data are provided in [content.md](../post_processed_data/content.md).

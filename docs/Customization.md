@@ -297,3 +297,5 @@ As mentioned, four modes are available:
   ```
 
   See [Testing](Test.md) for more details.
+
+Notice that we record 21 checkpoint models during the whole training process. `Rollout` could help you pick the suitable or best model to test and calculate  the metrics.
