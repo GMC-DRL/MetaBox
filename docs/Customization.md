@@ -209,7 +209,7 @@ If you want to develop your own MetaBBO-RL approach, to fit into `MetaBox` runni
           return state, reward, is_done
   ```
 
-By the way, if you are developing classic optimizer, please refer to [example classic optimizer](../src/optimizer/deap_de.py).
+By the way, if you are developing classic optimizer, please refer to [example classic optimizer](https://github.com/GMC-DRL/MetaBox/tree/main/src/optimizer/deap_de.py).
 
 After that, you should put your own declaring files in directory `src/agent/` and `src/optimizer/` respectively. Then the file structure should be like:
 
