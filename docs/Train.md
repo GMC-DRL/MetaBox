@@ -2,7 +2,7 @@
 
 ### How to Train
 
-In `MetaBox`, to facilitate training with our dataset and observing logs during training, we suggest that you put your own MetaBBO Agent declaration file in the folder [agent](../src/agent) and **import** it in [trainer.py](../src/trainer.py). Additionally, if you are using your own optimizer instead of the one provided by `MetaBox`, you need to put your own backbone optimizer declaration file in the folder [optimizer](../src/optimizer) and **import** it in [trainer.py](../src/trainer.py).
+In `MetaBox`, to facilitate training with our dataset and observing logs during training, we suggest that you put your own MetaBBO Agent declaration file in the folder [agent](https://github.com/GMC-DRL/MetaBox/tree/main/src/agent) and **import** it in [trainer.py](https://github.com/GMC-DRL/MetaBox/tree/main/src/trainer.py). Additionally, if you are using your own optimizer instead of the one provided by `MetaBox`, you need to put your own backbone optimizer declaration file in the folder [optimizer](https://github.com/GMC-DRL/MetaBox/tree/main/src/optimizer) and **import** it in [trainer.py](https://github.com/GMC-DRL/MetaBox/tree/main/src/trainer.py).
 
 You will then be able to train your agent using the following command line:
 
