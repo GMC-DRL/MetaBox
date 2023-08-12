@@ -76,10 +76,10 @@ For running commands, use the **corresponding agent class name** and **correspon
 
 For all baselines, we display their control parameter settings in:
 
-Classic: [control_parameters_classic](../src/control_parameters_classic.md)
+Classic: [control_parameters_classic](https://github.com/GMC-DRL/MetaBox/tree/main/src/control_parameters_classic.md)
 
-Metabbo: [control_parameters_metabbo](../src/control_parameters_metabbo.md)
+Metabbo: [control_parameters_metabbo](https://github.com/GMC-DRL/MetaBox/tree/main/src/control_parameters_metabbo.md)
 
 ## Baselines' performance
 
-To facilitate the observation of our baselines and related metrics, we tested our baselines on two levels of difficulty on three datasets. All data are provided in [content.md](../post_processed_data/content.md).
+To facilitate the observation of our baselines and related metrics, we tested our baselines on two levels of difficulty on three datasets. All data are provided in [content.md](https://github.com/GMC-DRL/MetaBox/tree/main/post_processed_data/content.md).
