@@ -1,11 +1,11 @@
 The overall comparison on optimization performance among all baselines in our Repo. For each problem in **Noisy Synthetic difficult** suites, we test each algorithms for $51$ independent runs and average the test results for presentation. ''Obj'' (smaller is better) indicates the final global best value. ''Gap'' (smaller is better) is the optimization gap away from the **SOTA** optimizer, which is CMA-ES algorithm in this paper. ''FEs'' indicates how many function evaluations an optimizer takes to get the ''Obj''. Under the consideration of runtime, we assign BayesianOptimizer 100 FEs. For RNN-OI, we also set the maxFEs to 100 respecting the original paper. Therefore, their ''FEs'' and ''Gap'' are not comparable.
 <body>
-    <table style="width:3618pt"> <!--StartFragment--> 
+    <table style="width:3216pt"> <!--StartFragment--> 
  <colgroup>
-  <col width="72" span="67" style="width:54pt"> 
+  <col width="64" span="67" style="width:48pt"> 
  </colgroup>
  <tbody>
-  <tr height="18"> 
+  <tr height="19"> 
    <td class="xl63">Problem</td> 
    <td colspan="3" class="xl63">Sphere_moderate_uniform</td> 
    <td colspan="3" class="xl63">Sphere_moderate_cauchy</td> 
@@ -30,7 +30,7 @@ The overall comparison on optimization performance among all baselines in our Re
    <td colspan="3" class="xl63">Gallagher_101Peaks_uniform</td> 
    <td colspan="3" class="xl63">Gallagher_101Peaks_cauchy</td> 
   </tr> 
-  <tr height="18"> 
+  <tr height="19"> 
    <td class="xl63">metric</td> 
    <td class="xl63">Obj</td> 
    <td class="xl63">Gap</td> 
@@ -99,7 +99,7 @@ The overall comparison on optimization performance among all baselines in our Re
    <td class="xl63">Gap</td> 
    <td class="xl63">FEs</td> 
   </tr> 
-  <tr height="18"> 
+  <tr height="19"> 
    <td class></td> 
    <td class></td> 
    <td class></td> 
@@ -168,1316 +168,1316 @@ The overall comparison on optimization performance among all baselines in our Re
    <td class></td> 
    <td class></td> 
   </tr> 
-  <tr height="18"> 
+  <tr height="19"> 
    <td class="xl63">DE_DDQN</td> 
-   <td class>1.012e-3</td> 
+   <td class>1.012e-3<br>(4.025e-4)</td> 
    <td class>0.000</td> 
-   <td class>2.e+4</td> 
-   <td class>6.143e+0</td> 
+   <td class>2.000e+4<br>(0.000e+0)</td> 
+   <td class>6.143e+0<br>(3.382e+0)</td> 
    <td class>0.301</td> 
-   <td class>2.e+4</td> 
-   <td class>6.869e+0</td> 
+   <td class>2.000e+4<br>(0.000e+0)</td> 
+   <td class>6.869e+0<br>(9.623e-1)</td> 
    <td class>0.003</td> 
-   <td class>2.e+4</td> 
-   <td class>1.735e+1</td> 
+   <td class>2.000e+4<br>(0.000e+0)</td> 
+   <td class>1.735e+1<br>(1.221e+0)</td> 
    <td class>0.008</td> 
-   <td class>2.e+4</td> 
-   <td class>2.552e-1</td> 
+   <td class>2.000e+4<br>(0.000e+0)</td> 
+   <td class>2.552e-1<br>(1.870e-1)</td> 
    <td class>-3.886</td> 
-   <td class>2.e+4</td> 
-   <td class>4.612e-2</td> 
+   <td class>2.000e+4<br>(0.000e+0)</td> 
+   <td class>4.612e-2<br>(3.992e-2)</td> 
    <td class>1.000</td> 
-   <td class>2.e+4</td> 
-   <td class>9.977e+1</td> 
+   <td class>2.000e+4<br>(0.000e+0)</td> 
+   <td class>9.977e+1<br>(1.735e+2)</td> 
    <td class>0.484</td> 
-   <td class>2.e+4</td> 
-   <td class>3.122e+0</td> 
+   <td class>2.000e+4<br>(0.000e+0)</td> 
+   <td class>3.122e+0<br>(5.436e+0)</td> 
    <td class>5.056</td> 
-   <td class>2.e+4</td> 
-   <td class>1.010e+1</td> 
+   <td class>2.000e+4<br>(0.000e+0)</td> 
+   <td class>1.010e+1<br>(1.495e+1)</td> 
    <td class>4.077</td> 
-   <td class>2.e+4</td> 
-   <td class>3.282e+2</td> 
+   <td class>2.000e+4<br>(0.000e+0)</td> 
+   <td class>3.282e+2<br>(2.485e+2)</td> 
    <td class>0.059</td> 
-   <td class>2.e+4</td> 
-   <td class>3.330e-1</td> 
+   <td class>2.000e+4<br>(0.000e+0)</td> 
+   <td class>3.330e-1<br>(2.093e-1)</td> 
    <td class>1.549</td> 
-   <td class>2.e+4</td> 
-   <td class>1.513e-1</td> 
+   <td class>2.000e+4<br>(0.000e+0)</td> 
+   <td class>1.513e-1<br>(1.387e-1)</td> 
    <td class>4.899</td> 
-   <td class>2.e+4</td> 
-   <td class>2.869e+2</td> 
+   <td class>2.000e+4<br>(0.000e+0)</td> 
+   <td class>2.869e+2<br>(2.500e+2)</td> 
    <td class>0.094</td> 
-   <td class>2.e+4</td> 
-   <td class>9.570e+1</td> 
+   <td class>2.000e+4<br>(0.000e+0)</td> 
+   <td class>9.570e+1<br>(1.689e+2)</td> 
    <td class>-0.482</td> 
-   <td class>2.e+4</td> 
-   <td class>3.072e-1</td> 
+   <td class>2.000e+4<br>(0.000e+0)</td> 
+   <td class>3.072e-1<br>(8.370e-2)</td> 
    <td class>0.913</td> 
-   <td class>2.e+4</td> 
-   <td class>1.112e-2</td> 
+   <td class>2.000e+4<br>(0.000e+0)</td> 
+   <td class>1.112e-2<br>(8.041e-3)</td> 
    <td class>1.017</td> 
-   <td class>2.e+4</td> 
-   <td class>9.973e+1</td> 
+   <td class>2.000e+4<br>(0.000e+0)</td> 
+   <td class>9.973e+1<br>(1.680e+2)</td> 
    <td class>100.908</td> 
-   <td class>2.e+4</td> 
-   <td class>2.204e-3</td> 
+   <td class>2.000e+4<br>(0.000e+0)</td> 
+   <td class>2.204e-3<br>(1.953e-3)</td> 
    <td class>0.969</td> 
-   <td class>2.e+4</td> 
-   <td class>8.968e+1</td> 
+   <td class>2.000e+4<br>(0.000e+0)</td> 
+   <td class>8.968e+1<br>(1.669e+2)</td> 
    <td class>1.109</td> 
-   <td class>2.e+4</td> 
-   <td class>1.505e+0</td> 
+   <td class>2.000e+4<br>(0.000e+0)</td> 
+   <td class>1.505e+0<br>(3.703e-1)</td> 
    <td class>1.509</td> 
-   <td class>2.e+4</td> 
-   <td class>3.685e-2</td> 
+   <td class>2.000e+4<br>(0.000e+0)</td> 
+   <td class>3.685e-2<br>(3.047e-2)</td> 
    <td class>0.575</td> 
-   <td class>2.e+4</td> 
-   <td class>1.280e+2</td> 
+   <td class>2.000e+4<br>(0.000e+0)</td> 
+   <td class>1.280e+2<br>(1.712e+2)</td> 
    <td class>0.259</td> 
-   <td class>2.e+4</td> 
+   <td class>2.000e+4<br>(0.000e+0)</td> 
   </tr> 
-  <tr height="18"> 
+  <tr height="19"> 
    <td class="xl63">DEDQN</td> 
-   <td class>3.654e+1</td> 
+   <td class>3.654e+1<br>(9.321e+0)</td> 
    <td class>3.152</td> 
-   <td class>2.e+4</td> 
-   <td class>4.305e+1</td> 
+   <td class>2.000e+4<br>(0.000e+0)</td> 
+   <td class>4.305e+1<br>(8.734e+0)</td> 
    <td class>2.109</td> 
-   <td class>2.e+4</td> 
-   <td class>2.327e+4</td> 
+   <td class>2.000e+4<br>(0.000e+0)</td> 
+   <td class>2.327e+4<br>(1.472e+4)</td> 
    <td class>9.214</td> 
-   <td class>2.e+4</td> 
-   <td class>1.149e+4</td> 
+   <td class>2.000e+4<br>(0.000e+0)</td> 
+   <td class>1.149e+4<br>(5.452e+3)</td> 
    <td class>5.117</td> 
-   <td class>2.e+4</td> 
-   <td class>6.504e+0</td> 
+   <td class>2.000e+4<br>(0.000e+0)</td> 
+   <td class>6.504e+0<br>(2.456e+0)</td> 
    <td class>18.342</td> 
-   <td class>2.e+4</td> 
-   <td class>6.054e+0</td> 
+   <td class>2.000e+4<br>(0.000e+0)</td> 
+   <td class>6.054e+0<br>(5.769e+0)</td> 
    <td class>-72.863</td> 
-   <td class>2.e+4</td> 
-   <td class>1.023e+3</td> 
+   <td class>2.000e+4<br>(0.000e+0)</td> 
+   <td class>1.023e+3<br>(4.315e+1)</td> 
    <td class>4.964</td> 
-   <td class>2.e+4</td> 
-   <td class>4.768e+3</td> 
+   <td class>2.000e+4<br>(0.000e+0)</td> 
+   <td class>4.768e+3<br>(2.658e+3)</td> 
    <td class>-24.713</td> 
-   <td class>2.e+4</td> 
-   <td class>6.226e+3</td> 
+   <td class>2.000e+4<br>(0.000e+0)</td> 
+   <td class>6.226e+3<br>(6.821e+3)</td> 
    <td class>-518.167</td> 
-   <td class>2.e+4</td> 
-   <td class>1.607e+4</td> 
+   <td class>2.000e+4<br>(0.000e+0)</td> 
+   <td class>1.607e+4<br>(7.362e+3)</td> 
    <td class>4.890</td> 
-   <td class>2.e+4</td> 
-   <td class>2.876e+1</td> 
+   <td class>2.000e+4<br>(0.000e+0)</td> 
+   <td class>2.876e+1<br>(1.193e+1)</td> 
    <td class>-1.300</td> 
-   <td class>2.e+4</td> 
-   <td class>4.655e+1</td> 
+   <td class>2.000e+4<br>(0.000e+0)</td> 
+   <td class>4.655e+1<br>(3.979e+1)</td> 
    <td class>-899.354</td> 
-   <td class>2.e+4</td> 
-   <td class>9.653e+3</td> 
+   <td class>2.000e+4<br>(0.000e+0)</td> 
+   <td class>9.653e+3<br>(3.966e+3)</td> 
    <td class>3.158</td> 
-   <td class>2.e+4</td> 
-   <td class>1.003e+3</td> 
+   <td class>2.000e+4<br>(0.000e+0)</td> 
+   <td class>1.003e+3<br>(4.106e+1)</td> 
    <td class>15.079</td> 
-   <td class>2.e+4</td> 
-   <td class>1.328e+0</td> 
+   <td class>2.000e+4<br>(0.000e+0)</td> 
+   <td class>1.328e+0<br>(4.290e-1)</td> 
    <td class>5.706</td> 
-   <td class>2.e+4</td> 
-   <td class>1.249e+0</td> 
+   <td class>2.000e+4<br>(0.000e+0)</td> 
+   <td class>1.249e+0<br>(1.047e+0)</td> 
    <td class>-28.503</td> 
-   <td class>2.e+4</td> 
-   <td class>9.892e+2</td> 
+   <td class>2.000e+4<br>(0.000e+0)</td> 
+   <td class>9.892e+2<br>(4.758e+1)</td> 
    <td class>-3634.292</td> 
-   <td class>2.e+4</td> 
-   <td class>2.116e-1</td> 
+   <td class>2.000e+4<br>(0.000e+0)</td> 
+   <td class>2.116e-1<br>(1.924e-1)</td> 
    <td class>-60.811</td> 
-   <td class>2.e+4</td> 
-   <td class>9.731e+2</td> 
+   <td class>2.000e+4<br>(0.000e+0)</td> 
+   <td class>9.731e+2<br>(4.916e+1)</td> 
    <td class>-27.621</td> 
-   <td class>2.e+4</td> 
-   <td class>5.254e+0</td> 
+   <td class>2.000e+4<br>(0.000e+0)</td> 
+   <td class>5.254e+0<br>(1.809e+0)</td> 
    <td class>50.020</td> 
-   <td class>2.e+4</td> 
-   <td class>3.999e+0</td> 
+   <td class>2.000e+4<br>(0.000e+0)</td> 
+   <td class>3.999e+0<br>(3.731e+0)</td> 
    <td class>-324.894</td> 
-   <td class>2.e+4</td> 
-   <td class>1.014e+3</td> 
+   <td class>2.000e+4<br>(0.000e+0)</td> 
+   <td class>1.014e+3<br>(1.362e+2)</td> 
    <td class>17.610</td> 
-   <td class>2.e+4</td> 
+   <td class>2.000e+4<br>(0.000e+0)</td> 
   </tr> 
-  <tr height="18"> 
+  <tr height="19"> 
    <td class="xl63">RL_HPSDE</td> 
-   <td class>1.207e-1</td> 
+   <td class>1.207e-1<br>(6.608e-2)</td> 
    <td class>0.010</td> 
-   <td class>2.025e+4</td> 
-   <td class>9.940e+0</td> 
+   <td class>2.025e+4<br>(0.000e+0)</td> 
+   <td class>9.940e+0<br>(5.240e-1)</td> 
    <td class>0.487</td> 
-   <td class>2.025e+4</td> 
-   <td class>3.833e+1</td> 
+   <td class>2.025e+4<br>(0.000e+0)</td> 
+   <td class>3.833e+1<br>(1.725e+1)</td> 
    <td class>0.015</td> 
-   <td class>2.025e+4</td> 
-   <td class>4.975e+1</td> 
+   <td class>2.025e+4<br>(0.000e+0)</td> 
+   <td class>4.975e+1<br>(2.001e+1)</td> 
    <td class>0.022</td> 
-   <td class>2.025e+4</td> 
-   <td class>1.365e+0</td> 
+   <td class>2.025e+4<br>(0.000e+0)</td> 
+   <td class>1.365e+0<br>(5.892e-1)</td> 
    <td class>0.061</td> 
-   <td class>2.025e+4</td> 
-   <td class>1.518e-1</td> 
+   <td class>2.025e+4<br>(0.000e+0)</td> 
+   <td class>1.518e-1<br>(1.479e-1)</td> 
    <td class>-0.299</td> 
-   <td class>2.025e+4</td> 
-   <td class>4.922e+2</td> 
+   <td class>2.025e+4<br>(0.000e+0)</td> 
+   <td class>4.922e+2<br>(3.215e+2)</td> 
    <td class>2.388</td> 
-   <td class>2.025e+4</td> 
-   <td class>1.174e+2</td> 
+   <td class>2.025e+4<br>(0.000e+0)</td> 
+   <td class>1.174e+2<br>(1.015e+2)</td> 
    <td class>4.343</td> 
-   <td class>2.025e+4</td> 
-   <td class>1.151e+2</td> 
+   <td class>2.025e+4<br>(0.000e+0)</td> 
+   <td class>1.151e+2<br>(1.036e+2)</td> 
    <td class>-4.741</td> 
-   <td class>2.025e+4</td> 
-   <td class>1.019e+3</td> 
+   <td class>2.025e+4<br>(0.000e+0)</td> 
+   <td class>1.019e+3<br>(8.949e+1)</td> 
    <td class>0.271</td> 
-   <td class>2.025e+4</td> 
-   <td class>4.992e+0</td> 
+   <td class>2.025e+4<br>(0.000e+0)</td> 
+   <td class>4.992e+0<br>(1.904e+0)</td> 
    <td class>1.082</td> 
-   <td class>2.025e+4</td> 
-   <td class>8.565e-1</td> 
+   <td class>2.025e+4<br>(0.000e+0)</td> 
+   <td class>8.565e-1<br>(8.313e-1)</td> 
    <td class>-8.847</td> 
-   <td class>2.025e+4</td> 
-   <td class>1.071e+3</td> 
+   <td class>2.025e+4<br>(0.000e+0)</td> 
+   <td class>1.071e+3<br>(7.801e+1)</td> 
    <td class>0.350</td> 
-   <td class>2.025e+4</td> 
-   <td class>4.705e+2</td> 
+   <td class>2.025e+4<br>(0.000e+0)</td> 
+   <td class>4.705e+2<br>(3.432e+2)</td> 
    <td class>5.949</td> 
-   <td class>2.025e+4</td> 
-   <td class>4.278e-1</td> 
+   <td class>2.025e+4<br>(0.000e+0)</td> 
+   <td class>4.278e-1<br>(1.293e-1)</td> 
    <td class>1.479</td> 
-   <td class>2.025e+4</td> 
-   <td class>3.897e-2</td> 
+   <td class>2.025e+4<br>(0.000e+0)</td> 
+   <td class>3.897e-2<br>(4.511e-2)</td> 
    <td class>0.353</td> 
-   <td class>2.025e+4</td> 
-   <td class>4.923e+2</td> 
+   <td class>2.025e+4<br>(0.000e+0)</td> 
+   <td class>4.923e+2<br>(3.432e+2)</td> 
    <td class>-1547.636</td> 
-   <td class>2.025e+4</td> 
-   <td class>8.676e-3</td> 
+   <td class>2.025e+4<br>(0.000e+0)</td> 
+   <td class>8.676e-3<br>(7.618e-3)</td> 
    <td class>-0.940</td> 
-   <td class>2.025e+4</td> 
-   <td class>4.141e+2</td> 
+   <td class>2.025e+4<br>(0.000e+0)</td> 
+   <td class>4.141e+2<br>(3.518e+2)</td> 
    <td class>-9.441</td> 
-   <td class>2.025e+4</td> 
-   <td class>1.986e+0</td> 
+   <td class>2.025e+4<br>(0.000e+0)</td> 
+   <td class>1.986e+0<br>(5.684e-1)</td> 
    <td class>7.740</td> 
-   <td class>2.025e+4</td> 
-   <td class>9.978e-2</td> 
+   <td class>2.025e+4<br>(0.000e+0)</td> 
+   <td class>9.978e-2<br>(9.668e-2)</td> 
    <td class>-4.594</td> 
-   <td class>2.025e+4</td> 
-   <td class>5.048e+2</td> 
+   <td class>2.025e+4<br>(0.000e+0)</td> 
+   <td class>5.048e+2<br>(3.499e+2)</td> 
    <td class>7.639</td> 
-   <td class>2.025e+4</td> 
+   <td class>2.025e+4<br>(0.000e+0)</td> 
   </tr> 
-  <tr height="18"> 
+  <tr height="19"> 
    <td class="xl63">LDE</td> 
-   <td class>8.576e-9</td> 
+   <td class>8.576e-9<br>(1.121e-9)</td> 
    <td class>0.000</td> 
-   <td class>9.235e+3</td> 
-   <td class>4.964e+0</td> 
+   <td class>9.235e+3<br>(4.088e+2)</td> 
+   <td class>4.964e+0<br>(3.637e+0)</td> 
    <td class>0.243</td> 
-   <td class>2.e+4</td> 
-   <td class>4.878e-1</td> 
+   <td class>2.000e+4<br>(0.000e+0)</td> 
+   <td class>4.878e-1<br>(1.124e+0)</td> 
    <td class>0.000</td> 
-   <td class>2.e+4</td> 
-   <td class>1.345e+1</td> 
+   <td class>2.000e+4<br>(0.000e+0)</td> 
+   <td class>1.345e+1<br>(3.423e+0)</td> 
    <td class>0.006</td> 
-   <td class>2.e+4</td> 
-   <td class>2.111e-1</td> 
+   <td class>2.000e+4<br>(0.000e+0)</td> 
+   <td class>2.111e-1<br>(1.225e-1)</td> 
    <td class>-4.043</td> 
-   <td class>2.e+4</td> 
-   <td class>3.569e-2</td> 
+   <td class>2.000e+4<br>(0.000e+0)</td> 
+   <td class>3.569e-2<br>(2.447e-2)</td> 
    <td class>1.129</td> 
-   <td class>2.e+4</td> 
-   <td class>1.049e+2</td> 
+   <td class>2.000e+4<br>(0.000e+0)</td> 
+   <td class>1.049e+2<br>(1.920e+2)</td> 
    <td class>0.509</td> 
-   <td class>2.e+4</td> 
-   <td class>2.905e+0</td> 
+   <td class>2.000e+4<br>(0.000e+0)</td> 
+   <td class>2.905e+0<br>(1.594e+0)</td> 
    <td class>5.058</td> 
-   <td class>2.e+4</td> 
-   <td class>8.589e+0</td> 
+   <td class>2.000e+4<br>(0.000e+0)</td> 
+   <td class>8.589e+0<br>(8.891e+0)</td> 
    <td class>4.204</td> 
-   <td class>2.e+4</td> 
-   <td class>1.765e+2</td> 
+   <td class>2.000e+4<br>(0.000e+0)</td> 
+   <td class>1.765e+2<br>(2.307e+2)</td> 
    <td class>0.012</td> 
-   <td class>2.e+4</td> 
-   <td class>9.18e-1</td> 
+   <td class>2.000e+4<br>(0.000e+0)</td> 
+   <td class>9.180e-1<br>(4.120e-1)</td> 
    <td class>1.491</td> 
-   <td class>2.e+4</td> 
-   <td class>2.047e-1</td> 
+   <td class>2.000e+4<br>(0.000e+0)</td> 
+   <td class>2.047e-1<br>(1.572e-1)</td> 
    <td class>3.857</td> 
-   <td class>2.e+4</td> 
-   <td class>3.477e+2</td> 
+   <td class>2.000e+4<br>(0.000e+0)</td> 
+   <td class>3.477e+2<br>(2.984e+2)</td> 
    <td class>0.114</td> 
-   <td class>2.e+4</td> 
-   <td class>1.028e+2</td> 
+   <td class>2.000e+4<br>(0.000e+0)</td> 
+   <td class>1.028e+2<br>(1.915e+2)</td> 
    <td class>-0.360</td> 
-   <td class>2.e+4</td> 
-   <td class>2.116e-1</td> 
+   <td class>2.000e+4<br>(0.000e+0)</td> 
+   <td class>2.116e-1<br>(5.951e-2)</td> 
    <td class>0.464</td> 
-   <td class>2.e+4</td> 
-   <td class>8.309e-3</td> 
+   <td class>2.000e+4<br>(0.000e+0)</td> 
+   <td class>8.309e-3<br>(6.422e-3)</td> 
    <td class>1.084</td> 
-   <td class>2.e+4</td> 
-   <td class>1.048e+2</td> 
+   <td class>2.000e+4<br>(0.000e+0)</td> 
+   <td class>1.048e+2<br>(1.915e+2)</td> 
    <td class>79.759</td> 
-   <td class>2.e+4</td> 
-   <td class>1.131e-3</td> 
+   <td class>2.000e+4<br>(0.000e+0)</td> 
+   <td class>1.131e-3<br>(7.770e-4)</td> 
    <td class>1.285</td> 
-   <td class>2.e+4</td> 
-   <td class>9.864e+1</td> 
+   <td class>2.000e+4<br>(0.000e+0)</td> 
+   <td class>9.864e+1<br>(1.919e+2)</td> 
    <td class>0.818</td> 
-   <td class>2.e+4</td> 
-   <td class>8.685e-1</td> 
+   <td class>2.000e+4<br>(0.000e+0)</td> 
+   <td class>8.685e-1<br>(4.579e-1)</td> 
    <td class>-6.726</td> 
-   <td class>2.e+4</td> 
-   <td class>3.297e-2</td> 
+   <td class>2.000e+4<br>(0.000e+0)</td> 
+   <td class>3.297e-2<br>(2.377e-2)</td> 
    <td class>0.893</td> 
-   <td class>2.e+4</td> 
-   <td class>1.428e+2</td> 
+   <td class>2.000e+4<br>(0.000e+0)</td> 
+   <td class>1.428e+2<br>(1.940e+2)</td> 
    <td class>0.548</td> 
-   <td class>2.e+4</td> 
+   <td class>2.000e+4<br>(0.000e+0)</td> 
   </tr> 
-  <tr height="18"> 
+  <tr height="19"> 
    <td class="xl63">QLPSO</td> 
-   <td class>1.655e+0</td> 
+   <td class>1.655e+0<br>(1.715e+0)</td> 
    <td class>0.143</td> 
-   <td class>2.e+4</td> 
-   <td class>6.21e+0</td> 
+   <td class>2.000e+4<br>(0.000e+0)</td> 
+   <td class>6.210e+0<br>(4.118e+0)</td> 
    <td class>0.304</td> 
-   <td class>2.e+4</td> 
-   <td class>5.803e+2</td> 
+   <td class>2.000e+4<br>(0.000e+0)</td> 
+   <td class>5.803e+2<br>(9.572e+2)</td> 
    <td class>0.230</td> 
-   <td class>2.e+4</td> 
-   <td class>3.454e+1</td> 
+   <td class>2.000e+4<br>(0.000e+0)</td> 
+   <td class>3.454e+1<br>(4.312e+1)</td> 
    <td class>0.015</td> 
-   <td class>2.e+4</td> 
-   <td class>1.233e+0</td> 
+   <td class>2.000e+4<br>(0.000e+0)</td> 
+   <td class>1.233e+0<br>(4.931e-1)</td> 
    <td class>-0.407</td> 
-   <td class>2.e+4</td> 
-   <td class>7.571e-2</td> 
+   <td class>2.000e+4<br>(0.000e+0)</td> 
+   <td class>7.571e-2<br>(8.905e-2)</td> 
    <td class>0.637</td> 
-   <td class>2.e+4</td> 
-   <td class>1.349e+2</td> 
+   <td class>2.000e+4<br>(0.000e+0)</td> 
+   <td class>1.349e+2<br>(2.399e+2)</td> 
    <td class>0.655</td> 
-   <td class>2.e+4</td> 
-   <td class>8.186e+1</td> 
+   <td class>2.000e+4<br>(0.000e+0)</td> 
+   <td class>8.186e+1<br>(2.264e+2)</td> 
    <td class>4.565</td> 
-   <td class>2.e+4</td> 
-   <td class>3.839e+1</td> 
+   <td class>2.000e+4<br>(0.000e+0)</td> 
+   <td class>3.839e+1<br>(4.066e+1)</td> 
    <td class>1.700</td> 
-   <td class>2.e+4</td> 
-   <td class>4.288e+2</td> 
+   <td class>2.000e+4<br>(0.000e+0)</td> 
+   <td class>4.288e+2<br>(7.480e+2)</td> 
    <td class>0.090</td> 
-   <td class>2.e+4</td> 
-   <td class>3.63e+0</td> 
+   <td class>2.000e+4<br>(0.000e+0)</td> 
+   <td class>3.630e+0<br>(2.481e+0)</td> 
    <td class>1.219</td> 
-   <td class>2.e+4</td> 
-   <td class>1.988e-1</td> 
+   <td class>2.000e+4<br>(0.000e+0)</td> 
+   <td class>1.988e-1<br>(1.806e-1)</td> 
    <td class>3.972</td> 
-   <td class>2.e+4</td> 
-   <td class>9.477e+2</td> 
+   <td class>2.000e+4<br>(0.000e+0)</td> 
+   <td class>9.477e+2<br>(1.313e+3)</td> 
    <td class>0.310</td> 
-   <td class>2.e+4</td> 
-   <td class>1.333e+2</td> 
+   <td class>2.000e+4<br>(0.000e+0)</td> 
+   <td class>1.333e+2<br>(2.406e+2)</td> 
    <td class>0.162</td> 
-   <td class>2.e+4</td> 
-   <td class>3.133e-1</td> 
+   <td class>2.000e+4<br>(0.000e+0)</td> 
+   <td class>3.133e-1<br>(1.218e-1)</td> 
    <td class>0.941</td> 
-   <td class>2.e+4</td> 
-   <td class>1.138e-2</td> 
+   <td class>2.000e+4<br>(0.000e+0)</td> 
+   <td class>1.138e-2<br>(1.003e-2)</td> 
    <td class>1.011</td> 
-   <td class>2.e+4</td> 
-   <td class>1.345e+2</td> 
+   <td class>2.000e+4<br>(0.000e+0)</td> 
+   <td class>1.345e+2<br>(2.411e+2)</td> 
    <td class>-44.954</td> 
-   <td class>2.e+4</td> 
-   <td class>4.298e-3</td> 
+   <td class>2.000e+4<br>(0.000e+0)</td> 
+   <td class>4.298e-3<br>(4.887e-3)</td> 
    <td class>0.351</td> 
-   <td class>2.e+4</td> 
-   <td class>1.332e+2</td> 
+   <td class>2.000e+4<br>(0.000e+0)</td> 
+   <td class>1.332e+2<br>(2.410e+2)</td> 
    <td class>-0.307</td> 
-   <td class>2.e+4</td> 
-   <td class>1.576e+0</td> 
+   <td class>2.000e+4<br>(0.000e+0)</td> 
+   <td class>1.576e+0<br>(4.792e-1)</td> 
    <td class>2.426</td> 
-   <td class>2.e+4</td> 
-   <td class>3.83e-2</td> 
+   <td class>2.000e+4<br>(0.000e+0)</td> 
+   <td class>3.830e-2<br>(3.591e-2)</td> 
    <td class>0.456</td> 
-   <td class>2.e+4</td> 
-   <td class>1.423e+2</td> 
+   <td class>2.000e+4<br>(0.000e+0)</td> 
+   <td class>1.423e+2<br>(2.400e+2)</td> 
    <td class>0.539</td> 
-   <td class>2.e+4</td> 
+   <td class>2.000e+4<br>(0.000e+0)</td> 
   </tr> 
-  <tr height="18"> 
+  <tr height="19"> 
    <td class="xl63">RLEPSO</td> 
-   <td class>2.897e-6</td> 
+   <td class>2.897e-6<br>(4.347e-6)</td> 
    <td class>0.000</td> 
-   <td class>2.000e+4</td> 
-   <td class>6.126e+0</td> 
+   <td class>2.000e+4<br>(1.957e+0)</td> 
+   <td class>6.126e+0<br>(3.430e+0)</td> 
    <td class>0.300</td> 
-   <td class>2.000e+4</td> 
-   <td class>6.979e+0</td> 
+   <td class>2.000e+4<br>(2.237e+0)</td> 
+   <td class>6.979e+0<br>(1.070e+1)</td> 
    <td class>0.003</td> 
-   <td class>2.000e+4</td> 
-   <td class>2.983e+1</td> 
+   <td class>2.000e+4<br>(2.136e+0)</td> 
+   <td class>2.983e+1<br>(3.071e+1)</td> 
    <td class>0.013</td> 
-   <td class>2.000e+4</td> 
-   <td class>3.545e-1</td> 
+   <td class>2.000e+4<br>(2.127e+0)</td> 
+   <td class>3.545e-1<br>(3.342e-1)</td> 
    <td class>-3.533</td> 
-   <td class>2.000e+4</td> 
-   <td class>4.286e-2</td> 
+   <td class>2.000e+4<br>(8.782e-1)</td> 
+   <td class>4.286e-2<br>(4.253e-2)</td> 
    <td class>1.040</td> 
-   <td class>2.000e+4</td> 
-   <td class>1.55e+2</td> 
+   <td class>2.000e+4<br>(7.492e-1)</td> 
+   <td class>1.550e+2<br>(2.197e+2)</td> 
    <td class>0.752</td> 
-   <td class>2.000e+4</td> 
-   <td class>5.059e+0</td> 
+   <td class>2.000e+4<br>(1.629e+0)</td> 
+   <td class>5.059e+0<br>(8.818e+0)</td> 
    <td class>5.044</td> 
-   <td class>2.000e+4</td> 
-   <td class>7.043e+0</td> 
+   <td class>2.000e+4<br>(1.139e+0)</td> 
+   <td class>7.043e+0<br>(7.246e+0)</td> 
    <td class>4.334</td> 
-   <td class>2.000e+4</td> 
-   <td class>3.512e+2</td> 
+   <td class>2.000e+4<br>(1.146e+0)</td> 
+   <td class>3.512e+2<br>(2.448e+2)</td> 
    <td class>0.066</td> 
-   <td class>2.000e+4</td> 
-   <td class>9.465e-1</td> 
+   <td class>2.000e+4<br>(2.145e+0)</td> 
+   <td class>9.465e-1<br>(6.755e-1)</td> 
    <td class>1.488</td> 
-   <td class>2.000e+4</td> 
-   <td class>2.473e-1</td> 
+   <td class>2.000e+4<br>(8.938e-1)</td> 
+   <td class>2.473e-1<br>(2.635e-1)</td> 
    <td class>3.027</td> 
-   <td class>2.000e+4</td> 
-   <td class>6.692e+2</td> 
+   <td class>2.000e+4<br>(1.127e+0)</td> 
+   <td class>6.692e+2<br>(3.129e+2)</td> 
    <td class>0.219</td> 
-   <td class>2.001e+4</td> 
-   <td class>9.967e+1</td> 
+   <td class>2.001e+4<br>(1.977e+0)</td> 
+   <td class>9.967e+1<br>(1.887e+2)</td> 
    <td class>-0.414</td> 
-   <td class>2.000e+4</td> 
-   <td class>1.963e-1</td> 
+   <td class>2.000e+4<br>(2.272e+0)</td> 
+   <td class>1.963e-1<br>(6.509e-2)</td> 
    <td class>0.392</td> 
-   <td class>2.000e+4</td> 
-   <td class>1.066e-2</td> 
+   <td class>2.000e+4<br>(8.324e-1)</td> 
+   <td class>1.066e-2<br>(8.187e-3)</td> 
    <td class>1.028</td> 
-   <td class>2.000e+4</td> 
-   <td class>1.129e+2</td> 
+   <td class>2.000e+4<br>(7.594e-1)</td> 
+   <td class>1.129e+2<br>(1.835e+2)</td> 
    <td class>45.741</td> 
-   <td class>2.000e+4</td> 
-   <td class>1.252e-3</td> 
+   <td class>2.000e+4<br>(1.406e+0)</td> 
+   <td class>1.252e-3<br>(1.213e-3)</td> 
    <td class>1.250</td> 
-   <td class>2.000e+4</td> 
-   <td class>1.412e+2</td> 
+   <td class>2.000e+4<br>(8.170e-1)</td> 
+   <td class>1.412e+2<br>(2.299e+2)</td> 
    <td class>-0.565</td> 
-   <td class>2.000e+4</td> 
-   <td class>9.276e-1</td> 
+   <td class>2.000e+4<br>(1.104e+0)</td> 
+   <td class>9.276e-1<br>(5.010e-1)</td> 
    <td class>-5.961</td> 
-   <td class>2.000e+4</td> 
-   <td class>4.267e-2</td> 
+   <td class>2.000e+4<br>(7.399e-1)</td> 
+   <td class>4.267e-2<br>(4.063e-2)</td> 
    <td class>0.097</td> 
-   <td class>2.000e+4</td> 
-   <td class>1.302e+2</td> 
+   <td class>2.000e+4<br>(9.465e-1)</td> 
+   <td class>1.302e+2<br>(1.521e+2)</td> 
    <td class>0.302</td> 
-   <td class>2.000e+4</td> 
+   <td class>2.000e+4<br>(1.865e+0)</td> 
   </tr> 
-  <tr height="18"> 
+  <tr height="19"> 
    <td class="xl63">RL_PSO</td> 
-   <td class>4.186e+0</td> 
+   <td class>4.186e+0<br>(1.684e+0)</td> 
    <td class>0.361</td> 
-   <td class>2.e+4</td> 
-   <td class>1.126e+1</td> 
+   <td class>2.000e+4<br>(0.000e+0)</td> 
+   <td class>1.126e+1<br>(3.326e+0)</td> 
    <td class>0.551</td> 
-   <td class>2.e+4</td> 
-   <td class>2.415e+2</td> 
+   <td class>2.000e+4<br>(0.000e+0)</td> 
+   <td class>2.415e+2<br>(2.204e+2)</td> 
    <td class>0.096</td> 
-   <td class>2.e+4</td> 
-   <td class>1.567e+2</td> 
+   <td class>2.000e+4<br>(0.000e+0)</td> 
+   <td class>1.567e+2<br>(8.713e+1)</td> 
    <td class>0.070</td> 
-   <td class>2.e+4</td> 
-   <td class>7.065e-1</td> 
+   <td class>2.000e+4<br>(0.000e+0)</td> 
+   <td class>7.065e-1<br>(3.658e-1)</td> 
    <td class>-2.281</td> 
-   <td class>2.e+4</td> 
-   <td class>3.247e-2</td> 
+   <td class>2.000e+4<br>(0.000e+0)</td> 
+   <td class>3.247e-2<br>(3.667e-2)</td> 
    <td class>1.168</td> 
-   <td class>2.e+4</td> 
-   <td class>1.174e+2</td> 
+   <td class>2.000e+4<br>(0.000e+0)</td> 
+   <td class>1.174e+2<br>(1.867e+2)</td> 
    <td class>0.570</td> 
-   <td class>2.e+4</td> 
-   <td class>3.252e+1</td> 
+   <td class>2.000e+4<br>(0.000e+0)</td> 
+   <td class>3.252e+1<br>(3.177e+1)</td> 
    <td class>4.873</td> 
-   <td class>2.e+4</td> 
-   <td class>1.182e+1</td> 
+   <td class>2.000e+4<br>(0.000e+0)</td> 
+   <td class>1.182e+1<br>(1.523e+1)</td> 
    <td class>3.932</td> 
-   <td class>2.e+4</td> 
-   <td class>7.958e+2</td> 
+   <td class>2.000e+4<br>(0.000e+0)</td> 
+   <td class>7.958e+2<br>(2.748e+2)</td> 
    <td class>0.202</td> 
-   <td class>2.e+4</td> 
-   <td class>1.694e+0</td> 
+   <td class>2.000e+4<br>(0.000e+0)</td> 
+   <td class>1.694e+0<br>(1.136e+0)</td> 
    <td class>1.413</td> 
-   <td class>2.e+4</td> 
-   <td class>2.599e-1</td> 
+   <td class>2.000e+4<br>(0.000e+0)</td> 
+   <td class>2.599e-1<br>(3.230e-1)</td> 
    <td class>2.782</td> 
-   <td class>2.e+4</td> 
-   <td class>1.593e+3</td> 
+   <td class>2.000e+4<br>(0.000e+0)</td> 
+   <td class>1.593e+3<br>(4.902e+2)</td> 
    <td class>0.521</td> 
-   <td class>2.e+4</td> 
-   <td class>1.063e+2</td> 
+   <td class>2.000e+4<br>(0.000e+0)</td> 
+   <td class>1.063e+2<br>(1.851e+2)</td> 
    <td class>-0.301</td> 
-   <td class>2.e+4</td> 
-   <td class>2.073e-1</td> 
+   <td class>2.000e+4<br>(0.000e+0)</td> 
+   <td class>2.073e-1<br>(6.981e-2)</td> 
    <td class>0.444</td> 
-   <td class>2.e+4</td> 
-   <td class>8.309e-3</td> 
+   <td class>2.000e+4<br>(0.000e+0)</td> 
+   <td class>8.309e-3<br>(8.928e-3)</td> 
    <td class>1.084</td> 
-   <td class>2.e+4</td> 
-   <td class>1.014e+2</td> 
+   <td class>2.000e+4<br>(0.000e+0)</td> 
+   <td class>1.014e+2<br>(1.818e+2)</td> 
    <td class>94.031</td> 
-   <td class>2.e+4</td> 
-   <td class>8.889e-4</td> 
+   <td class>2.000e+4<br>(0.000e+0)</td> 
+   <td class>8.889e-4<br>(8.864e-4)</td> 
    <td class>1.357</td> 
-   <td class>2.e+4</td> 
-   <td class>9.047e+1</td> 
+   <td class>2.000e+4<br>(0.000e+0)</td> 
+   <td class>9.047e+1<br>(1.799e+2)</td> 
    <td class>1.083</td> 
-   <td class>2.e+4</td> 
-   <td class>1.112e+0</td> 
+   <td class>2.000e+4<br>(0.000e+0)</td> 
+   <td class>1.112e+0<br>(3.605e-1)</td> 
    <td class>-3.572</td> 
-   <td class>2.e+4</td> 
-   <td class>3.457e-2</td> 
+   <td class>2.000e+4<br>(0.000e+0)</td> 
+   <td class>3.457e-2<br>(4.174e-2)</td> 
    <td class>0.762</td> 
-   <td class>2.e+4</td> 
-   <td class>1.461e+2</td> 
+   <td class>2.000e+4<br>(0.000e+0)</td> 
+   <td class>1.461e+2<br>(1.839e+2)</td> 
    <td class>0.614</td> 
-   <td class>2.e+4</td> 
+   <td class>2.000e+4<br>(0.000e+0)</td> 
   </tr> 
-  <tr height="18"> 
-   <td class="xl63">DE</td> 
-   <td class>8.075e-9</td> 
+  <tr height="19"> 
+   <td class="xl63">DEAP_DE</td> 
+   <td class>8.075e-9<br>(1.700e-9)</td> 
    <td class>0.000</td> 
-   <td class>4.648e+3</td> 
-   <td class>4.433e+0</td> 
+   <td class>4.648e+3<br>(2.189e+2)</td> 
+   <td class>4.433e+0<br>(3.500e+0)</td> 
    <td class>0.217</td> 
-   <td class>2.e+4</td> 
-   <td class>5.619e+0</td> 
+   <td class>2.000e+4<br>(0.000e+0)</td> 
+   <td class>5.619e+0<br>(1.199e+0)</td> 
    <td class>0.002</td> 
-   <td class>2.e+4</td> 
-   <td class>9.908e+0</td> 
+   <td class>2.000e+4<br>(0.000e+0)</td> 
+   <td class>9.908e+0<br>(3.779e+0)</td> 
    <td class>0.004</td> 
-   <td class>2.e+4</td> 
-   <td class>9.673e-3</td> 
+   <td class>2.000e+4<br>(0.000e+0)</td> 
+   <td class>9.673e-3<br>(1.350e-2)</td> 
    <td class>-4.759</td> 
-   <td class>2.e+4</td> 
-   <td class>2.924e-2</td> 
+   <td class>2.000e+4<br>(0.000e+0)</td> 
+   <td class>2.924e-2<br>(3.414e-2)</td> 
    <td class>1.208</td> 
-   <td class>2.e+4</td> 
-   <td class>1.205e+2</td> 
+   <td class>2.000e+4<br>(0.000e+0)</td> 
+   <td class>1.205e+2<br>(1.986e+2)</td> 
    <td class>0.585</td> 
-   <td class>2.e+4</td> 
-   <td class>1.056e+0</td> 
+   <td class>2.000e+4<br>(0.000e+0)</td> 
+   <td class>1.056e+0<br>(5.528e-1)</td> 
    <td class>5.069</td> 
-   <td class>2.e+4</td> 
-   <td class>3.584e+0</td> 
+   <td class>2.000e+4<br>(0.000e+0)</td> 
+   <td class>3.584e+0<br>(5.298e+0)</td> 
    <td class>4.624</td> 
-   <td class>2.e+4</td> 
-   <td class>1.339e+2</td> 
+   <td class>2.000e+4<br>(0.000e+0)</td> 
+   <td class>1.339e+2<br>(1.979e+2)</td> 
    <td class>-0.001</td> 
-   <td class>2.e+4</td> 
-   <td class>7.734e-1</td> 
+   <td class>2.000e+4<br>(0.000e+0)</td> 
+   <td class>7.734e-1<br>(4.928e-1)</td> 
    <td class>1.505</td> 
-   <td class>2.e+4</td> 
-   <td class>1.514e-1</td> 
+   <td class>2.000e+4<br>(0.000e+0)</td> 
+   <td class>1.514e-1<br>(1.562e-1)</td> 
    <td class>4.896</td> 
-   <td class>2.e+4</td> 
-   <td class>6.570e+2</td> 
+   <td class>2.000e+4<br>(0.000e+0)</td> 
+   <td class>6.570e+2<br>(3.500e+2)</td> 
    <td class>0.215</td> 
-   <td class>2.e+4</td> 
-   <td class>1.232e+2</td> 
+   <td class>2.000e+4<br>(0.000e+0)</td> 
+   <td class>1.232e+2<br>(1.974e+2)</td> 
    <td class>-0.011</td> 
-   <td class>2.e+4</td> 
-   <td class>2.177e-1</td> 
+   <td class>2.000e+4<br>(0.000e+0)</td> 
+   <td class>2.177e-1<br>(6.759e-2)</td> 
    <td class>0.493</td> 
-   <td class>2.e+4</td> 
-   <td class>8.21e-3</td> 
+   <td class>2.000e+4<br>(0.000e+0)</td> 
+   <td class>8.210e-3<br>(8.712e-3)</td> 
    <td class>1.086</td> 
-   <td class>2.e+4</td> 
-   <td class>1.238e+2</td> 
+   <td class>2.000e+4<br>(0.000e+0)</td> 
+   <td class>1.238e+2<br>(1.986e+2)</td> 
    <td class>-0.290</td> 
-   <td class>2.e+4</td> 
-   <td class>1.609e-3</td> 
+   <td class>2.000e+4<br>(0.000e+0)</td> 
+   <td class>1.609e-3<br>(1.821e-3)</td> 
    <td class>1.144</td> 
-   <td class>2.e+4</td> 
-   <td class>1.191e+2</td> 
+   <td class>2.000e+4<br>(0.000e+0)</td> 
+   <td class>1.191e+2<br>(1.983e+2)</td> 
    <td class>0.151</td> 
-   <td class>2.e+4</td> 
-   <td class>1.366e+0</td> 
+   <td class>2.000e+4<br>(0.000e+0)</td> 
+   <td class>1.366e+0<br>(3.898e-1)</td> 
    <td class>-0.288</td> 
-   <td class>2.e+4</td> 
-   <td class>3.095e-2</td> 
+   <td class>2.000e+4<br>(0.000e+0)</td> 
+   <td class>3.095e-2<br>(3.684e-2)</td> 
    <td class>1.060</td> 
-   <td class>2.e+4</td> 
-   <td class>1.443e+2</td> 
+   <td class>2.000e+4<br>(0.000e+0)</td> 
+   <td class>1.443e+2<br>(2.042e+2)</td> 
    <td class>0.578</td> 
-   <td class>2.e+4</td> 
+   <td class>2.000e+4<br>(0.000e+0)</td> 
   </tr> 
-  <tr height="18"> 
+  <tr height="19"> 
    <td class="xl63">JDE21</td> 
-   <td class>1.271e-6</td> 
+   <td class>1.271e-6<br>(8.949e-6)</td> 
    <td class>0.000</td> 
-   <td class>7.e+3</td> 
-   <td class>5.895e+0</td> 
+   <td class>7.000e+3<br>(2.659e+3)</td> 
+   <td class>5.895e+0<br>(3.398e+0)</td> 
    <td class>0.289</td> 
-   <td class>2.001e+4</td> 
-   <td class>4.268e+0</td> 
+   <td class>2.001e+4<br>(0.000e+0)</td> 
+   <td class>4.268e+0<br>(6.163e+0)</td> 
    <td class>0.002</td> 
-   <td class>2.001e+4</td> 
-   <td class>1.168e+1</td> 
+   <td class>2.001e+4<br>(0.000e+0)</td> 
+   <td class>1.168e+1<br>(4.440e+0)</td> 
    <td class>0.005</td> 
-   <td class>2.001e+4</td> 
-   <td class>2.039e-1</td> 
+   <td class>2.001e+4<br>(0.000e+0)</td> 
+   <td class>2.039e-1<br>(1.986e-1)</td> 
    <td class>-4.069</td> 
-   <td class>2.001e+4</td> 
-   <td class>4.508e-2</td> 
+   <td class>2.001e+4<br>(0.000e+0)</td> 
+   <td class>4.508e-2<br>(4.625e-2)</td> 
    <td class>1.013</td> 
-   <td class>2.001e+4</td> 
-   <td class>1.21e+2</td> 
+   <td class>2.001e+4<br>(0.000e+0)</td> 
+   <td class>1.210e+2<br>(1.736e+2)</td> 
    <td class>0.587</td> 
-   <td class>2.001e+4</td> 
-   <td class>8.249e+0</td> 
+   <td class>2.001e+4<br>(0.000e+0)</td> 
+   <td class>8.249e+0<br>(1.760e+1)</td> 
    <td class>5.024</td> 
-   <td class>2.001e+4</td> 
-   <td class>1.85e+1</td> 
+   <td class>2.001e+4<br>(0.000e+0)</td> 
+   <td class>1.850e+1<br>(2.072e+1)</td> 
    <td class>3.372</td> 
-   <td class>2.001e+4</td> 
-   <td class>3.239e+2</td> 
+   <td class>2.001e+4<br>(0.000e+0)</td> 
+   <td class>3.239e+2<br>(2.980e+2)</td> 
    <td class>0.058</td> 
-   <td class>2.001e+4</td> 
-   <td class>1.184e+0</td> 
+   <td class>2.001e+4<br>(0.000e+0)</td> 
+   <td class>1.184e+0<br>(1.006e+0)</td> 
    <td class>1.464</td> 
-   <td class>2.001e+4</td> 
-   <td class>2.410e-1</td> 
+   <td class>2.001e+4<br>(0.000e+0)</td> 
+   <td class>2.410e-1<br>(2.440e-1)</td> 
    <td class>3.150</td> 
-   <td class>2.001e+4</td> 
-   <td class>4.978e+2</td> 
+   <td class>2.001e+4<br>(0.000e+0)</td> 
+   <td class>4.978e+2<br>(3.219e+2)</td> 
    <td class>0.163</td> 
-   <td class>2.001e+4</td> 
-   <td class>1.258e+2</td> 
+   <td class>2.001e+4<br>(0.000e+0)</td> 
+   <td class>1.258e+2<br>(1.700e+2)</td> 
    <td class>0.034</td> 
-   <td class>2.001e+4</td> 
-   <td class>2.222e-1</td> 
+   <td class>2.001e+4<br>(0.000e+0)</td> 
+   <td class>2.222e-1<br>(7.715e-2)</td> 
    <td class>0.514</td> 
-   <td class>2.001e+4</td> 
-   <td class>1.174e-2</td> 
+   <td class>2.001e+4<br>(0.000e+0)</td> 
+   <td class>1.174e-2<br>(1.238e-2)</td> 
    <td class>1.002</td> 
-   <td class>2.001e+4</td> 
-   <td class>1.113e+2</td> 
+   <td class>2.001e+4<br>(0.000e+0)</td> 
+   <td class>1.113e+2<br>(1.620e+2)</td> 
    <td class>52.377</td> 
-   <td class>2.001e+4</td> 
-   <td class>1.706e-3</td> 
+   <td class>2.001e+4<br>(0.000e+0)</td> 
+   <td class>1.706e-3<br>(1.492e-3)</td> 
    <td class>1.116</td> 
-   <td class>2.001e+4</td> 
-   <td class>9.464e+1</td> 
+   <td class>2.001e+4<br>(0.000e+0)</td> 
+   <td class>9.464e+1<br>(1.616e+2)</td> 
    <td class>0.948</td> 
-   <td class>2.001e+4</td> 
-   <td class>1.187e+0</td> 
+   <td class>2.001e+4<br>(0.000e+0)</td> 
+   <td class>1.187e+0<br>(4.119e-1)</td> 
    <td class>-2.601</td> 
-   <td class>2.001e+4</td> 
-   <td class>3.3e-2</td> 
+   <td class>2.001e+4<br>(0.000e+0)</td> 
+   <td class>3.300e-2<br>(3.656e-2)</td> 
    <td class>0.891</td> 
-   <td class>2.001e+4</td> 
-   <td class>1.433e+2</td> 
+   <td class>2.001e+4<br>(0.000e+0)</td> 
+   <td class>1.433e+2<br>(1.680e+2)</td> 
    <td class>0.557</td> 
-   <td class>2.001e+4</td> 
+   <td class>2.001e+4<br>(0.000e+0)</td> 
   </tr> 
-  <tr height="18"> 
+  <tr height="19"> 
    <td class="xl63">MadDE</td> 
-   <td class>8.455e-9</td> 
+   <td class>8.455e-9<br>(1.173e-9)</td> 
    <td class>0.000</td> 
-   <td class>1.961e+4</td> 
-   <td class>6.971e+0</td> 
+   <td class>1.961e+4<br>(1.164e+2)</td> 
+   <td class>6.971e+0<br>(2.827e+0)</td> 
    <td class>0.341</td> 
-   <td class>2.000e+4</td> 
-   <td class>3.753e+0</td> 
+   <td class>2.000e+4<br>(0.000e+0)</td> 
+   <td class>3.753e+0<br>(1.135e+0)</td> 
    <td class>0.001</td> 
-   <td class>2.000e+4</td> 
-   <td class>1.442e+1</td> 
+   <td class>2.000e+4<br>(0.000e+0)</td> 
+   <td class>1.442e+1<br>(2.261e+0)</td> 
    <td class>0.006</td> 
-   <td class>2.000e+4</td> 
-   <td class>3.96e-1</td> 
+   <td class>2.000e+4<br>(0.000e+0)</td> 
+   <td class>3.960e-1<br>(1.815e-1)</td> 
    <td class>-3.385</td> 
-   <td class>2.000e+4</td> 
-   <td class>4.43e-2</td> 
+   <td class>2.000e+4<br>(0.000e+0)</td> 
+   <td class>4.430e-2<br>(5.204e-2)</td> 
    <td class>1.023</td> 
-   <td class>2.000e+4</td> 
-   <td class>9.109e+1</td> 
+   <td class>2.000e+4<br>(0.000e+0)</td> 
+   <td class>9.109e+1<br>(1.701e+2)</td> 
    <td class>0.442</td> 
-   <td class>2.000e+4</td> 
-   <td class>8.689e+0</td> 
+   <td class>2.000e+4<br>(0.000e+0)</td> 
+   <td class>8.689e+0<br>(4.095e+0)</td> 
    <td class>5.022</td> 
-   <td class>2.000e+4</td> 
-   <td class>8.613e+0</td> 
+   <td class>2.000e+4<br>(0.000e+0)</td> 
+   <td class>8.613e+0<br>(8.702e+0)</td> 
    <td class>4.202</td> 
-   <td class>2.000e+4</td> 
-   <td class>2.618e+2</td> 
+   <td class>2.000e+4<br>(0.000e+0)</td> 
+   <td class>2.618e+2<br>(2.585e+2)</td> 
    <td class>0.039</td> 
-   <td class>2.000e+4</td> 
-   <td class>1.122e+0</td> 
+   <td class>2.000e+4<br>(0.000e+0)</td> 
+   <td class>1.122e+0<br>(3.706e-1)</td> 
    <td class>1.470</td> 
-   <td class>2.000e+4</td> 
-   <td class>2.27e-1</td> 
+   <td class>2.000e+4<br>(0.000e+0)</td> 
+   <td class>2.270e-1<br>(1.936e-1)</td> 
    <td class>3.423</td> 
-   <td class>2.000e+4</td> 
-   <td class>8.544e+2</td> 
+   <td class>2.000e+4<br>(0.000e+0)</td> 
+   <td class>8.544e+2<br>(2.816e+2)</td> 
    <td class>0.280</td> 
-   <td class>2.000e+4</td> 
-   <td class>1.299e+2</td> 
+   <td class>2.000e+4<br>(0.000e+0)</td> 
+   <td class>1.299e+2<br>(2.196e+2)</td> 
    <td class>0.105</td> 
-   <td class>2.000e+4</td> 
-   <td class>2.11e-1</td> 
+   <td class>2.000e+4<br>(0.000e+0)</td> 
+   <td class>2.110e-1<br>(6.239e-2)</td> 
    <td class>0.461</td> 
-   <td class>2.000e+4</td> 
-   <td class>1.061e-2</td> 
+   <td class>2.000e+4<br>(0.000e+0)</td> 
+   <td class>1.061e-2<br>(1.022e-2)</td> 
    <td class>1.029</td> 
-   <td class>2.000e+4</td> 
-   <td class>7.557e+1</td> 
+   <td class>2.000e+4<br>(0.000e+0)</td> 
+   <td class>7.557e+1<br>(1.640e+2)</td> 
    <td class>202.380</td> 
-   <td class>2.000e+4</td> 
-   <td class>1.165e-3</td> 
+   <td class>2.000e+4<br>(0.000e+0)</td> 
+   <td class>1.165e-3<br>(1.206e-3)</td> 
    <td class>1.275</td> 
-   <td class>2.000e+4</td> 
-   <td class>9.615e+1</td> 
+   <td class>2.000e+4<br>(0.000e+0)</td> 
+   <td class>9.615e+1<br>(1.768e+2)</td> 
    <td class>0.899</td> 
-   <td class>2.000e+4</td> 
-   <td class>7.307e-1</td> 
+   <td class>2.000e+4<br>(0.000e+0)</td> 
+   <td class>7.307e-1<br>(3.936e-1)</td> 
    <td class>-8.510</td> 
-   <td class>2.000e+4</td> 
-   <td class>4.722e-2</td> 
+   <td class>2.000e+4<br>(0.000e+0)</td> 
+   <td class>4.722e-2<br>(5.847e-2)</td> 
    <td class>-0.277</td> 
-   <td class>2.000e+4</td> 
-   <td class>1.607e+2</td> 
+   <td class>2.000e+4<br>(0.000e+0)</td> 
+   <td class>1.607e+2<br>(1.971e+2)</td> 
    <td class>0.900</td> 
-   <td class>2.000e+4</td> 
+   <td class>2.000e+4<br>(0.000e+0)</td> 
   </tr> 
-  <tr height="18"> 
+  <tr height="19"> 
    <td class="xl63">NL_SHADE_LBC</td> 
-   <td class>8.021e-9</td> 
+   <td class>8.021e-9<br>(1.522e-9)</td> 
    <td class>0.000</td> 
-   <td class>1.461e+4</td> 
-   <td class>4.979e+0</td> 
+   <td class>1.461e+4<br>(1.053e+2)</td> 
+   <td class>4.979e+0<br>(3.496e+0)</td> 
    <td class>0.244</td> 
-   <td class>2.e+4</td> 
-   <td class>3.955e+0</td> 
+   <td class>2.000e+4<br>(0.000e+0)</td> 
+   <td class>3.955e+0<br>(8.523e-1)</td> 
    <td class>0.002</td> 
-   <td class>2.e+4</td> 
-   <td class>1.201e+1</td> 
+   <td class>2.000e+4<br>(0.000e+0)</td> 
+   <td class>1.201e+1<br>(3.067e+0)</td> 
    <td class>0.005</td> 
-   <td class>2.e+4</td> 
-   <td class>9.221e-2</td> 
+   <td class>2.000e+4<br>(0.000e+0)</td> 
+   <td class>9.221e-2<br>(7.898e-2)</td> 
    <td class>-4.466</td> 
-   <td class>2.e+4</td> 
-   <td class>3.307e-2</td> 
+   <td class>2.000e+4<br>(0.000e+0)</td> 
+   <td class>3.307e-2<br>(3.070e-2)</td> 
    <td class>1.161</td> 
-   <td class>2.e+4</td> 
-   <td class>1.274e+2</td> 
+   <td class>2.000e+4<br>(0.000e+0)</td> 
+   <td class>1.274e+2<br>(2.058e+2)</td> 
    <td class>0.618</td> 
-   <td class>2.e+4</td> 
-   <td class>1.936e+0</td> 
+   <td class>2.000e+4<br>(0.000e+0)</td> 
+   <td class>1.936e+0<br>(1.339e+0)</td> 
    <td class>5.064</td> 
-   <td class>2.e+4</td> 
-   <td class>8.72e+0</td> 
+   <td class>2.000e+4<br>(0.000e+0)</td> 
+   <td class>8.720e+0<br>(9.173e+0)</td> 
    <td class>4.193</td> 
-   <td class>2.e+4</td> 
-   <td class>2.359e+2</td> 
+   <td class>2.000e+4<br>(0.000e+0)</td> 
+   <td class>2.359e+2<br>(2.542e+2)</td> 
    <td class>0.031</td> 
-   <td class>2.e+4</td> 
-   <td class>5.935e-1</td> 
+   <td class>2.000e+4<br>(0.000e+0)</td> 
+   <td class>5.935e-1<br>(3.115e-1)</td> 
    <td class>1.523</td> 
-   <td class>2.e+4</td> 
-   <td class>1.911e-1</td> 
+   <td class>2.000e+4<br>(0.000e+0)</td> 
+   <td class>1.911e-1<br>(2.131e-1)</td> 
    <td class>4.123</td> 
-   <td class>2.e+4</td> 
-   <td class>5.628e+2</td> 
+   <td class>2.000e+4<br>(0.000e+0)</td> 
+   <td class>5.628e+2<br>(3.190e+2)</td> 
    <td class>0.184</td> 
-   <td class>2.e+4</td> 
-   <td class>1.342e+2</td> 
+   <td class>2.000e+4<br>(0.000e+0)</td> 
+   <td class>1.342e+2<br>(2.128e+2)</td> 
    <td class>0.179</td> 
-   <td class>2.e+4</td> 
-   <td class>2.116e-1</td> 
+   <td class>2.000e+4<br>(0.000e+0)</td> 
+   <td class>2.116e-1<br>(7.001e-2)</td> 
    <td class>0.464</td> 
-   <td class>2.e+4</td> 
-   <td class>1.018e-2</td> 
+   <td class>2.000e+4<br>(0.000e+0)</td> 
+   <td class>1.018e-2<br>(9.850e-3)</td> 
    <td class>1.039</td> 
-   <td class>2.e+4</td> 
-   <td class>1.796e+2</td> 
+   <td class>2.000e+4<br>(0.000e+0)</td> 
+   <td class>1.796e+2<br>(2.450e+2)</td> 
    <td class>-234.292</td> 
-   <td class>2.e+4</td> 
-   <td class>1.633e-3</td> 
+   <td class>2.000e+4<br>(0.000e+0)</td> 
+   <td class>1.633e-3<br>(1.485e-3)</td> 
    <td class>1.137</td> 
-   <td class>2.e+4</td> 
-   <td class>9.516e+1</td> 
+   <td class>2.000e+4<br>(0.000e+0)</td> 
+   <td class>9.516e+1<br>(1.921e+2)</td> 
    <td class>0.931</td> 
-   <td class>2.e+4</td> 
-   <td class>1.062e+0</td> 
+   <td class>2.000e+4<br>(0.000e+0)</td> 
+   <td class>1.062e+0<br>(5.028e-1)</td> 
    <td class>-4.219</td> 
-   <td class>2.e+4</td> 
-   <td class>3.87e-2</td> 
+   <td class>2.000e+4<br>(0.000e+0)</td> 
+   <td class>3.870e-2<br>(3.457e-2)</td> 
    <td class>0.423</td> 
-   <td class>2.e+4</td> 
-   <td class>1.692e+2</td> 
+   <td class>2.000e+4<br>(0.000e+0)</td> 
+   <td class>1.692e+2<br>(2.076e+2)</td> 
    <td class>1.065</td> 
-   <td class>2.e+4</td> 
+   <td class>2.000e+4<br>(0.000e+0)</td> 
   </tr> 
-  <tr height="18"> 
-   <td class="xl63">PSO</td> 
-   <td class>1.867e+0</td> 
+  <tr height="19"> 
+   <td class="xl63">DEAP_PSO</td> 
+   <td class>1.867e+0<br>(8.459e-1)</td> 
    <td class>0.161</td> 
-   <td class>2.e+4</td> 
-   <td class>1.157e+1</td> 
+   <td class>2.000e+4<br>(0.000e+0)</td> 
+   <td class>1.157e+1<br>(1.091e+0)</td> 
    <td class>0.567</td> 
-   <td class>2.e+4</td> 
-   <td class>1.972e+2</td> 
+   <td class>2.000e+4<br>(0.000e+0)</td> 
+   <td class>1.972e+2<br>(1.424e+2)</td> 
    <td class>0.078</td> 
-   <td class>2.e+4</td> 
-   <td class>1.775e+2</td> 
+   <td class>2.000e+4<br>(0.000e+0)</td> 
+   <td class>1.775e+2<br>(9.421e+1)</td> 
    <td class>0.079</td> 
-   <td class>2.e+4</td> 
-   <td class>5.818e-1</td> 
+   <td class>2.000e+4<br>(0.000e+0)</td> 
+   <td class>5.818e-1<br>(5.145e-1)</td> 
    <td class>-2.724</td> 
-   <td class>2.e+4</td> 
-   <td class>5.66e-2</td> 
+   <td class>2.000e+4<br>(0.000e+0)</td> 
+   <td class>5.660e-2<br>(6.438e-2)</td> 
    <td class>0.872</td> 
-   <td class>2.e+4</td> 
-   <td class>1.75e+2</td> 
+   <td class>2.000e+4<br>(0.000e+0)</td> 
+   <td class>1.750e+2<br>(2.427e+2)</td> 
    <td class>0.849</td> 
-   <td class>2.e+4</td> 
-   <td class>6.873e+1</td> 
+   <td class>2.000e+4<br>(0.000e+0)</td> 
+   <td class>6.873e+1<br>(8.255e+1)</td> 
    <td class>4.647</td> 
-   <td class>2.e+4</td> 
-   <td class>2.851e+1</td> 
+   <td class>2.000e+4<br>(0.000e+0)</td> 
+   <td class>2.851e+1<br>(4.225e+1)</td> 
    <td class>2.530</td> 
-   <td class>2.e+4</td> 
-   <td class>1.171e+3</td> 
+   <td class>2.000e+4<br>(0.000e+0)</td> 
+   <td class>1.171e+3<br>(5.830e+1)</td> 
    <td class>0.318</td> 
-   <td class>2.e+4</td> 
-   <td class>2.249e+0</td> 
+   <td class>2.000e+4<br>(0.000e+0)</td> 
+   <td class>2.249e+0<br>(1.163e+0)</td> 
    <td class>1.357</td> 
-   <td class>2.e+4</td> 
-   <td class>3.76e-1</td> 
+   <td class>2.000e+4<br>(0.000e+0)</td> 
+   <td class>3.760e-1<br>(6.277e-1)</td> 
    <td class>0.520</td> 
-   <td class>2.e+4</td> 
-   <td class>1.399e+3</td> 
+   <td class>2.000e+4<br>(0.000e+0)</td> 
+   <td class>1.399e+3<br>(1.679e+2)</td> 
    <td class>0.458</td> 
-   <td class>2.e+4</td> 
-   <td class>1.650e+2</td> 
+   <td class>2.000e+4<br>(0.000e+0)</td> 
+   <td class>1.650e+2<br>(2.408e+2)</td> 
    <td class>0.708</td> 
-   <td class>2.e+4</td> 
-   <td class>2.347e-1</td> 
+   <td class>2.000e+4<br>(0.000e+0)</td> 
+   <td class>2.347e-1<br>(1.024e-1)</td> 
    <td class>0.573</td> 
-   <td class>2.e+4</td> 
-   <td class>1.143e-2</td> 
+   <td class>2.000e+4<br>(0.000e+0)</td> 
+   <td class>1.143e-2<br>(1.202e-2)</td> 
    <td class>1.010</td> 
-   <td class>2.e+4</td> 
-   <td class>1.540e+2</td> 
+   <td class>2.000e+4<br>(0.000e+0)</td> 
+   <td class>1.540e+2<br>(2.411e+2)</td> 
    <td class>-127.021</td> 
-   <td class>2.e+4</td> 
-   <td class>2.456e-3</td> 
+   <td class>2.000e+4<br>(0.000e+0)</td> 
+   <td class>2.456e-3<br>(2.493e-3)</td> 
    <td class>0.895</td> 
-   <td class>2.e+4</td> 
-   <td class>1.434e+2</td> 
+   <td class>2.000e+4<br>(0.000e+0)</td> 
+   <td class>1.434e+2<br>(2.412e+2)</td> 
    <td class>-0.636</td> 
-   <td class>2.e+4</td> 
-   <td class>1.189e+0</td> 
+   <td class>2.000e+4<br>(0.000e+0)</td> 
+   <td class>1.189e+0<br>(5.536e-1)</td> 
    <td class>-2.578</td> 
-   <td class>2.e+4</td> 
-   <td class>4.195e-2</td> 
+   <td class>2.000e+4<br>(0.000e+0)</td> 
+   <td class>4.195e-2<br>(4.240e-2)</td> 
    <td class>0.156</td> 
-   <td class>2.e+4</td> 
-   <td class>2.026e+2</td> 
+   <td class>2.000e+4<br>(0.000e+0)</td> 
+   <td class>2.026e+2<br>(2.425e+2)</td> 
    <td class>1.720</td> 
-   <td class>2.e+4</td> 
+   <td class>2.000e+4<br>(0.000e+0)</td> 
   </tr> 
-  <tr height="18"> 
+  <tr height="19"> 
    <td class="xl63">GL_PSO</td> 
-   <td class>1.442e-6</td> 
+   <td class>1.442e-6<br>(9.488e-7)</td> 
    <td class>0.000</td> 
-   <td class>2.e+4</td> 
-   <td class>7.027e+0</td> 
+   <td class>2.000e+4<br>(0.000e+0)</td> 
+   <td class>7.027e+0<br>(2.926e+0)</td> 
    <td class>0.344</td> 
-   <td class>2.e+4</td> 
-   <td class>6.771e+0</td> 
+   <td class>2.000e+4<br>(0.000e+0)</td> 
+   <td class>6.771e+0<br>(3.537e+0)</td> 
    <td class>0.003</td> 
-   <td class>2.e+4</td> 
-   <td class>1.477e+1</td> 
+   <td class>2.000e+4<br>(0.000e+0)</td> 
+   <td class>1.477e+1<br>(2.297e+0)</td> 
    <td class>0.006</td> 
-   <td class>2.e+4</td> 
-   <td class>1.855e-2</td> 
+   <td class>2.000e+4<br>(0.000e+0)</td> 
+   <td class>1.855e-2<br>(1.738e-2)</td> 
    <td class>-4.728</td> 
-   <td class>2.e+4</td> 
-   <td class>4.593e-2</td> 
+   <td class>2.000e+4<br>(0.000e+0)</td> 
+   <td class>4.593e-2<br>(3.932e-2)</td> 
    <td class>1.003</td> 
-   <td class>2.e+4</td> 
-   <td class>3.025e+2</td> 
+   <td class>2.000e+4<br>(0.000e+0)</td> 
+   <td class>3.025e+2<br>(3.166e+2)</td> 
    <td class>1.468</td> 
-   <td class>2.e+4</td> 
-   <td class>2.488e+0</td> 
+   <td class>2.000e+4<br>(0.000e+0)</td> 
+   <td class>2.488e+0<br>(1.618e+0)</td> 
    <td class>5.060</td> 
-   <td class>2.e+4</td> 
-   <td class>2.825e+0</td> 
+   <td class>2.000e+4<br>(0.000e+0)</td> 
+   <td class>2.825e+0<br>(2.502e+0)</td> 
    <td class>4.688</td> 
-   <td class>2.e+4</td> 
-   <td class>4.207e+2</td> 
+   <td class>2.000e+4<br>(0.000e+0)</td> 
+   <td class>4.207e+2<br>(3.499e+2)</td> 
    <td class>0.087</td> 
-   <td class>2.e+4</td> 
-   <td class>6.562e-1</td> 
+   <td class>2.000e+4<br>(0.000e+0)</td> 
+   <td class>6.562e-1<br>(3.519e-1)</td> 
    <td class>1.517</td> 
-   <td class>2.e+4</td> 
-   <td class>1.977e-1</td> 
+   <td class>2.000e+4<br>(0.000e+0)</td> 
+   <td class>1.977e-1<br>(1.748e-1)</td> 
    <td class>3.995</td> 
-   <td class>2.e+4</td> 
-   <td class>6.96e+2</td> 
+   <td class>2.000e+4<br>(0.000e+0)</td> 
+   <td class>6.960e+2<br>(2.878e+2)</td> 
    <td class>0.228</td> 
-   <td class>2.e+4</td> 
-   <td class>2.425e+2</td> 
+   <td class>2.000e+4<br>(0.000e+0)</td> 
+   <td class>2.425e+2<br>(2.883e+2)</td> 
    <td class>2.036</td> 
-   <td class>2.e+4</td> 
-   <td class>1.654e-1</td> 
+   <td class>2.000e+4<br>(0.000e+0)</td> 
+   <td class>1.654e-1<br>(6.088e-2)</td> 
    <td class>0.247</td> 
-   <td class>2.e+4</td> 
-   <td class>1.514e-2</td> 
+   <td class>2.000e+4<br>(0.000e+0)</td> 
+   <td class>1.514e-2<br>(1.285e-2)</td> 
    <td class>0.921</td> 
-   <td class>2.e+4</td> 
-   <td class>2.795e+2</td> 
+   <td class>2.000e+4<br>(0.000e+0)</td> 
+   <td class>2.795e+2<br>(2.981e+2)</td> 
    <td class>-653.870</td> 
-   <td class>2.e+4</td> 
-   <td class>1.841e-3</td> 
+   <td class>2.000e+4<br>(0.000e+0)</td> 
+   <td class>1.841e-3<br>(1.615e-3)</td> 
    <td class>1.076</td> 
-   <td class>2.e+4</td> 
-   <td class>2.905e+2</td> 
+   <td class>2.000e+4<br>(0.000e+0)</td> 
+   <td class>2.905e+2<br>(3.114e+2)</td> 
    <td class>-5.423</td> 
-   <td class>2.e+4</td> 
-   <td class>3.300e-1</td> 
+   <td class>2.000e+4<br>(0.000e+0)</td> 
+   <td class>3.300e-1<br>(5.065e-1)</td> 
    <td class>-13.694</td> 
-   <td class>2.e+4</td> 
-   <td class>7.368e-2</td> 
+   <td class>2.000e+4<br>(0.000e+0)</td> 
+   <td class>7.368e-2<br>(5.949e-2)</td> 
    <td class>-2.451</td> 
-   <td class>2.e+4</td> 
-   <td class>2.81e+2</td> 
+   <td class>2.000e+4<br>(0.000e+0)</td> 
+   <td class>2.810e+2<br>(2.919e+2)</td> 
    <td class>3.254</td> 
-   <td class>2.e+4</td> 
+   <td class>2.000e+4<br>(0.000e+0)</td> 
   </tr> 
-  <tr height="18"> 
+  <tr height="19"> 
    <td class="xl63">sDMS_PSO</td> 
-   <td class>2.141e+0</td> 
+   <td class>2.141e+0<br>(9.101e-1)</td> 
    <td class>0.185</td> 
-   <td class>2.01e+4</td> 
-   <td class>1.103e+1</td> 
+   <td class>2.010e+4<br>(0.000e+0)</td> 
+   <td class>1.103e+1<br>(1.430e+0)</td> 
    <td class>0.540</td> 
-   <td class>2.01e+4</td> 
-   <td class>1.045e+2</td> 
+   <td class>2.010e+4<br>(0.000e+0)</td> 
+   <td class>1.045e+2<br>(5.974e+1)</td> 
    <td class>0.041</td> 
-   <td class>2.01e+4</td> 
-   <td class>1.181e+2</td> 
+   <td class>2.010e+4<br>(0.000e+0)</td> 
+   <td class>1.181e+2<br>(3.908e+1)</td> 
    <td class>0.052</td> 
-   <td class>2.01e+4</td> 
-   <td class>6.806e-1</td> 
+   <td class>2.010e+4<br>(0.000e+0)</td> 
+   <td class>6.806e-1<br>(2.283e-1)</td> 
    <td class>-2.373</td> 
-   <td class>2.01e+4</td> 
-   <td class>3.450e-2</td> 
+   <td class>2.010e+4<br>(0.000e+0)</td> 
+   <td class>3.450e-2<br>(3.244e-2)</td> 
    <td class>1.143</td> 
-   <td class>2.01e+4</td> 
-   <td class>1.166e+2</td> 
+   <td class>2.010e+4<br>(0.000e+0)</td> 
+   <td class>1.166e+2<br>(1.830e+2)</td> 
    <td class>0.566</td> 
-   <td class>2.01e+4</td> 
-   <td class>5.397e+1</td> 
+   <td class>2.010e+4<br>(0.000e+0)</td> 
+   <td class>5.397e+1<br>(3.947e+1)</td> 
    <td class>4.739</td> 
-   <td class>2.01e+4</td> 
-   <td class>1.111e+1</td> 
+   <td class>2.010e+4<br>(0.000e+0)</td> 
+   <td class>1.111e+1<br>(1.320e+1)</td> 
    <td class>3.992</td> 
-   <td class>2.01e+4</td> 
-   <td class>9.28e+2</td> 
+   <td class>2.010e+4<br>(0.000e+0)</td> 
+   <td class>9.280e+2<br>(2.442e+2)</td> 
    <td class>0.243</td> 
-   <td class>2.01e+4</td> 
-   <td class>1.686e+0</td> 
+   <td class>2.010e+4<br>(0.000e+0)</td> 
+   <td class>1.686e+0<br>(7.560e-1)</td> 
    <td class>1.414</td> 
-   <td class>2.01e+4</td> 
-   <td class>2.489e-1</td> 
+   <td class>2.010e+4<br>(0.000e+0)</td> 
+   <td class>2.489e-1<br>(2.705e-1)</td> 
    <td class>2.997</td> 
-   <td class>2.01e+4</td> 
-   <td class>1.217e+3</td> 
+   <td class>2.010e+4<br>(0.000e+0)</td> 
+   <td class>1.217e+3<br>(3.463e+2)</td> 
    <td class>0.398</td> 
-   <td class>2.01e+4</td> 
-   <td class>1.143e+2</td> 
+   <td class>2.010e+4<br>(0.000e+0)</td> 
+   <td class>1.143e+2<br>(1.889e+2)</td> 
    <td class>-0.162</td> 
-   <td class>2.01e+4</td> 
-   <td class>1.705e-1</td> 
+   <td class>2.010e+4<br>(0.000e+0)</td> 
+   <td class>1.705e-1<br>(5.735e-2)</td> 
    <td class>0.271</td> 
-   <td class>2.01e+4</td> 
-   <td class>8.49e-3</td> 
+   <td class>2.010e+4<br>(0.000e+0)</td> 
+   <td class>8.490e-3<br>(7.829e-3)</td> 
    <td class>1.080</td> 
-   <td class>2.01e+4</td> 
-   <td class>7.305e+1</td> 
+   <td class>2.010e+4<br>(0.000e+0)</td> 
+   <td class>7.305e+1<br>(1.503e+2)</td> 
    <td class>212.954</td> 
-   <td class>2.01e+4</td> 
-   <td class>8.262e-4</td> 
+   <td class>2.010e+4<br>(0.000e+0)</td> 
+   <td class>8.262e-4<br>(7.586e-4)</td> 
    <td class>1.375</td> 
-   <td class>2.01e+4</td> 
-   <td class>6.362e+1</td> 
+   <td class>2.010e+4<br>(0.000e+0)</td> 
+   <td class>6.362e+1<br>(1.471e+2)</td> 
    <td class>1.957</td> 
-   <td class>2.01e+4</td> 
-   <td class>9.589e-1</td> 
+   <td class>2.010e+4<br>(0.000e+0)</td> 
+   <td class>9.589e-1<br>(3.755e-1)</td> 
    <td class>-5.556</td> 
-   <td class>2.01e+4</td> 
-   <td class>3.191e-2</td> 
+   <td class>2.010e+4<br>(0.000e+0)</td> 
+   <td class>3.191e-2<br>(3.136e-2)</td> 
    <td class>0.980</td> 
-   <td class>2.01e+4</td> 
-   <td class>1.084e+2</td> 
+   <td class>2.010e+4<br>(0.000e+0)</td> 
+   <td class>1.084e+2<br>(1.503e+2)</td> 
    <td class>-0.125</td> 
-   <td class>2.01e+4</td> 
+   <td class>2.010e+4<br>(0.000e+0)</td> 
   </tr> 
-  <tr height="18"> 
+  <tr height="19"> 
    <td class="xl63">SAHLPSO</td> 
-   <td class>4.844e+0</td> 
+   <td class>4.844e+0<br>(2.672e+0)</td> 
    <td class>0.418</td> 
-   <td class>2.e+4</td> 
-   <td class>1.484e+1</td> 
+   <td class>2.000e+4<br>(0.000e+0)</td> 
+   <td class>1.484e+1<br>(2.661e+0)</td> 
    <td class>0.727</td> 
-   <td class>2.e+4</td> 
-   <td class>1.115e+3</td> 
+   <td class>2.000e+4<br>(0.000e+0)</td> 
+   <td class>1.115e+3<br>(1.335e+3)</td> 
    <td class>0.441</td> 
-   <td class>2.e+4</td> 
-   <td class>8.871e+2</td> 
+   <td class>2.000e+4<br>(0.000e+0)</td> 
+   <td class>8.871e+2<br>(5.900e+2)</td> 
    <td class>0.395</td> 
-   <td class>2.e+4</td> 
-   <td class>1.130e+0</td> 
+   <td class>2.000e+4<br>(0.000e+0)</td> 
+   <td class>1.130e+0<br>(6.475e-1)</td> 
    <td class>-0.772</td> 
-   <td class>2.e+4</td> 
-   <td class>4.485e-2</td> 
+   <td class>2.000e+4<br>(0.000e+0)</td> 
+   <td class>4.485e-2<br>(4.486e-2)</td> 
    <td class>1.016</td> 
-   <td class>2.e+4</td> 
-   <td class>1.748e+2</td> 
+   <td class>2.000e+4<br>(0.000e+0)</td> 
+   <td class>1.748e+2<br>(1.816e+2)</td> 
    <td class>0.848</td> 
-   <td class>2.e+4</td> 
-   <td class>3.04e+2</td> 
+   <td class>2.000e+4<br>(0.000e+0)</td> 
+   <td class>3.040e+2<br>(3.122e+2)</td> 
    <td class>3.177</td> 
-   <td class>2.e+4</td> 
-   <td class>3.639e+1</td> 
+   <td class>2.000e+4<br>(0.000e+0)</td> 
+   <td class>3.639e+1<br>(8.367e+1)</td> 
    <td class>1.868</td> 
-   <td class>2.e+4</td> 
-   <td class>1.689e+3</td> 
+   <td class>2.000e+4<br>(0.000e+0)</td> 
+   <td class>1.689e+3<br>(5.434e+2)</td> 
    <td class>0.477</td> 
-   <td class>2.e+4</td> 
-   <td class>4.262e+0</td> 
+   <td class>2.000e+4<br>(0.000e+0)</td> 
+   <td class>4.262e+0<br>(2.892e+0)</td> 
    <td class>1.156</td> 
-   <td class>2.e+4</td> 
-   <td class>3.618e-1</td> 
+   <td class>2.000e+4<br>(0.000e+0)</td> 
+   <td class>3.618e-1<br>(4.379e-1)</td> 
    <td class>0.795</td> 
-   <td class>2.e+4</td> 
-   <td class>2.749e+3</td> 
+   <td class>2.000e+4<br>(0.000e+0)</td> 
+   <td class>2.749e+3<br>(1.323e+3)</td> 
    <td class>0.899</td> 
-   <td class>2.e+4</td> 
-   <td class>1.607e+2</td> 
+   <td class>2.000e+4<br>(0.000e+0)</td> 
+   <td class>1.607e+2<br>(2.166e+2)</td> 
    <td class>0.634</td> 
-   <td class>2.e+4</td> 
-   <td class>2.432e-1</td> 
+   <td class>2.000e+4<br>(0.000e+0)</td> 
+   <td class>2.432e-1<br>(9.626e-2)</td> 
    <td class>0.612</td> 
-   <td class>2.e+4</td> 
-   <td class>8.265e-3</td> 
+   <td class>2.000e+4<br>(0.000e+0)</td> 
+   <td class>8.265e-3<br>(7.620e-3)</td> 
    <td class>1.085</td> 
-   <td class>2.e+4</td> 
-   <td class>1.108e+2</td> 
+   <td class>2.000e+4<br>(0.000e+0)</td> 
+   <td class>1.108e+2<br>(1.924e+2)</td> 
    <td class>54.625</td> 
-   <td class>2.e+4</td> 
-   <td class>1.711e-3</td> 
+   <td class>2.000e+4<br>(0.000e+0)</td> 
+   <td class>1.711e-3<br>(1.639e-3)</td> 
    <td class>1.114</td> 
-   <td class>2.e+4</td> 
-   <td class>1.053e+2</td> 
+   <td class>2.000e+4<br>(0.000e+0)</td> 
+   <td class>1.053e+2<br>(1.984e+2)</td> 
    <td class>0.600</td> 
-   <td class>2.e+4</td> 
-   <td class>1.341e+0</td> 
+   <td class>2.000e+4<br>(0.000e+0)</td> 
+   <td class>1.341e+0<br>(4.420e-1)</td> 
    <td class>-0.616</td> 
-   <td class>2.e+4</td> 
-   <td class>4.322e-2</td> 
+   <td class>2.000e+4<br>(0.000e+0)</td> 
+   <td class>4.322e-2<br>(5.711e-2)</td> 
    <td class>0.052</td> 
-   <td class>2.e+4</td> 
-   <td class>1.903e+2</td> 
+   <td class>2.000e+4<br>(0.000e+0)</td> 
+   <td class>1.903e+2<br>(2.072e+2)</td> 
    <td class>1.478</td> 
-   <td class>2.e+4</td> 
+   <td class>2.000e+4<br>(0.000e+0)</td> 
   </tr> 
-  <tr height="18"> 
-   <td class="xl63">CMAES</td> 
-   <td class>7.404e-9</td> 
+  <tr height="19"> 
+   <td class="xl63">DEAP_CMAES</td> 
+   <td class>7.404e-9<br>(1.802e-9)</td> 
    <td class>0.000</td> 
-   <td class>4.873e+3</td> 
-   <td class>7.539e-9</td> 
+   <td class>4.873e+3<br>(1.827e+2)</td> 
+   <td class>7.539e-9<br>(1.701e-9)</td> 
    <td class>0.000</td> 
-   <td class>5.837e+3</td> 
-   <td class>7.579e-9</td> 
+   <td class>5.837e+3<br>(3.087e+2)</td> 
+   <td class>7.579e-9<br>(1.911e-9)</td> 
    <td class>0.000</td> 
-   <td class>1.402e+4</td> 
-   <td class>4.81e-1</td> 
+   <td class>1.402e+4<br>(8.161e+2)</td> 
+   <td class>4.810e-1<br>(2.381e+0)</td> 
    <td class>0.000</td> 
-   <td class>1.513e+4</td> 
-   <td class>1.348e+0</td> 
+   <td class>1.513e+4<br>(1.545e+3)</td> 
+   <td class>1.348e+0<br>(1.815e+0)</td> 
    <td class>0.000</td> 
-   <td class>1.711e+4</td> 
-   <td class>1.275e-1</td> 
+   <td class>1.711e+4<br>(3.629e+3)</td> 
+   <td class>1.275e-1<br>(1.554e-1)</td> 
    <td class>-0.000</td> 
-   <td class>2.e+4</td> 
-   <td class>7.640e-9</td> 
+   <td class>2.000e+4<br>(0.000e+0)</td> 
+   <td class>7.640e-9<br>(1.865e-9)</td> 
    <td class>0.000</td> 
-   <td class>1.176e+4</td> 
-   <td class>8.124e+2</td> 
+   <td class>1.176e+4<br>(1.128e+3)</td> 
+   <td class>8.124e+2<br>(2.540e+3)</td> 
    <td class>-0.000</td> 
-   <td class>2.e+4</td> 
-   <td class>5.863e+1</td> 
+   <td class>2.000e+4<br>(0.000e+0)</td> 
+   <td class>5.863e+1<br>(1.101e+2)</td> 
    <td class>-0.000</td> 
-   <td class>2.e+4</td> 
-   <td class>1.363e+2</td> 
+   <td class>2.000e+4<br>(0.000e+0)</td> 
+   <td class>1.363e+2<br>(2.134e+2)</td> 
    <td class>0.000</td> 
-   <td class>2.e+4</td> 
-   <td class>1.579e+1</td> 
+   <td class>2.000e+4<br>(0.000e+0)</td> 
+   <td class>1.579e+1<br>(2.445e+1)</td> 
    <td class>-0.000</td> 
-   <td class>1.935e+4</td> 
-   <td class>4.026e-1</td> 
+   <td class>1.935e+4<br>(2.596e+3)</td> 
+   <td class>4.026e-1<br>(5.447e-1)</td> 
    <td class>-0.000</td> 
-   <td class>2.e+4</td> 
-   <td class>7.531e-9</td> 
+   <td class>2.000e+4<br>(0.000e+0)</td> 
+   <td class>7.531e-9<br>(1.838e-9)</td> 
    <td class>0.000</td> 
-   <td class>1.417e+4</td> 
-   <td class>1.238e+2</td> 
+   <td class>1.417e+4<br>(1.480e+3)</td> 
+   <td class>1.238e+2<br>(1.992e+2)</td> 
    <td class>0.000</td> 
-   <td class>2.e+4</td> 
-   <td class>1.128e-1</td> 
+   <td class>2.000e+4<br>(0.000e+0)</td> 
+   <td class>1.128e-1<br>(1.394e-1)</td> 
    <td class>0.000</td> 
-   <td class>2.e+4</td> 
-   <td class>5.376e-2</td> 
+   <td class>2.000e+4<br>(0.000e+0)</td> 
+   <td class>5.376e-2<br>(8.731e-2)</td> 
    <td class>-0.000</td> 
-   <td class>2.e+4</td> 
-   <td class>1.238e+2</td> 
+   <td class>2.000e+4<br>(0.000e+0)</td> 
+   <td class>1.238e+2<br>(1.992e+2)</td> 
    <td class>-0.000</td> 
-   <td class>2.e+4</td> 
-   <td class>5.488e-3</td> 
+   <td class>2.000e+4<br>(0.000e+0)</td> 
+   <td class>5.488e-3<br>(9.628e-3)</td> 
    <td class>-0.000</td> 
-   <td class>2.e+4</td> 
-   <td class>1.238e+2</td> 
+   <td class>2.000e+4<br>(0.000e+0)</td> 
+   <td class>1.238e+2<br>(1.993e+2)</td> 
    <td class>-0.000</td> 
-   <td class>2.e+4</td> 
-   <td class>1.388e+0</td> 
+   <td class>2.000e+4<br>(0.000e+0)</td> 
+   <td class>1.388e+0<br>(6.425e-1)</td> 
    <td class>0.000</td> 
-   <td class>2.e+4</td> 
-   <td class>4.385e-2</td> 
+   <td class>2.000e+4<br>(0.000e+0)</td> 
+   <td class>4.385e-2<br>(5.377e-2)</td> 
    <td class>-0.000</td> 
-   <td class>2.e+4</td> 
-   <td class>1.148e+2</td> 
+   <td class>2.000e+4<br>(0.000e+0)</td> 
+   <td class>1.148e+2<br>(1.952e+2)</td> 
    <td class>0.000</td> 
-   <td class>1.737e+4</td> 
+   <td class>1.737e+4<br>(5.340e+3)</td> 
   </tr> 
-  <tr height="18"> 
+  <tr height="19"> 
    <td class="xl63">Random_search</td> 
-   <td class>1.159e+1</td> 
+   <td class>1.159e+1<br>(2.902e+0)</td> 
    <td class>1.000</td> 
-   <td class>2.e+4</td> 
-   <td class>2.042e+1</td> 
+   <td class>2.000e+4<br>(0.000e+0)</td> 
+   <td class>2.042e+1<br>(2.835e+0)</td> 
    <td class>1.000</td> 
-   <td class>2.e+4</td> 
-   <td class>2.525e+3</td> 
+   <td class>2.000e+4<br>(0.000e+0)</td> 
+   <td class>2.525e+3<br>(9.338e+2)</td> 
    <td class>1.000</td> 
-   <td class>2.e+4</td> 
-   <td class>2.246e+3</td> 
+   <td class>2.000e+4<br>(0.000e+0)</td> 
+   <td class>2.246e+3<br>(7.429e+2)</td> 
    <td class>1.000</td> 
-   <td class>2.e+4</td> 
-   <td class>1.629e+0</td> 
+   <td class>2.000e+4<br>(0.000e+0)</td> 
+   <td class>1.629e+0<br>(4.840e-1)</td> 
    <td class>1.000</td> 
-   <td class>2.e+4</td> 
-   <td class>4.615e-2</td> 
+   <td class>2.000e+4<br>(0.000e+0)</td> 
+   <td class>4.615e-2<br>(3.941e-2)</td> 
    <td class>1.000</td> 
-   <td class>2.e+4</td> 
-   <td class>2.061e+2</td> 
+   <td class>2.000e+4<br>(0.000e+0)</td> 
+   <td class>2.061e+2<br>(1.905e+2)</td> 
    <td class>1.000</td> 
-   <td class>2.e+4</td> 
-   <td class>6.524e+2</td> 
+   <td class>2.000e+4<br>(0.000e+0)</td> 
+   <td class>6.524e+2<br>(3.449e+2)</td> 
    <td class>1.000</td> 
-   <td class>2.e+4</td> 
-   <td class>4.673e+1</td> 
+   <td class>2.000e+4<br>(0.000e+0)</td> 
+   <td class>4.673e+1<br>(4.621e+1)</td> 
    <td class>1.000</td> 
-   <td class>2.e+4</td> 
-   <td class>3.395e+3</td> 
+   <td class>2.000e+4<br>(0.000e+0)</td> 
+   <td class>3.395e+3<br>(7.660e+2)</td> 
    <td class>1.000</td> 
-   <td class>2.e+4</td> 
-   <td class>5.815e+0</td> 
+   <td class>2.000e+4<br>(0.000e+0)</td> 
+   <td class>5.815e+0<br>(2.239e+0)</td> 
    <td class>1.000</td> 
-   <td class>2.e+4</td> 
-   <td class>3.513e-1</td> 
+   <td class>2.000e+4<br>(0.000e+0)</td> 
+   <td class>3.513e-1<br>(3.647e-1)</td> 
    <td class>1.000</td> 
-   <td class>2.e+4</td> 
-   <td class>3.056e+3</td> 
+   <td class>2.000e+4<br>(0.000e+0)</td> 
+   <td class>3.056e+3<br>(6.317e+2)</td> 
    <td class>1.000</td> 
-   <td class>2.e+4</td> 
-   <td class>1.821e+2</td> 
+   <td class>2.000e+4<br>(0.000e+0)</td> 
+   <td class>1.821e+2<br>(1.947e+2)</td> 
    <td class>1.000</td> 
-   <td class>2.e+4</td> 
-   <td class>3.257e-1</td> 
+   <td class>2.000e+4<br>(0.000e+0)</td> 
+   <td class>3.257e-1<br>(8.921e-2)</td> 
    <td class>1.000</td> 
-   <td class>2.e+4</td> 
-   <td class>1.183e-2</td> 
+   <td class>2.000e+4<br>(0.000e+0)</td> 
+   <td class>1.183e-2<br>(1.237e-2)</td> 
    <td class>1.000</td> 
-   <td class>2.e+4</td> 
-   <td class>1.235e+2</td> 
+   <td class>2.000e+4<br>(0.000e+0)</td> 
+   <td class>1.235e+2<br>(1.828e+2)</td> 
    <td class>1.000</td> 
-   <td class>2.e+4</td> 
-   <td class>2.098e-3</td> 
+   <td class>2.000e+4<br>(0.000e+0)</td> 
+   <td class>2.098e-3<br>(2.107e-3)</td> 
    <td class>1.000</td> 
-   <td class>2.e+4</td> 
-   <td class>9.304e+1</td> 
+   <td class>2.000e+4<br>(0.000e+0)</td> 
+   <td class>9.304e+1<br>(1.737e+2)</td> 
    <td class>1.000</td> 
-   <td class>2.e+4</td> 
-   <td class>1.466e+0</td> 
+   <td class>2.000e+4<br>(0.000e+0)</td> 
+   <td class>1.466e+0<br>(4.250e-1)</td> 
    <td class>1.000</td> 
-   <td class>2.e+4</td> 
-   <td class>3.167e-2</td> 
+   <td class>2.000e+4<br>(0.000e+0)</td> 
+   <td class>3.167e-2<br>(3.007e-2)</td> 
    <td class>1.000</td> 
-   <td class>2.e+4</td> 
-   <td class>1.659e+2</td> 
+   <td class>2.000e+4<br>(0.000e+0)</td> 
+   <td class>1.659e+2<br>(1.753e+2)</td> 
    <td class>1.000</td> 
-   <td class>2.e+4</td> 
+   <td class>2.000e+4<br>(0.000e+0)</td> 
   </tr> 
-  <tr height="18"> 
+  <tr height="19"> 
    <td class="xl63">BayesianOptimizer</td> 
-   <td class>1.573e-1</td> 
+   <td class>1.573e-1<br>(1.685e-1)</td> 
    <td class>0.014</td> 
-   <td class>1.e+2</td> 
-   <td class>1.007e+1</td> 
+   <td class>1.000e+2<br>(0.000e+0)</td> 
+   <td class>1.007e+1<br>(1.321e-1)</td> 
    <td class>0.493</td> 
-   <td class>1.e+2</td> 
-   <td class>3.342e+3</td> 
+   <td class>1.000e+2<br>(0.000e+0)</td> 
+   <td class>3.342e+3<br>(2.843e+3)</td> 
    <td class>1.324</td> 
-   <td class>1.e+2</td> 
-   <td class>9.913e+2</td> 
+   <td class>1.000e+2<br>(0.000e+0)</td> 
+   <td class>9.913e+2<br>(8.140e+2)</td> 
    <td class>0.441</td> 
-   <td class>1.e+2</td> 
-   <td class>1.050e+1</td> 
+   <td class>1.000e+2<br>(0.000e+0)</td> 
+   <td class>1.050e+1<br>(5.038e+0)</td> 
    <td class>32.557</td> 
-   <td class>1.e+2</td> 
-   <td class>1.690e+1</td> 
+   <td class>1.000e+2<br>(0.000e+0)</td> 
+   <td class>1.690e+1<br>(1.577e+1)</td> 
    <td class>-206.273</td> 
-   <td class>1.e+2</td> 
-   <td class>9.892e+2</td> 
+   <td class>1.000e+2<br>(0.000e+0)</td> 
+   <td class>9.892e+2<br>(2.094e+1)</td> 
    <td class>4.800</td> 
-   <td class>1.e+2</td> 
-   <td class>1.112e+4</td> 
+   <td class>1.000e+2<br>(0.000e+0)</td> 
+   <td class>1.112e+4<br>(6.648e+3)</td> 
    <td class>-64.429</td> 
-   <td class>1.e+2</td> 
-   <td class>1.417e+4</td> 
+   <td class>1.000e+2<br>(0.000e+0)</td> 
+   <td class>1.417e+4<br>(1.363e+4)</td> 
    <td class>-1185.769</td> 
-   <td class>1.e+2</td> 
-   <td class>3.349e+3</td> 
+   <td class>1.000e+2<br>(0.000e+0)</td> 
+   <td class>3.349e+3<br>(1.926e+3)</td> 
    <td class>0.986</td> 
-   <td class>1.e+2</td> 
-   <td class>4.487e+1</td> 
+   <td class>1.000e+2<br>(0.000e+0)</td> 
+   <td class>4.487e+1<br>(2.478e+1)</td> 
    <td class>-2.915</td> 
-   <td class>1.e+2</td> 
-   <td class>1.002e+2</td> 
+   <td class>1.000e+2<br>(0.000e+0)</td> 
+   <td class>1.002e+2<br>(8.247e+1)</td> 
    <td class>-1945.415</td> 
-   <td class>1.e+2</td> 
-   <td class>3.971e+3</td> 
+   <td class>1.000e+2<br>(0.000e+0)</td> 
+   <td class>3.971e+3<br>(1.989e+3)</td> 
    <td class>1.299</td> 
-   <td class>1.e+2</td> 
-   <td class>1.003e+3</td> 
+   <td class>1.000e+2<br>(0.000e+0)</td> 
+   <td class>1.003e+3<br>(4.151e+1)</td> 
    <td class>15.080</td> 
-   <td class>1.e+2</td> 
-   <td class>1.877e+0</td> 
+   <td class>1.000e+2<br>(0.000e+0)</td> 
+   <td class>1.877e+0<br>(9.429e-1)</td> 
    <td class>8.286</td> 
-   <td class>1.e+2</td> 
-   <td class>3.562e+0</td> 
+   <td class>1.000e+2<br>(0.000e+0)</td> 
+   <td class>3.562e+0<br>(3.362e+0)</td> 
    <td class>-83.669</td> 
-   <td class>1.e+2</td> 
-   <td class>9.906e+2</td> 
+   <td class>1.000e+2<br>(0.000e+0)</td> 
+   <td class>9.906e+2<br>(5.054e+1)</td> 
    <td class>-3640.126</td> 
-   <td class>1.e+2</td> 
-   <td class>1.119e+0</td> 
+   <td class>1.000e+2<br>(0.000e+0)</td> 
+   <td class>1.119e+0<br>(1.127e+0)</td> 
    <td class>-328.510</td> 
-   <td class>1.e+2</td> 
-   <td class>9.753e+2</td> 
+   <td class>1.000e+2<br>(0.000e+0)</td> 
+   <td class>9.753e+2<br>(5.108e+1)</td> 
    <td class>-27.692</td> 
-   <td class>1.e+2</td> 
-   <td class>6.202e+0</td> 
+   <td class>1.000e+2<br>(0.000e+0)</td> 
+   <td class>6.202e+0<br>(2.747e+0)</td> 
    <td class>62.293</td> 
-   <td class>1.e+2</td> 
-   <td class>8.261e+0</td> 
+   <td class>1.000e+2<br>(0.000e+0)</td> 
+   <td class>8.261e+0<br>(7.380e+0)</td> 
    <td class>-674.985</td> 
-   <td class>1.e+2</td> 
-   <td class>1.005e+3</td> 
+   <td class>1.000e+2<br>(0.000e+0)</td> 
+   <td class>1.005e+3<br>(4.451e+1)</td> 
    <td class>17.430</td> 
-   <td class>1.e+2</td> 
+   <td class>1.000e+2<br>(0.000e+0)</td> 
   </tr> 
-  <tr height="18"> 
+  <tr height="19"> 
    <td class="xl63">RNN-OI</td> 
-   <td class>8.705e+1</td> 
+   <td class>8.705e+1<br>(1.102e+0)</td> 
    <td class>7.509</td> 
-   <td class>1.e+2</td> 
-   <td class>1.261e+2</td> 
+   <td class>1.000e+2<br>(0.000e+0)</td> 
+   <td class>1.261e+2<br>(3.790e-3)</td> 
    <td class>6.176</td> 
-   <td class>1.e+2</td> 
-   <td class>2.364e+5</td> 
+   <td class>1.000e+2<br>(0.000e+0)</td> 
+   <td class>2.364e+5<br>(2.236e+3)</td> 
    <td class>93.620</td> 
-   <td class>1.e+2</td> 
-   <td class>1.706e+4</td> 
+   <td class>1.000e+2<br>(0.000e+0)</td> 
+   <td class>1.706e+4<br>(7.186e-3)</td> 
    <td class>7.599</td> 
-   <td class>1.e+2</td> 
-   <td class>7.610e+0</td> 
+   <td class>1.000e+2<br>(0.000e+0)</td> 
+   <td class>7.610e+0<br>(3.084e+0)</td> 
    <td class>22.277</td> 
-   <td class>1.e+2</td> 
-   <td class>7.693e+0</td> 
+   <td class>1.000e+2<br>(0.000e+0)</td> 
+   <td class>7.693e+0<br>(7.497e+0)</td> 
    <td class>-93.023</td> 
-   <td class>1.e+2</td> 
-   <td class>1.087e+3</td> 
+   <td class>1.000e+2<br>(0.000e+0)</td> 
+   <td class>1.087e+3<br>(1.395e+2)</td> 
    <td class>5.273</td> 
-   <td class>1.e+2</td> 
-   <td class>8.224e+3</td> 
+   <td class>1.000e+2<br>(0.000e+0)</td> 
+   <td class>8.224e+3<br>(3.365e+3)</td> 
    <td class>-46.303</td> 
-   <td class>1.e+2</td> 
-   <td class>1.13e+4</td> 
+   <td class>1.000e+2<br>(0.000e+0)</td> 
+   <td class>1.130e+4<br>(9.680e+3)</td> 
    <td class>-944.159</td> 
-   <td class>1.e+2</td> 
-   <td class>8.717e+4</td> 
+   <td class>1.000e+2<br>(0.000e+0)</td> 
+   <td class>8.717e+4<br>(5.171e-1)</td> 
    <td class>26.707</td> 
-   <td class>1.e+2</td> 
-   <td class>6.318e+1</td> 
+   <td class>1.000e+2<br>(0.000e+0)</td> 
+   <td class>6.318e+1<br>(2.598e+1)</td> 
    <td class>-4.750</td> 
-   <td class>1.e+2</td> 
-   <td class>9.050e+1</td> 
+   <td class>1.000e+2<br>(0.000e+0)</td> 
+   <td class>9.050e+1<br>(8.283e+1)</td> 
    <td class>-1756.022</td> 
-   <td class>1.e+2</td> 
-   <td class>1.031e+5</td> 
+   <td class>1.000e+2<br>(0.000e+0)</td> 
+   <td class>1.031e+5<br>(4.232e+1)</td> 
    <td class>33.744</td> 
-   <td class>1.e+2</td> 
-   <td class>1.021e+3</td> 
+   <td class>1.000e+2<br>(0.000e+0)</td> 
+   <td class>1.021e+3<br>(8.447e+1)</td> 
    <td class>15.389</td> 
-   <td class>1.e+2</td> 
-   <td class>2.039e+0</td> 
+   <td class>1.000e+2<br>(0.000e+0)</td> 
+   <td class>2.039e+0<br>(6.737e-1)</td> 
    <td class>9.045</td> 
-   <td class>1.e+2</td> 
-   <td class>2.73e+0</td> 
+   <td class>1.000e+2<br>(0.000e+0)</td> 
+   <td class>2.730e+0<br>(1.952e+0)</td> 
    <td class>-63.821</td> 
-   <td class>1.e+2</td> 
-   <td class>9.849e+2</td> 
+   <td class>1.000e+2<br>(0.000e+0)</td> 
+   <td class>9.849e+2<br>(6.398e+1)</td> 
    <td class>-3616.418</td> 
-   <td class>1.e+2</td> 
-   <td class>2.601e-1</td> 
+   <td class>1.000e+2<br>(0.000e+0)</td> 
+   <td class>2.601e-1<br>(2.488e-1)</td> 
    <td class>-75.118</td> 
-   <td class>1.e+2</td> 
-   <td class>9.68e+2</td> 
+   <td class>1.000e+2<br>(0.000e+0)</td> 
+   <td class>9.680e+2<br>(7.257e+1)</td> 
    <td class>-27.454</td> 
-   <td class>1.e+2</td> 
-   <td class>5.636e+0</td> 
+   <td class>1.000e+2<br>(0.000e+0)</td> 
+   <td class>5.636e+0<br>(2.612e+0)</td> 
    <td class>54.960</td> 
-   <td class>1.e+2</td> 
-   <td class>6.522e+0</td> 
+   <td class>1.000e+2<br>(0.000e+0)</td> 
+   <td class>6.522e+0<br>(5.626e+0)</td> 
    <td class>-532.157</td> 
-   <td class>1.e+2</td> 
-   <td class>1.053e+3</td> 
+   <td class>1.000e+2<br>(0.000e+0)</td> 
+   <td class>1.053e+3<br>(5.204e+1)</td> 
    <td class>18.374</td> 
-   <td class>1.e+2</td> 
+   <td class>1.000e+2<br>(0.000e+0)</td> 
   </tr> <!--EndFragment--> 
  </tbody>
 </table>
