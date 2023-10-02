@@ -1,6 +1,6 @@
 # MetaBox: A Benchmark Platform for Meta-Black-Box Optimization with Reinforcement Learning
 
-This is a **reinforcement learning benchmark platform** for benchmarking and MetaBBO-RL methods. You can develop your own MetaBBO-RL approach and compare it with baseline approaches built-in following the **Train-Test-Log** philosophy automated by MetaBox. The github repos can be referred [here](https://github.com/GMC-DRL/MetaBox).
+This is a **reinforcement learning benchmark platform** for benchmarking and MetaBBO-RL methods. You can develop your own MetaBBO-RL approach and compare it with baseline approaches built-in following the **Train-Test-Log** philosophy automated by MetaBox. The github repos can be referred [here](https://github.com/GMC-DRL/MetaBox) and the paper can be found [here](https://openreview.net/forum?id=j2wasUypqN).
 
 ## Overview
 
