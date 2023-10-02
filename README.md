@@ -121,3 +121,23 @@ Note that `Random Search` performs uniformly random sampling to optimize the fit
 ## Post-processing
 
 To facilitate the observation of our baselines and related metrics, we tested our baselines on two levels of difficulty on three datasets. Post-processed data are provided in [content.md](post_processed_data/content.md).
+
+## Citing MetaBox
+
+If you find MetaBox useful, please cite it in your publications.
+
+```latex
+@inproceedings{
+metabox,
+title={MetaBox: A Benchmark Platform for Meta-Black-Box Optimization with Reinforcement Learning},
+author={Zeyuan Ma and Hongshu Guo and Jiacheng Chen and Zhenrui Li and Guojun Peng and Yue-Jiao Gong and Yining Ma and Zhiguang Cao},
+booktitle={Thirty-seventh Conference on Neural Information Processing Systems Datasets and Benchmarks Track},
+year={2023},
+url={https://openreview.net/forum?id=j2wasUypqN}
+}
+```
+
+## Acknowledgements
+ 
+The code and the framework are based on the repos [DEAP](https://github.com/DEAP/deap), [coco](https://github.com/numbbo/coco) and [Protein-protein docking V4.0](https://zlab.umassmed.edu/benchmark/).
+
