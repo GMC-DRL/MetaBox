@@ -1,6 +1,8 @@
 # MetaBox: A Benchmark Platform for Meta-Black-Box Optimization with Reinforcement Learning
 
-This is a **reinforcement learning benchmark platform** for benchmarking and MetaBBO-RL methods. You can develop your own MetaBBO-RL approach and compare it with baseline approaches built-in following the **Train-Test-Log** philosophy automated by MetaBox.
+<!-- This is a **reinforcement learning benchmark platform** for benchmarking and MetaBBO-RL methods. You can develop your own MetaBBO-RL approach and compare it with baseline approaches built-in following the **Train-Test-Log** philosophy automated by MetaBox. -->
+
+MetaBox, the first benchmark platform expressly tailored for developing and evaluating MetaBBO-RL methods. MetaBox offers a flexible algorithmic template that allows users to effortlessly implement their unique designs within the platform. Moreover, it provides a broad spectrum of over 300 problem instances, collected from synthetic to realistic scenarios, and an extensive library of 19 baseline methods, including both traditional black-box optimizers and recent MetaBBO-RL methods. Besides, MetaBox introduces three standardized performance metrics, enabling a more thorough assessment of the methods.
 
 ## Installations
 
@@ -9,6 +11,21 @@ You can access all MetaBox files with command:
 ```shell
 git clone git@github.com:GMC-DRL/MetaBox.git
 cd MetaBox
+```
+
+## Citing MetaBox
+
+If you find MetaBox useful, please cite it in your publications.
+
+```latex
+@inproceedings{
+metabox,
+title={MetaBox: A Benchmark Platform for Meta-Black-Box Optimization with Reinforcement Learning},
+author={Zeyuan Ma and Hongshu Guo and Jiacheng Chen and Zhenrui Li and Guojun Peng and Yue-Jiao Gong and Yining Ma and Zhiguang Cao},
+booktitle={Thirty-seventh Conference on Neural Information Processing Systems Datasets and Benchmarks Track},
+year={2023},
+url={https://openreview.net/forum?id=j2wasUypqN}
+}
 ```
 
 ## Requirements
@@ -67,20 +84,21 @@ cd MetaBox
 
 ## Documentation
 
-See the [MetaBox User's Guide](https://gmc-drl.github.io/MetaBox/) for Metabox documentation.
+For more details about the usage of `MetaBox`, please refer to [MetaBox User's Guide](https://gmc-drl.github.io/MetaBox/).
 
 ## Datasets
 
 
-Currently, three benchmark suites are included:  
+At present, three benchmark suites are integrated in `MetaBox`:  
 
-* `Synthetic` containing 24 noiseless functions, borrowed from [coco](https://github.com/numbbo/coco):bbob with [original paper](https://www.tandfonline.com/eprint/DQPF7YXFJVMTQBH8NKR8/pdf?target=10.1080/10556788.2020.1808977).
-* `Noisy-Synthetic` containing 30 noisy functions, borrowed from [coco](https://github.com/numbbo/coco):bbob-noisy with [original paper](https://www.tandfonline.com/eprint/DQPF7YXFJVMTQBH8NKR8/pdf?target=10.1080/10556788.2020.1808977).
-* `Protein-Docking` containing 280 problem instances, which simulate the application of protein docking as a 12-dimensional optimization problem, borrowed from [LOIS](https://github.com/Shen-Lab/LOIS) with [original paper](http://papers.nips.cc/paper/9641-learning-to-optimize-in-swarms).
+* `Synthetic` contains 24 noiseless functions, borrowed from [coco](https://github.com/numbbo/coco):bbob with [original paper](https://www.tandfonline.com/eprint/DQPF7YXFJVMTQBH8NKR8/pdf?target=10.1080/10556788.2020.1808977).
+* `Noisy-Synthetic` contains 30 noisy functions, borrowed from [coco](https://github.com/numbbo/coco):bbob-noisy with [original paper](https://www.tandfonline.com/eprint/DQPF7YXFJVMTQBH8NKR8/pdf?target=10.1080/10556788.2020.1808977).
+* `Protein-Docking` contains 280 problem instances, which simulate the application of protein docking as a 12-dimensional optimization problem, borrowed from [LOIS](https://github.com/Shen-Lab/LOIS) with [original paper](http://papers.nips.cc/paper/9641-learning-to-optimize-in-swarms).
 
 ## Baseline Library
 
-**7 MetaBBO-RL optimizers, 1 MetaBBO-SL optimizer and 11 classic optimizers have been integrated into this platform.** Choose one or more of them to be the baseline(s) to test the performance of your own optimizer.
+**7 MetaBBO-RL optimizers, 1 MetaBBO-SL optimizer and 11 classic optimizers have been integrated into `MetaBox`.** They are listed below.
+<!-- Choose one or more of them to be the baseline(s) to test the performance of your own optimizer. -->
 
 **Supported MetaBBO-RL optimizers**:
 
@@ -116,26 +134,14 @@ Currently, three benchmark suites are included:
 |     NL_SHADE_LBC      | 2022 | [NL-SHADE-LBC algorithm with linear parameter adaptation bias change for CEC 2022 Numerical Optimization](https://ieeexplore.ieee.org/abstract/document/9870295) |
 |     Random Search     |  -   |                              -                               |
 
-Note that `Random Search` performs uniformly random sampling to optimize the fitness.
+Note that `Random Search` is to randomly sample candidate solutions from the searching space. 
 
 ## Post-processing
+In a bid to illustrate the utility of MetaBox for facilitating rigorous evaluation and in-depth analysis, as mentioned in our paper, we carry out a wide-ranging benchmarking study on existing MetaBBO-RL methods. The post-processed data is available in [content.md](post_processed_data/content.md).
 
-To facilitate the observation of our baselines and related metrics, we tested our baselines on two levels of difficulty on three datasets. Post-processed data are provided in [content.md](post_processed_data/content.md).
+<!-- To facilitate the observation of our baselines and related metrics, we tested our baselines on two levels of difficulty on three datasets. Post-processed data are provided in [content.md](post_processed_data/content.md). -->
 
-## Citing MetaBox
 
-If you find MetaBox useful, please cite it in your publications.
-
-```latex
-@inproceedings{
-metabox,
-title={MetaBox: A Benchmark Platform for Meta-Black-Box Optimization with Reinforcement Learning},
-author={Zeyuan Ma and Hongshu Guo and Jiacheng Chen and Zhenrui Li and Guojun Peng and Yue-Jiao Gong and Yining Ma and Zhiguang Cao},
-booktitle={Thirty-seventh Conference on Neural Information Processing Systems Datasets and Benchmarks Track},
-year={2023},
-url={https://openreview.net/forum?id=j2wasUypqN}
-}
-```
 
 ## Acknowledgements
  
