@@ -79,9 +79,11 @@ def draw_metric_hist():
     with open('AEI_data/bbob_difficult.pkl', 'rb') as f:
         results1 = pickle.load(f)
     aei = logger.aei_metric(results0, random_bbob)
-    X0, Y0 = aei.keys(), aei.values()
+    aei_std = logger.std_aei_metric(results0, random_bbob)
+    X0, Y0, S0 = aei.keys(), aei.values(), aei_std.values()
     aei = logger.aei_metric(results1, random_bbob)
-    X1, Y1 = aei.keys(), aei.values()
+    aei_std = logger.std_aei_metric(results1, random_bbob)
+    X1, Y1, S1 = aei.keys(), aei.values(), aei_std.values()
 
     # Adjust agent order
     X0 = list(X0)
@@ -90,6 +92,10 @@ def draw_metric_hist():
     Y0[5], Y0[6] = Y0[6], Y0[5]
     Y1 = list(Y1)
     Y1[5], Y1[6] = Y1[6], Y1[5]
+    S0 = list(S0)
+    S0[5], S0[6] = S0[6], S0[5]
+    S1 = list(S1)
+    S1[5], S1[6] = S1[6], S1[5]
 
     X = np.arange(len(list(X0))) *2.5
     RC = 16.25
@@ -99,27 +105,33 @@ def draw_metric_hist():
     # Plot Synthetic
     plt.subplot(2, 1, 1)
     plt.bar(X - width, Y0, label='Synthetic-easy', color='dodgerblue')
+    plt.errorbar(X - width, Y0, np.array(S0) / 5, fmt='s', ecolor='dimgray', ms=1, color='dimgray', elinewidth=5, capsize=30, capthick=5)
+    for a,b,c,d in zip(X, np.array(Y0)+np.array(S0)/5, Y0, np.array(S0)/5):
+        plt.text(a - width - 0.15, max(b+0.10, c+1), '%.2f' % d, ha='center', fontsize=40, color='black')
     for a,b in zip(X, Y0):
-        plt.text(a - width - 0.15, b+0.1, '%.2f' % b, ha='center', fontsize=55)
-        
+        plt.text(a - width - 0.15, b+0.1, '%.2f' % b, ha='center', fontsize=45)
+
     plt.bar(X + width, Y1, label='Synthetic-difficult', color='darkorange')
+    plt.errorbar(X + width, Y1, np.array(S1) / 5, fmt='o', ecolor='dimgray', ms=1, color='dimgray', elinewidth=5, capsize=30, capthick=5)
+    for a,b,c,d in zip(X, np.array(Y1)+np.array(S1)/5, Y1, np.array(S1)/5):
+        plt.text(a + width + 0.15, max(b+0.10, c+1), '%.2f' % d, ha='center', fontsize=40, color='black')
     for a,b in zip(X, Y1):
-        plt.text(a + width + 0.15, b+0.1, '%.2f' % b, ha='center', fontsize=55)
+        plt.text(a + width + 0.15, b+0.1, '%.2f' % b, ha='center', fontsize=45)
 
     # for i in range(len(X0)):
     #     X0[i] = to_label(label_replace(X0[i]))
 
     # plt.xticks(X, labels=X0)
     plt.yticks(fontsize=60)
-    plt.ylim(0, 16)
+    plt.ylim(0, 20)
     plt.ylabel('AEI', fontsize=60)
     plt.xticks([])
     plt.legend(fontsize=60,)
-    plt.plot([RC, RC], [0, 16], linewidth=8, c='black', linestyle='--')
-    plt.plot([CS, CS], [0, 16], linewidth=8, c='black', linestyle='--')
-    plt.text(0, 17, 'MetaBBO-RL', fontsize=70, ha='center', va='center')
-    plt.text(RC+3, 17, 'Classic Optimizer', fontsize=70, ha='center', va='center')
-    plt.text(CS+1.5, 17, 'MetaBBO-SL', fontsize=70, ha='center', va='center')
+    plt.plot([RC, RC], [0, 20], linewidth=8, c='black', linestyle='--')
+    plt.plot([CS, CS], [0, 20], linewidth=8, c='black', linestyle='--')
+    plt.text(0, 21, 'MetaBBO-RL', fontsize=70, ha='center', va='center')
+    plt.text(RC+3, 21, 'Classic Optimizer', fontsize=70, ha='center', va='center')
+    plt.text(CS+1.5, 21, 'MetaBBO-SL', fontsize=70, ha='center', va='center')
 
 
     # Plot Protein-Docking
@@ -134,9 +146,11 @@ def draw_metric_hist():
         results1 = pickle.load(f)
         
     aei = logger.aei_metric(results0, random_protein)
-    X0, Y0 = aei.keys(), aei.values()
+    aei_std = logger.std_aei_metric(results0, random_protein)
+    X0, Y0, S0 = aei.keys(), aei.values(), aei_std.values()
     aei = logger.aei_metric(results1, random_protein)
-    X1, Y1 = aei.keys(), aei.values()
+    aei_std = logger.std_aei_metric(results1, random_protein)
+    X1, Y1, S1 = aei.keys(), aei.values(), aei_std.values()
 
     # Adjust agent order
     X0 = list(X0)
@@ -145,12 +159,22 @@ def draw_metric_hist():
     Y0[5], Y0[6] = Y0[6], Y0[5]
     Y1 = list(Y1)
     Y1[5], Y1[6] = Y1[6], Y1[5]
+    S0 = list(S0)
+    S0[5], S0[6] = S0[6], S0[5]
+    S1 = list(S1)
+    S1[5], S1[6] = S1[6], S1[5]
 
     plt.bar(X - width, Y0, label='Protein-easy', color='dodgerblue')
+    plt.errorbar(X - width, Y0, np.array(S0) * 5, fmt='s', ecolor='dimgray', ms=1, color='dimgray', elinewidth=5, capsize=30, capthick=5)
+    for a,b,c,d in zip(X, np.array(Y0)+np.array(S0) * 5, Y0, np.array(S0)*5):
+        plt.text(a - width - 0.2, max(b+0.05, c+0.5), '%.2f' % d, ha='center', fontsize=40, color='black')
     for a,b in zip(X, Y0):
         plt.text(a - width - 0.2, b+0.05, '%.2f' % b, ha='center', fontsize=55)
         
     plt.bar(X + width, Y1, label='Protein-difficult', color='darkorange')
+    plt.errorbar(X + width, Y1, np.array(S1) * 5, fmt='o', ecolor='dimgray', ms=1, color='dimgray', elinewidth=5, capsize=30, capthick=5)
+    for a,b,c,d in zip(X, np.array(Y1)+np.array(S1) * 5, Y1, np.array(S1)*5):
+        plt.text(a + width + 0.2, max(b+0.05, c+0.5), '%.2f' % d, ha='center', fontsize=40, color='black')
     for a,b in zip(X, Y1):
         plt.text(a + width + 0.2, b+0.05, '%.2f' % b, ha='center', fontsize=55)
 
@@ -160,15 +184,87 @@ def draw_metric_hist():
     plt.xticks(X, labels=X0)
     plt.xticks(rotation=45, fontsize=60)
     plt.yticks(fontsize=60)
-    plt.ylim(0, 5)
+    plt.ylim(0, 5.5)
     plt.ylabel('AEI', fontsize=60)
-    plt.legend(fontsize=60,)
-    plt.plot([RC, RC], [0, 5], linewidth=8, c='black', linestyle='--')
-    plt.plot([CS, CS], [0, 3.9], linewidth=8, c='black', linestyle='--')
+    plt.legend(fontsize=60,loc=1)
+    plt.plot([RC, RC], [0, 5.5], linewidth=8, c='black', linestyle='--')
+    plt.plot([CS, CS], [0, 4.4], linewidth=8, c='black', linestyle='--')
 
     plt.subplots_adjust(hspace=0.05)
     plt.savefig('pics/std_metric_hist_all.pdf', bbox_inches='tight')
     plt.savefig('pics/std_metric_hist_all.png', bbox_inches='tight')
+
+
+def draw_noisy_metric_hist():
+    plt.figure(figsize=(70, 40))
+
+    RC = 16.25
+    CS = 41.25
+    width = 0.4
+
+    # Plot Protein-Docking
+    plt.subplot(2, 1, 2)
+    with open('AEI_data/noisy-random.pkl', 'rb') as f:
+        random_noisy = pickle.load(f)
+
+    with open('AEI_data/noisy_easy.pkl', 'rb') as f:
+        results0 = pickle.load(f)
+
+    with open('AEI_data/noisy_difficult.pkl', 'rb') as f:
+        results1 = pickle.load(f)
+        
+    aei = logger.aei_metric(results0, random_noisy)
+    aei_std = logger.std_aei_metric(results0, random_noisy)
+    X0, Y0, S0 = aei.keys(), aei.values(), aei_std.values()
+    aei = logger.aei_metric(results1, random_noisy)
+    aei_std = logger.std_aei_metric(results1, random_noisy)
+    X1, Y1, S1 = aei.keys(), aei.values(), aei_std.values()
+    X = np.arange(len(list(X0))) *2.5
+
+    # Adjust agent order
+    X0 = list(X0)
+    X0[5], X0[6] = X0[6], X0[5]
+    Y0 = list(Y0)
+    Y0[5], Y0[6] = Y0[6], Y0[5]
+    Y1 = list(Y1)
+    Y1[5], Y1[6] = Y1[6], Y1[5]
+    S0 = list(S0)
+    S0[5], S0[6] = S0[6], S0[5]
+    S1 = list(S1)
+    S1[5], S1[6] = S1[6], S1[5]
+
+    plt.bar(X - width, Y0, label='Noisy-easy', color='dodgerblue')
+    plt.errorbar(X - width, Y0, np.array(S0) / 5, fmt='s', ecolor='dimgray', ms=1, color='dimgray', elinewidth=5, capsize=30, capthick=5)
+    for a,b,c,d in zip(X, np.array(Y0)+np.array(S0)/5, Y0, np.array(S0)/5):
+        plt.text(a - width - 0.2, max(b+0.05, c+0.5), '%.2f' % d, ha='center', fontsize=40, color='black')
+    for a,b in zip(X, Y0):
+        plt.text(a - width - 0.2, b+0.05, '%.2f' % b, ha='center', fontsize=55)
+        
+    plt.bar(X + width, Y1, label='Noisy-difficult', color='darkorange')
+    plt.errorbar(X + width, Y1, np.array(S1) / 5, fmt='o', ecolor='dimgray', ms=1, color='dimgray', elinewidth=5, capsize=30, capthick=5)
+    for a,b,c,d in zip(X, np.array(Y1)+np.array(S1)/5, Y1, np.array(S1)/5):
+        plt.text(a + width + 0.2, max(b+0.05, c+0.5), '%.2f' % d, ha='center', fontsize=40, color='black')
+    for a,b in zip(X, Y1):
+        plt.text(a + width + 0.2, b+0.05, '%.2f' % b, ha='center', fontsize=55)
+
+    for i in range(len(X0)):
+        X0[i] = to_label(label_replace(X0[i]))
+
+    plt.xticks(X, labels=X0)
+    plt.xticks(rotation=45, fontsize=60)
+    plt.yticks(fontsize=60)
+    plt.ylim(0, 7.5)
+    plt.ylabel('AEI', fontsize=60)
+    plt.legend(fontsize=60,)
+    plt.plot([RC, RC], [0, 7.5], linewidth=8, c='black', linestyle='--')
+    plt.plot([CS, CS], [0, 7.5], linewidth=8, c='black', linestyle='--')
+    plt.text(0, 7.7, 'MetaBBO-RL', fontsize=70, ha='center', va='center')
+    plt.text(RC+3, 7.7, 'Classic Optimizer', fontsize=70, ha='center', va='center')
+    plt.text(CS+1.5, 7.7, 'MetaBBO-SL', fontsize=70, ha='center', va='center')
+
+    plt.subplots_adjust(hspace=0.05)
+    plt.savefig('pics/std_metric_hist_noisy.pdf', bbox_inches='tight')
+    plt.savefig('pics/std_metric_hist_noisy.png', bbox_inches='tight')
 
 
 def draw_grid_search(agent_name, labels=None):
@@ -319,7 +415,7 @@ def draw_MGD_MTE(agent_name):
     with open(f'MGD_data/{agent_name}/Synthetic_to_Protein/test.pkl', 'rb') as f:
         b2p = pickle.load(f)
         values[0, 2] = 100 * (1 - logger.aei_metric(b2p, random_p, 1000)[agent_name] / values[2, 2])
-
+ 
     with open(f'MGD_data/{agent_name}/Synthetic_to_Noisy_Synthetic/test.pkl', 'rb') as f:
         b2n = pickle.load(f)
         values[0, 1] = 100 * (1 - logger.aei_metric(b2n, random_n, 20000)[agent_name] / values[1, 1])
@@ -456,6 +552,7 @@ def draw_MGD_MTE(agent_name):
 
 if __name__ == '__main__':
     draw_metric_hist()
+    draw_noisy_metric_hist()
     draw_grid_search('LDE_Agent', labels=['REINFORCE-50', 'REINFORCE-30', 'PPO-50', 'PPO-30'])
     draw_grid_search('RLEPSO_Agent', labels=['PPO-100', 'PPO-50', 'REINFORCE-100', 'REINFORCE-50'])
     draw_MGD_MTE('LDE_Agent')

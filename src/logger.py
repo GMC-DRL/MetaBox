@@ -236,16 +236,22 @@ def gen_overall_tab(results: dict, out_dir: str) -> None:
             for run in range(51):
                 objs_.append(obj_problem_optimizer[run][-1])
             avg_obj = sum(objs_)/51
-            df_results.loc[optimizer,(problem,'Obj')] = np.format_float_scientific(avg_obj, precision=3, exp_digits=1)
+            std_obj = np.std(objs_)
+            df_results.loc[optimizer, (problem, 'Obj')] = np.format_float_scientific(avg_obj, precision=3, exp_digits=1) + "(" + np.format_float_scientific(std_obj, precision=3, exp_digits=1) + ")"
             # calculate each Gap
-            df_results.loc[optimizer, (problem, 'Gap')] = "%.3f" % (1-(rs_obj[problem]-avg_obj) / (rs_obj[problem]-cmaes_obj[problem]+1e-10) )
+            df_results.loc[optimizer, (problem, 'Gap')] = "%.3f" % (1-(rs_obj[problem]-avg_obj) / (rs_obj[problem]-cmaes_obj[problem]+1e-10))
             fes_problem_optimizer = np.array(results['fes'][problem][optimizer])
-            df_results.loc[optimizer, (problem, 'FEs')] = np.format_float_scientific(fes_problem_optimizer.mean(), precision=3, exp_digits=1)
-
+            avg_fes = np.mean(fes_problem_optimizer)
+            std_fes = np.std(fes_problem_optimizer)
+            df_results.loc[optimizer, (problem, 'FEs')] = np.format_float_scientific(avg_fes, precision=3, exp_digits=1) + "(" + np.format_float_scientific(std_fes, precision=3, exp_digits=1) + ")"
     df_results.to_excel(out_dir+'overall_table.xlsx')
 
 def to_label(agent_name: str) -> str:
     label = agent_name
+    if label == 'BayesianOptimizer':
+        return 'BO'
+    if label == 'L2L_Agent':
+        return 'RNN-OI'
     if len(label) > 6 and (label[-6:] == '_Agent' or label[-6:] == '_agent'):
         label = label[:-6]
     return label
@@ -546,22 +552,21 @@ class Logger:
         plt.close()
 
     def draw_rank_hist(self, data: dict, random: dict, output_dir: str, ignore: Optional[list]=None) -> None:
-        metric = self.aei_metric(data, random, ignore=ignore)
+        metric, metric_std = self.aei_metric(data, random, maxFEs=self.config.maxFEs, ignore=ignore)
         X, Y = list(metric.keys()), list(metric.values())
+        _, S = list(metric_std.keys()), list(metric_std.values())
         n_agents = len(X)
         for i in range(n_agents):
             X[i] = to_label(X[i])
-            if X[i] == 'BayesianOptimizer':
-                X[i] = 'BO'
-            if X[i] == 'L2L':
-                X[i] = 'RNN-OI'
+
         plt.figure(figsize=(4*n_agents,15))
         plt.bar(X, Y)
+        plt.errorbar(X, Y, S, fmt='s', ecolor='dimgray', ms=1, color='dimgray', elinewidth=5, capsize=30, capthick=5)
         for a,b in zip(X, Y):
             plt.text(a, b+0.05, '%.2f' % b, ha='center', fontsize=55)
         plt.xticks(rotation=45, fontsize=60)
         plt.yticks(fontsize=60)
-        plt.ylim(0, np.max(Y) * 1.1)
+        plt.ylim(0, np.max(np.array(Y) + np.array(S)) * 1.1)
         plt.title(f'The AEI for {self.config.dim}D {self.config.problem}-{self.config.difficulty}', fontsize=70)
         plt.ylabel('AEI', fontsize=60)
         plt.savefig(output_dir + f'rank_hist.png', bbox_inches='tight')
@@ -571,11 +576,9 @@ class Logger:
         problems = data['fes'].keys()
         if 'complexity' not in data.keys():
             data['complexity'] = {}
-            agents = list(data['fes'][list(problems)[0]].keys())
+            agents = data['fes'][list(problems)[0]].keys()
         else:
-            agents = list(data['complexity'].keys())
-        if 'Random_search' in agents:
-            agents.remove('Random_search')
+            agents = data['complexity'].keys()
         avg = baseline['complexity_avg']
         std = baseline['complexity_std']
         results_complex = {}
@@ -598,45 +601,49 @@ class Logger:
         avg = baseline['fes_avg']
         std = baseline['fes_std']
         results_fes = {}
-        log_fes = {}
         for agent in agents:
-            if (ignore is not None) and (key in ignore):
+            if ignore is not None and key in ignore:
                 continue
             fes_problem = []
             for problem in problems:
-                if agent in ['L2L_Agent','BayesianOptimizer']:
-                    fes_ =np.log10(100/np.array(fes_data[problem][agent]))
+                if agent == 'L2L_Agent':
+                    fes_ = np.log10(100/np.array(fes_data[problem][agent]))
+                elif agent == 'BayesianOptimizer':
+                    fes_ = np.log10(self.config.bo_maxFEs/np.array(fes_data[problem][agent]))
                 else:
-                    fes_ =np.log10(maxFEs/np.array(fes_data[problem][agent]))
+                    fes_ = np.log10(maxFEs/np.array(fes_data[problem][agent]))
                 fes_problem.append(fes_.mean())
-            log_fes[agent] = np.mean(fes_problem)
-            results_fes[agent] = np.exp((log_fes[agent] - avg) * 1)
+            results_fes[agent] = np.exp((fes_problem - avg) * 1)
 
         cost_data = data['cost']
-        avg = baseline['cost_avg'] 
-        std = baseline['cost_std'] 
+        avg = baseline['cost_avg']
+        std = baseline['cost_std']
         results_cost = {}
-        log_cost = {}
         for agent in agents:
-            if (ignore is not None) and (key in ignore):
+            if ignore is not None and key in ignore:
                 continue
             costs_problem = []
             for problem in problems:
-                cost_ =np.log10(1/(np.array(cost_data[problem][agent])[:, -1]+1))
+                cost_ = np.log10(1/(np.array(cost_data[problem][agent])[:, -1]+1))
                 costs_problem.append(cost_.mean())
-            log_cost[agent] = np.mean(costs_problem)
-            results_cost[agent] = np.exp((log_cost[agent] - avg) * 1)
+            results_cost[agent] = np.exp((costs_problem - avg) * 1)
 
-        results = {}
+        mean = {}
+        std = {}
         for agent in agents:
             key = agent
-            if (ignore is not None) and (key in ignore):
+            if ignore is not None and key in ignore:
                 continue
             if agent == 'Random_search':
                 continue
-            results[key] = results_complex[agent] * results_cost[agent] * results_fes[agent]
-        return results    
-    
+            aei_k = results_complex[agent] * results_cost[agent] * results_fes[agent]
+            mean[key] = np.mean(aei_k)
+            if self.config.problem in ['protein', 'protein-torch']:
+                std[key] = np.std(aei_k) * 5.
+            else:
+                std[key] = np.std(aei_k) / 5.
+        return mean, std
+
     def cec_metric(self, data: dict, ignore: Optional[list]=None):
         score = {}
         M = []
