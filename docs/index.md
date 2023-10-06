@@ -1,6 +1,6 @@
 # MetaBox: A Benchmark Platform for Meta-Black-Box Optimization with Reinforcement Learning
 
-This is a **reinforcement learning benchmark platform** for benchmarking and MetaBBO-RL methods. You can develop your own MetaBBO-RL approach and compare it with baseline approaches built-in following the **Train-Test-Log** philosophy automated by MetaBox.
+This is a **reinforcement learning benchmark platform** for benchmarking and MetaBBO-RL methods. You can develop your own MetaBBO-RL approach and compare it with baseline approaches built-in following the **Train-Test-Log** philosophy automated by MetaBox. The github repos can be referred [here](https://github.com/GMC-DRL/MetaBox) and the paper can be found [here](https://openreview.net/forum?id=j2wasUypqN).
 
 ## Overview
 
@@ -32,3 +32,22 @@ When using MetaBox, after the training interface `Trainer.train()` called, 21 pi
 - [Training](Train.md)
 - [Rollout](Rollout.md)
 - [Testing](Test.md)
+
+## Citing MetaBox
+
+If you find MetaBox useful, please cite it in your publications.
+
+```latex
+@inproceedings{
+metabox,
+title={MetaBox: A Benchmark Platform for Meta-Black-Box Optimization with Reinforcement Learning},
+author={Zeyuan Ma and Hongshu Guo and Jiacheng Chen and Zhenrui Li and Guojun Peng and Yue-Jiao Gong and Yining Ma and Zhiguang Cao},
+booktitle={Thirty-seventh Conference on Neural Information Processing Systems Datasets and Benchmarks Track},
+year={2023},
+url={https://openreview.net/forum?id=j2wasUypqN}
+}
+```
+
+## Acknowledgements
+ 
+The code and the framework are based on the repos [DEAP](https://github.com/DEAP/deap), [coco](https://github.com/numbbo/coco) and [Protein-protein docking V4.0](https://zlab.umassmed.edu/benchmark/).
