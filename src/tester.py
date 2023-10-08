@@ -480,8 +480,9 @@ def mgd_test(config):
     with open(config.mgd_test_log_dir + 'random_search_baseline.pkl', 'wb') as f:
         pickle.dump(random_search_results, f, -1)
     logger = Logger(config)
-    aei = logger.aei_metric(test_results, random_search_results, config.maxFEs)
+    aei, aei_std = logger.aei_metric(test_results, random_search_results, config.maxFEs)
     print(f'AEI: {aei}')
+    print(f'AEI STD: {aei_std}')
     print(f'MGD({name_translate(config.problem_from)}_{config.difficulty_from}, {name_translate(config.problem_to)}_{config.difficulty_to}) of {config.agent}: '
           f'{100 * (1 - aei[config.agent+"_from"] / aei[config.agent+"_to"])}%')
 
