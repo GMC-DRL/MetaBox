@@ -93,7 +93,10 @@ def cal_scores1(D: dict, maxf: float):
 
 def get_random_baseline(random: dict, fes: Optional[Union[int, float]]):
     baseline = {}
-    baseline['complexity_avg'] = np.log10(1/ (random['T2']['Random_search'] - random['T1']) / random['T0'])
+    if type(random['T1']) is dict:
+        baseline['complexity_avg'] = np.log10(1/ (random['T2']['Random_search'] - random['T1']['Random_search']) / random['T0'])
+    else:
+        baseline['complexity_avg'] = np.log10(1/ (random['T2']['Random_search'] - random['T1']) / random['T0'])
     baseline['complexity_std'] = 0.005
     
     problems = random['cost'].keys()
@@ -585,7 +588,10 @@ class Logger:
         fes_data = data['fes']
 
         avg = baseline['fes_avg']
+        avg = np.float64(0.)
         std = baseline['fes_std']
+
+
         results_fes = {}
         for agent in agents:
             if ignore is not None and key in ignore:
@@ -595,7 +601,7 @@ class Logger:
                 if agent == 'L2L_Agent':
                     fes_ = np.log10(100/np.array(fes_data[problem][agent]))
                 elif agent == 'BayesianOptimizer':
-                    fes_ = np.log10(self.config.bo_maxFEs/np.array(fes_data[problem][agent]))
+                    fes_ = np.log10(np.ones_like(np.array(fes_data[problem][agent])))
                 else:
                     fes_ = np.log10(maxFEs/np.array(fes_data[problem][agent]))
                 fes_problem.append(fes_.mean())
@@ -614,6 +620,7 @@ class Logger:
                 costs_problem.append(cost_.mean())
             results_cost[agent] = np.exp((costs_problem - avg) * 1)
 
+        
         mean = {}
         std = {}
         for agent in agents:
@@ -624,10 +631,11 @@ class Logger:
                 continue
             aei_k = results_complex[agent] * results_cost[agent] * results_fes[agent]
             mean[key] = np.mean(aei_k)
-            if self.config.problem in ['protein', 'protein-torch']:
-                std[key] = np.std(aei_k) * 5.
-            else:
-                std[key] = np.std(aei_k) / 5.
+            std[key] = np.std(aei_k)
+            # if self.config.problem in ['protein', 'protein-torch']:
+            #     std[key] = np.std(aei_k) * 5.
+            # else:
+            #     std[key] = np.std(aei_k) / 5.
         return mean, std
 
     def cec_metric(self, data: dict, ignore: Optional[list]=None):
