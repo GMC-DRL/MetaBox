@@ -2,11 +2,11 @@
 
 <!-- This is a **reinforcement learning benchmark platform** for benchmarking and MetaBBO-RL methods. You can develop your own MetaBBO-RL approach and compare it with baseline approaches built-in following the **Train-Test-Log** philosophy automated by MetaBox. -->
 
-MetaBox, the first benchmark platform expressly tailored for developing and evaluating MetaBBO-RL methods. MetaBox offers a flexible algorithmic template that allows users to effortlessly implement their unique designs within the platform. Moreover, it provides a broad spectrum of over 300 problem instances, collected from synthetic to realistic scenarios, and an extensive library of 19 baseline methods, including both traditional black-box optimizers and recent MetaBBO-RL methods. Besides, MetaBox introduces three standardized performance metrics, enabling a more thorough assessment of the methods.
+MetaBox is the first benchmark platform expressly tailored for developing and evaluating MetaBBO-RL methods. MetaBox offers a flexible algorithmic template that allows users to effortlessly implement their unique designs within the platform. Moreover, it provides a broad spectrum of over 300 problem instances, collected from synthetic to realistic scenarios, and an extensive library of 19 baseline methods, including both traditional black-box optimizers and recent MetaBBO-RL methods. Besides, MetaBox introduces three standardized performance metrics, enabling a more thorough assessment of the methods.
 
 ## Installations
 
-You can access all MetaBox files with command:
+You can access all MetaBox files with the command:
 
 ```shell
 git clone git@github.com:GMC-DRL/MetaBox.git
@@ -15,22 +15,21 @@ cd MetaBox
 
 ## Citing MetaBox
 
-If you find MetaBox useful, please cite it in your publications.
+If you find our MetaBox useful, please cite it in your publications or projects.
 
 ```latex
-@inproceedings{
-metabox,
+@inproceedings{metabox,
+author={Ma, Zeyuan and Guo, Hongshu and Chen, Jiacheng and Li, Zhenrui and Peng, Guojun and Gong, Yue-Jiao and Ma, Yining and Cao, Zhiguang},
 title={MetaBox: A Benchmark Platform for Meta-Black-Box Optimization with Reinforcement Learning},
-author={Zeyuan Ma and Hongshu Guo and Jiacheng Chen and Zhenrui Li and Guojun Peng and Yue-Jiao Gong and Yining Ma and Zhiguang Cao},
-booktitle={Thirty-seventh Conference on Neural Information Processing Systems Datasets and Benchmarks Track},
+booktitle = {Advances in Neural Information Processing Systems},
 year={2023},
-url={https://openreview.net/forum?id=j2wasUypqN}
+volume = {36}
 }
 ```
 
 ## Requirements
 
-`Python` >=3.7.1 with following packages installed:  
+`Python` >=3.7.1 with the following packages installed:  
 
 * `numpy`==1.21.2  
 * `torch`==1.9.0  
@@ -44,7 +43,7 @@ url={https://openreview.net/forum?id=j2wasUypqN}
 
 ## Quick Start
 
-* To obtain the figures in our paper, run the following commands: 
+* To obtain the figures in our paper, run the following commands:
 
   ```shell
   cd for_review
@@ -55,15 +54,15 @@ url={https://openreview.net/forum?id=j2wasUypqN}
 
   ---
 
-  The quick usage of four main running interfaces are listed as follows, in the following command we specifically take `RLEPSO` as example.
+  The quick usage of the four main running interfaces is listed as follows, in the following command, we specifically take `RLEPSO` as an example.
 
-  Firstly, get into main code folder src:
+  Firstly, get into the main code folder, src:
 
   ```shell
   cd ../src
   ```
 
-* To trigger the entire workflow including **train, rollout and test**, run the following command:
+* To trigger the entire workflow, including **train, rollout and test**, run the following command:
 
   ```shell
   python main.py --run_experiment --problem bbob --difficulty easy --train_agent RLEPSO_Agent --train_optimizer RLEPSO_Optimizer
