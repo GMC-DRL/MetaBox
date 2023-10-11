@@ -1,6 +1,7 @@
 # MetaBox: A Benchmark Platform for Meta-Black-Box Optimization with Reinforcement Learning
 
-This is a **reinforcement learning benchmark platform** for benchmarking and MetaBBO-RL methods. You can develop your own MetaBBO-RL approach and compare it with baseline approaches built-in following the **Train-Test-Log** philosophy automated by MetaBox. The github repos can be referred [here](https://github.com/GMC-DRL/MetaBox) and the paper can be found [here](https://openreview.net/forum?id=j2wasUypqN).
+MetaBox is the first benchmark platform expressly tailored for developing and evaluating MetaBBO-RL methods. MetaBox offers a flexible algorithmic template that allows users to effortlessly implement their unique designs within the platform. Moreover, it provides a broad spectrum of over 300 problem instances, collected from synthetic to realistic scenarios, and an extensive library of 19 baseline methods, including both traditional black-box optimizers and recent MetaBBO-RL methods. Besides, MetaBox introduces three standardized performance metrics, enabling a more thorough assessment of the methods. The github repos can be referred [here](https://github.com/GMC-DRL/MetaBox) and the paper can be found [here](https://openreview.net/forum?id=j2wasUypqN).
+
 
 ## Overview
 
@@ -35,16 +36,15 @@ When using MetaBox, after the training interface `Trainer.train()` called, 21 pi
 
 ## Citing MetaBox
 
-If you find MetaBox useful, please cite it in your publications.
+If you find our MetaBox useful, please cite it in your publications or projects.
 
 ```latex
-@inproceedings{
-metabox,
+@inproceedings{metabox,
+author={Ma, Zeyuan and Guo, Hongshu and Chen, Jiacheng and Li, Zhenrui and Peng, Guojun and Gong, Yue-Jiao and Ma, Yining and Cao, Zhiguang},
 title={MetaBox: A Benchmark Platform for Meta-Black-Box Optimization with Reinforcement Learning},
-author={Zeyuan Ma and Hongshu Guo and Jiacheng Chen and Zhenrui Li and Guojun Peng and Yue-Jiao Gong and Yining Ma and Zhiguang Cao},
-booktitle={Thirty-seventh Conference on Neural Information Processing Systems Datasets and Benchmarks Track},
+booktitle = {Advances in Neural Information Processing Systems},
 year={2023},
-url={https://openreview.net/forum?id=j2wasUypqN}
+volume = {36}
 }
 ```
 
