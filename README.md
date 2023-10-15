@@ -16,7 +16,7 @@ cd MetaBox
 
 ## Citing MetaBox
 
-If you find our MetaBox useful, please cite it in your publications or projects.
+The PDF version of the paper is available [here](https://arxiv.org/abs/2310.08252). If you find our MetaBox useful, please cite it in your publications or projects.
 
 ```latex
 @inproceedings{metabox,
