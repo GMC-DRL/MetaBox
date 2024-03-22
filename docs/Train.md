@@ -7,10 +7,11 @@ In `MetaBox`, to facilitate training with our dataset and observing logs during 
 You will then be able to train your agent using the following command line:
 
 ```bash
-python main.py --train --train_agent MyAgent --train_optimizer MyOptimizer --agent_save_dir MyAgentSaveDir --log_dir MyLogDir
+python main.py --train --train_agent MyAgent --train_optimizer MyOptimizer --agent_save_dir MyAgentSaveDir --log_dir MyLogDir --problem ProblemSet
 ```
 
-For the above commands, `--train` is to specify the training mode. `--train_agent MyAgent` `--train_optimizer MyOptimizer` is to use your agent class named *MyAgent* and your optimizer class named *MyOptimizer*  for training. `--agent_save_dir MyAgentSaveDir` specifies the save directory of the agent models obtained from training or they will be saved in directory `src/agent_model/train` by default.  `--log_dir MyLogDir` specifies the save directory of the log files during training or directory `src/output/train` by default.
+For the above commands, `--train` is to specify the training mode. `--train_agent MyAgent` `--train_optimizer MyOptimizer` is to use your agent class named *MyAgent* and your optimizer class named *MyOptimizer*  for training. `--agent_save_dir MyAgentSaveDir` specifies the save directory of the agent models obtained from training or they will be saved in directory `src/agent_model/train` by default.  `--log_dir MyLogDir` specifies the save directory of the log files during training or directory `src/output/train` by default. `--problem ProblemSet` specifies the dataset used in training process, please refer to [problem suit choices](https://github.com/GMC-DRL/MetaBox/blob/bb1177df130c4c0eb80892758c82cc83a109425c/src/config.py#L8) for available choices. Note that problem suite with suffix
+ `...-torch` is written in Pytorch so that the evaluation process is operated in Pytorch Tensor environment that will record gradient automatically and enable gradient-required training process such as `RNN-OI`. Those without `...-torch` as suffix is written in Numpy that should meet most common usage cases.
 
 Once you run the above command, `MetaBox` will initialize a `Trainer` object and use your configuration to build the agent and optimizer, as well as generate the training and test sets. After that, the `Trainer` will control the entire training process, optimize the problems in the train set one by one using the declared agent and optimizer, and record the corresponding information.
 
