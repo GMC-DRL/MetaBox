@@ -19,7 +19,8 @@ from agent import (
     RLEPSO_Agent,
     RL_PSO_Agent,
     L2L_Agent,
-    GLEET_Agent
+    GLEET_Agent,
+    RL_DAS_Agent
 )
 from optimizer import (
     DE_DDQN_Optimizer,
@@ -31,6 +32,7 @@ from optimizer import (
     RL_PSO_Optimizer,
     L2L_Optimizer,
     GLEET_Optimizer,
+    RL_DAS_Optimizer,
 
     DEAP_DE,
     JDE21,
