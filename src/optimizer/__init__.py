@@ -25,3 +25,4 @@ from .random_search import *
 
 from .bayesian import *
 from .l2l_optimizer import *
+from .gleet_optimizer import *
