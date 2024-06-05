@@ -20,7 +20,8 @@ from agent import (
     RL_PSO_Agent,
     L2L_Agent,
     GLEET_Agent,
-    RL_DAS_Agent
+    RL_DAS_Agent,
+    LES_Agent,
 )
 from optimizer import (
     DE_DDQN_Optimizer,
@@ -33,6 +34,7 @@ from optimizer import (
     L2L_Optimizer,
     GLEET_Optimizer,
     RL_DAS_Optimizer,
+    LES_Optimizer,
 
     DEAP_DE,
     JDE21,
@@ -163,6 +165,7 @@ class Trainer(object):
                     learn_steps.append(learn_step)
                     if exceed_max_ls:
                         break
+                self.agent.train_epoch()
             epoch_steps.append(learn_step)
             # if not os.path.exists(agent_save_dir):
             #     os.makedirs(agent_save_dir)

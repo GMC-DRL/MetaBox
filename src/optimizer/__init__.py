@@ -27,3 +27,4 @@ from .bayesian import *
 from .l2l_optimizer import *
 from .gleet_optimizer import *
 from .rl_das_optimizer import *
+from .les_optimizer import *
