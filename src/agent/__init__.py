@@ -13,3 +13,4 @@ from .l2l_agent import *
 from .gleet_agent import *
 from .rl_das_agent import *
 from .les_agent import *
+from .nrlpso_agent import *
