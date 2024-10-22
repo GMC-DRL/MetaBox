@@ -37,3 +37,6 @@ class Basic_Agent:
     def rollout_episode(self,
                         env: PBO_Env) -> dict:
         raise NotImplementedError
+
+    def train_epoch(self):
+        pass

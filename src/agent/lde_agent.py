@@ -64,6 +64,7 @@ class LDE_Agent(Basic_Agent):
         self.__config.agent_save_dir = config.agent_save_dir
         self.__learn_steps = 0
         save_class(self.__config.agent_save_dir, 'checkpoint0', self)
+        self.__config.save_interval = config.save_interval
         self.__cur_checkpoint = 1
 
     def __discounted_norm_rewards(self, r):

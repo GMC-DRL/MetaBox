@@ -25,6 +25,14 @@ class L2L_Agent(Basic_Agent):
         save_class(self.__config.agent_save_dir,'checkpoint0',self)
         self.__cur_checkpoint=1
 
+    def update_setting(self, config):
+        self.config.max_learning_step = config.max_learning_step
+        self.config.agent_save_dir = config.agent_save_dir
+        self.__learning_step = 0
+        save_class(self.config.agent_save_dir, 'checkpoint0', self)
+        self.config.save_interval = config.save_interval
+        self.__cur_checkpoint = 1
+    
     def train_episode(self, env):
         T=100
         train_interval=10
@@ -99,11 +107,18 @@ class L2L_Agent(Basic_Agent):
         h=torch.zeros((self.proj_size),dtype=torch.float64)[None,None,:]
         c=torch.zeros((self.hidden_size),dtype=torch.float64)[None,None,:]
         env.reset()
+
+        y_sum = 0
+        init_y = None
+
         while t < T:
             out,(h,c)=self.net(input,(h,c))
             x=out[0,0]
             y,_,is_done=env.step(x.detach().numpy())
             
+            y_sum+=y
+            if t == 0:
+                init_y = y
             fes+=1
             # print(y)
             if best is None:
@@ -117,4 +132,4 @@ class L2L_Agent(Basic_Agent):
             t+=1
             
         torch.set_grad_enabled(True)
-        return {'cost':env.optimizer.cost[::2],'fes':fes}
+        return {'cost':env.optimizer.cost[::2],'fes':fes, 'return': y_sum / init_y}

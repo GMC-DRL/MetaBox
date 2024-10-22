@@ -19,7 +19,12 @@ from agent import (
     QLPSO_Agent,
     RLEPSO_Agent,
     RL_PSO_Agent,
-    L2L_Agent
+    L2L_Agent,
+    GLEET_Agent,
+    RL_DAS_Agent,
+    LES_Agent,
+    NRLPSO_Agent,
+    Symbol_Agent,
 )
 from optimizer import (
     DE_DDQN_Optimizer,
@@ -30,6 +35,11 @@ from optimizer import (
     RLEPSO_Optimizer,
     RL_PSO_Optimizer,
     L2L_Optimizer,
+    GLEET_Optimizer,
+    RL_DAS_Optimizer,
+    LES_Optimizer,
+    NRLPSO_Optimizer,
+    Symbol_Optimizer,
 
     DEAP_DE,
     JDE21,
