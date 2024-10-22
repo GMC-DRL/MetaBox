@@ -20,7 +20,7 @@ class LES_Agent(Basic_Agent):
         self.x_population = None
         self.meta_performances = None
         self.optimizer_step()
-        
+        self.best_x= self.x_population[0]
 
         self.costs = None
         self.best_les = None
@@ -28,9 +28,20 @@ class LES_Agent(Basic_Agent):
 
         self.__learning_step=0
 
-        # todo: see if it's compatible
-        save_class(self.__config.agent_save_dir,'checkpoint0',self)
-        self.__cur_checkpoint=1
+
+        self.__cur_checkpoint=0
+        # save init agent
+        if self.__cur_checkpoint==0:
+            save_class(self.__config.agent_save_dir,'checkpoint'+str(self.__cur_checkpoint),self)
+            self.__cur_checkpoint+=1
+
+    def update_setting(self, config):
+        self.__config.max_learning_step = config.max_learning_step
+        self.__config.agent_save_dir = config.agent_save_dir
+        self.__learning_step = 0
+        save_class(self.__config.agent_save_dir, 'checkpoint0', self)
+        self.__config.save_interval = config.save_interval
+        self.__cur_checkpoint = 1
 
     def optimizer_step(self):
         # inital sampling
@@ -55,11 +66,18 @@ class LES_Agent(Basic_Agent):
             
             self.meta_performances[i].append(sub_best)
 
-            # todo: modify threshold
-            self.__learning_step += 1
-
+        # todo: modify threshold
+        self.__learning_step += 1
+            
+        if self.__learning_step % 10 == 0 and self.__config.problem in ['protein','protein-torch']:
+            self.train_epoch()
+            
+        if self.__learning_step >= (self.__config.save_interval * self.__cur_checkpoint):
+            save_class(self.__config.agent_save_dir, 'checkpoint'+str(self.__cur_checkpoint), self)
+            self.__cur_checkpoint += 1
+        
         # return exceed_max_ls
-        return False,{'normalizer': env_population[0].optimizer.cost[0],
+        return self.__learning_step >= self.__config.max_learning_step,{'normalizer': env_population[0].optimizer.cost[0],
                                'gbest': env_population[0].optimizer.cost[-1],
                                'return': 0,         # set to 0 since for non-RL approach there is no return
                                'learn_steps': self.__learning_step}
@@ -84,10 +102,12 @@ class LES_Agent(Basic_Agent):
 
     # rollout_episode need transform 
     def rollout_episode(self,env) :
+        R = 0
         # use best_x to rollout
+        env.reset()
         action = {'attn':self.best_x[:68],
                       'mlp':self.best_x[68:],}
-        gbest, _, _, _ = env.step(action)
+        gbest, r, _, _ = env.step(action)
+        R += r
 
-
-        return {'cost':env.optimizer.cost,'fes': env.optimizer.FEs, 'return': 0}
+        return {'cost':env.optimizer.cost,'fes': env.optimizer.FEs, 'return': R}
