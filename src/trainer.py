@@ -23,6 +23,7 @@ from agent import (
     RL_DAS_Agent,
     LES_Agent,
     NRLPSO_Agent,
+    Symbol_Agent,
 )
 from optimizer import (
     DE_DDQN_Optimizer,
@@ -37,6 +38,7 @@ from optimizer import (
     RL_DAS_Optimizer,
     LES_Optimizer,
     NRLPSO_Optimizer,
+    Symbol_Optimizer,
 
     DEAP_DE,
     JDE21,
