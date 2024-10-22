@@ -117,7 +117,10 @@ class GLEET_Optimizer(Learnable_Optimizer):
     def get_costs(self,position, problem):
         ps=position.shape[0]
         self.fes+=ps
-        cost=problem.func(position)
+        if problem.optimum is None:
+            cost=problem.eval(position)
+        else:
+            cost=problem.eval(position) - problem.optimum
         return cost
     
     # feature encoding

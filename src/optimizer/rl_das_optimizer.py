@@ -12,7 +12,11 @@ class RL_DAS_Optimizer(Learnable_Optimizer):
     def __init__(self, config):
         super().__init__(config)
         self.MaxFEs = config.maxFEs
-        self.period = 2500
+        # self.period = 2500
+        if config.problem in['protein','protein-torch']:
+            self.period = 100
+        else:
+            self.period =2500
         self.max_step = self.MaxFEs // self.period
         self.sample_times = 2
         self.n_dim_obs = 6

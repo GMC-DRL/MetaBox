@@ -124,6 +124,7 @@ class LES_Optimizer(Learnable_Optimizer):
         
         step = 0
         is_end = False
+        init_y = None
         while not is_end:
             # get features of present population
             fitness_feature = self.cal_attn_feature()
@@ -146,6 +147,8 @@ class LES_Optimizer(Learnable_Optimizer):
             costs = self.problem.eval(population)
             self.FEs += self.NP
             gbest = np.min([np.min(costs),self.evolution_info['gbest']])
+            if step == 0:
+                init_y = gbest
             t = self.evolution_info['generation_counter'] + 1
             # update evolution information
             self.evolution_info = {'parents': population,
@@ -174,7 +177,7 @@ class LES_Optimizer(Learnable_Optimizer):
                 else:
                     self.cost.append(gbest)
         
-        return self.evolution_info['gbest'],None,is_end,{}
+        return self.evolution_info['gbest'],(init_y - gbest) / init_y,is_end,{}
     
 
 
