@@ -14,3 +14,4 @@ from .gleet_agent import *
 from .rl_das_agent import *
 from .les_agent import *
 from .nrlpso_agent import *
+from .symbol_agent import *
