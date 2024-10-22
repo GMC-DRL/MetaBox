@@ -139,6 +139,14 @@ class RL_DAS_Agent(Basic_Agent):
             save_class(self.__config.agent_save_dir,'checkpoint'+str(self.__cur_checkpoint),self)
             self.__cur_checkpoint+=1
 
+    def update_setting(self, config):
+        self.max_learning_step = config.max_learning_step
+        self.__config.agent_save_dir = config.agent_save_dir
+        self.__learning_time = 0
+        save_class(self.__config.agent_save_dir, 'checkpoint0', self)
+        self.__config.save_interval = config.save_interval
+        self.__cur_checkpoint = 1
+
     def init_parameters(self):
         for param in self.actor.parameters():
             stdv = 1. / np.sqrt(param.size(-1))
@@ -264,7 +272,7 @@ class RL_DAS_Agent(Basic_Agent):
                     self.__cur_checkpoint += 1
 
     def train_episode(self, env):
-
+        # print(self.max_learning_step)
         obs = np.array([env.reset(),], dtype=object)
         is_done = False
         memory = {'states': [],

@@ -100,7 +100,13 @@ class GLEET_Agent(Basic_Agent):
             save_class(self.__config.agent_save_dir,'checkpoint'+str(self.__cur_checkpoint),self)
             self.__cur_checkpoint+=1
 
-
+    def update_setting(self, config):
+        self.__config.max_learning_step = config.max_learning_step
+        self.__config.agent_save_dir = config.agent_save_dir
+        self.__learning_time = 0
+        save_class(self.__config.agent_save_dir, 'checkpoint0', self)
+        self.__config.save_interval = config.save_interval
+        self.__cur_checkpoint = 1
 
     def train_episode(self, env):
         memory = Memory()
