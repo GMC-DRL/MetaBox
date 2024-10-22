@@ -108,7 +108,6 @@ def get_mask(pre_seq,tokenizer,position,max_layer):
                 mask[tokenizer.encode('-')]=0
                 if pos%2==0:
                     left_id=sub_seq[pos-1]
-                    # 左孩子不是常数，则右孩子必须为常数
                     if not tokenizer.is_consts(left_id):
                         mask[tokenizer.non_const_index]=0
                     else:
